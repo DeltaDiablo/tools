@@ -19,13 +19,6 @@
  *       Total size                            80 bits
  *  =====================================================
  */
-std::string CommonHeaderConverter(std::array<int, 10> byteArray);
-std::string HeaderType(std::array<int, 4> headerType);
-std::string MessageType(std::array<int, 4> messageType);
-std::string TransmissionTimeReferenceFlag(std::array<int, 1> transmissionTimeReferenceFlag);
-std::string Spare(std::array<int, 3> spare);
-std::string ApplicationProtocolVersion(std::array<int, 4> applicationProtocolVersion);
-std::string ApplicationBlockMessageLength(std::array<int, 16> applicationBlockMessageLength);
-std::string JreSenderID(std::array<int, 16> jreSenderID);
-std::string TimeAccuracyReporting(std::array<int, 4> timeAccuracy);
-std::string DataValidTime(std::array<int, 28> dataValidTime);
+
+// Only JREAP-C header processing is supported in this application
+std::string CommonHeaderConverter(std::array<int, 8> byteArray);
