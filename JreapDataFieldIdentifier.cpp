@@ -8,11 +8,86 @@
 #include <vector>
 #include <algorithm>
 
-/* DFI 3000 DUI 001 PERCENT EXCEEDING LATENCY*/
-
-/* DFI 3001 DUI 001 TRANSMISSION SEQUENCE NUMBER*/
-/* DFI 3001 DUI 002 TRANSMISSION SEQUENCE LIST COUNT*/
-
+/* DFI 3000 DUI 001 PERCENT EXCEEDING LATENCY 7 bits*/
+std::string PercentExceedingLatency(std::array<int, 7> percentExceedingLatency)
+{
+    int percentExceedingLatencyInt = 0;
+    //copy the bits from the array into an integer
+    for (int i = 0; i < 7; i++)
+    {
+        percentExceedingLatencyInt += percentExceedingLatency[i] * std::pow(2, 6 - i);
+    }
+    std::string output = "";
+    switch (percentExceedingLatencyInt)
+    {
+    case 0 ... 100:
+        output = std::to_string(percentExceedingLatencyInt) + "% ///-> ";
+        for (std::size_t i = 0; i < percentExceedingLatency.size(); i++)
+        {
+            output += std::to_string(percentExceedingLatency[i]);
+        }
+        break;
+    default:
+        output = "Illegal ///-> ";
+        break;
+    }
+    return output;
+}
+/* DFI 3001 DUI 001 TRANSMISSION SEQUENCE NUMBER 8 bits*/
+std::string TransmissionSequenceNumber(std::array<int, 8> transmissionSequenceNumber)
+{
+    int transmissionSequenceNumberInt = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        transmissionSequenceNumberInt += transmissionSequenceNumber[i] * std::pow(2, 7 - i);
+    }
+    std::string output = "";
+    if (transmissionSequenceNumberInt >= 0 && transmissionSequenceNumberInt <= 255)
+    {
+        output = std::to_string(transmissionSequenceNumberInt) + " ///-> ";
+        for (std::size_t i = 0; i < transmissionSequenceNumber.size(); i++)
+        {
+            output += std::to_string(transmissionSequenceNumber[i]);
+        }
+    }
+    else
+    {
+        output = "Illegal ///-> ";
+        for (std::size_t i = 0; i < transmissionSequenceNumber.size(); i++)
+        {
+            output += std::to_string(transmissionSequenceNumber[i]);
+        }
+    }
+    return output;
+}
+/* DFI 3001 DUI 002 TRANSMISSION SEQUENCE LIST COUNT 7 bits*/
+std::string TransmissionSequenceListCount(std::array<int, 7> transmissionSequenceListCount)
+{
+    // A ONE BYTE FIELD THAT INCREMENTS BY ONE FOR EACH PACKET TRANSMITTED BY A JREAP PROCESSOR  ON A JREAP TOKEN PASSING NETWORK.
+    int transmissionSequenceListCountInt = 0;
+    for (int i = 0; i < 7; i++)
+    {
+        transmissionSequenceListCountInt += transmissionSequenceListCount[i] * std::pow(2, 6 - i);
+    }
+    std::string output = "";
+    if (transmissionSequenceListCountInt >= 0 && transmissionSequenceListCountInt <= 127)
+    {
+        output = std::to_string(transmissionSequenceListCountInt) + " ///-> ";
+        for (std::size_t i = 0; i < transmissionSequenceListCount.size(); i++)
+        {
+            output += std::to_string(transmissionSequenceListCount[i]);
+        }
+    }
+    else
+    {
+        output = "Illegal ///-> ";
+        for (std::size_t i = 0; i < transmissionSequenceListCount.size(); i++)
+        {
+            output += std::to_string(transmissionSequenceListCount[i]);
+        }
+    }
+    return output;
+}
 /* DFI 3002 DUI 001 ADD/DELETE INDICATOR 1 bit*/
 std::string AddDeleteIndicator(std::array<int, 1> addDeleteIndicator)
 {
@@ -25,7 +100,6 @@ std::string AddDeleteIndicator(std::array<int, 1> addDeleteIndicator)
         return "Delete ///-> 0";
     }
 }
-
 /* DFI 3002 DUI 002 ACTIVE/INACTIVE FLAG 1 bit*/
 std::string ActiveInactiveFlag(std::array<int, 1> activeInactiveFlag)
 {
@@ -38,7 +112,6 @@ std::string ActiveInactiveFlag(std::array<int, 1> activeInactiveFlag)
         return "Inactive ///-> 0";
     }
 }
-
 /* DFI 3002 DUI 003 ACKNOWLEDGEMENT REQUEST FLAG 1 bit*/
 std::string AcknowledgementRequestFlag(std::array<int, 1> acknowledgementRequestFlag)
 {
@@ -51,25 +124,222 @@ std::string AcknowledgementRequestFlag(std::array<int, 1> acknowledgementRequest
         return "No acknowledgement requested ///-> 0";
     }
 }
-
 /* DFI 3002 DUI 004 COMMAND AND CONTROL INDICATOR OVERRIDE*/
-/* DFI 3002 DUI 005 EMERGENCY INDICATOR OVERRIDE*/
-/* DFI 3002 DUI 006 FORCE TELL INDICATOR OVERRIDE*/
-/* DFI 3002 DUI 007 LAST POINT FLAG*/
-/* DFI 3002 DUI 008 RECTANGLE FLAG*/
-/* DFI 3002 DUI 009 RELAY FLAG*/
-/* DFI 3002 DUI 010 SIMULATION INDICATOR FILTER FLAG*/
-/* DFI 3002 DUI 011 TRANSMISSION TIME REFERENCE FLAG*/
-/* DFI 3002 DUI 012 UPPER ALTITUDE LIMIT FLAG*/
-/* DFI 3002 DUI 013 LOWER ALTITUDE LIMIT FLAG*/
-/* DFI 3002 DUI 014 J28.2(0) FILTER FLAG*/
-/* DFI 3002 DUI 015 J28.2(X) FILTER FLAG*/
-/* DFI 3002 DUI 016 SPECIAL PROCESSING INDICATOR FILTER FLAG*/
-/* DFI 3002 DUI 017 TYPE FILTER*/
-/* DFI 3002 DUI 018 GEOGRAPHIC FILTER*/
-/* DFI 3002 DUI 019 ALL FILTERS*/
-/* DFI 3002 DUI 020 ALTERNATE NETWORK CONTROLLER ASSIGNMENT FLAG*/
-/* DFI 3002 DUI 021 ALTERNATE NETWORK CONTROLLER ASSIGNMENT RECOGNITION*/
+std::string CommandAndControlIndicatorOverride(std::array<int, 1> commandAndControlIndicatorOverride)
+{
+    if (commandAndControlIndicatorOverride[0] == 1)
+    {
+        return "filter ///-> 1";
+    }
+    else
+    {
+        return "override filter ///-> 0";
+    }
+}
+/* DFI 3002 DUI 005 EMERGENCY INDICATOR OVERRIDE 1 bit*/
+std::string EmergencyIndicatorOverride(std::array<int, 1> emergencyIndicatorOverride)
+{
+    if (emergencyIndicatorOverride[0] == 1)
+    {
+        return "filter ///-> 1";
+    }
+    else
+    {
+        return "override filter ///-> 0";
+    }
+}
+/* DFI 3002 DUI 006 FORCE TELL INDICATOR OVERRIDE 1 bit*/
+std::string ForceTellIndicatorOverride(std::array<int, 1> forceTellIndicatorOverride)
+{
+    if (forceTellIndicatorOverride[0] == 1)
+    {
+        return "filter ///-> 1";
+    }
+    else
+    {
+        return "override filter ///-> 0";
+    }
+}
+/* DFI 3002 DUI 007 LAST POINT FLAG 1 bit 0 no last point 1 Last point*/
+std::string LastPointFlag(std::array<int, 1> lastPointFlag)
+{
+    if (lastPointFlag[0] == 1)
+    {
+        return "Last point ///-> 1";
+    }
+    else
+    {
+        return "No last point ///-> 0";
+    }
+}
+/* DFI 3002 DUI 008 RECTANGLE FLAG 1 bit*/
+std::string RectangleFlag(std::array<int, 1> rectangleFlag)
+{
+    if (rectangleFlag[0] == 1)
+    {
+        return "Rectangle ///-> 1";
+    }
+    else
+    {
+        return "Ellipse ///-> 0";
+    }
+}
+/* DFI 3002 DUI 009 RELAY FLAG 1 bit*/
+std::string RelayFlag(std::array<int, 1> relayFlag)
+{
+    if (relayFlag[0] == 1)
+    {
+        return "Relayed Message ///-> 1";
+    }
+    else
+    {
+        return "Message Directly Received ///-> 0";
+    }
+}
+/* DFI 3002 DUI 010 SIMULATION INDICATOR FILTER FLAG 1 bit*/
+std::string SimulationIndicatorFilterFlag(std::array<int, 1> simulationIndicatorFilterFlag)
+{
+    if (simulationIndicatorFilterFlag[0] == 1)
+    {
+        return "filter simulated Messages///-> 1";
+    }
+    else
+    {
+        return "Accept Simulated Messages ///-> 0";
+    }
+}
+/* DFI 3002 DUI 011 TRANSMISSION TIME REFERENCE FLAG 1 bit*/
+std::string TransmissionTimeReferenceFlag(std::array<int, 1> transmissionTimeReferenceFlag)
+{
+    if (transmissionTimeReferenceFlag[0] == 1)
+    {
+        return "within Time Accuracy ///-> 1";
+    }
+    else
+    {
+        return "Not within Time Accuracy ///-> 0";
+    }
+}
+/* DFI 3002 DUI 012 UPPER ALTITUDE LIMIT FLAG 1 bit*/
+std::string UpperAltitudeLimitFlag(std::array<int, 1> upperAltitudeLimitFlag)
+{
+    if (upperAltitudeLimitFlag[0] == 1)
+    {
+        return "Upper Altitude Limit ///-> 1";
+    }
+    else
+    {
+        return "No Limit ///-> 0";
+    }
+}
+/* DFI 3002 DUI 013 LOWER ALTITUDE LIMIT FLAG 1 bit*/
+std::string LowerAltitudeLimitFlag(std::array<int, 1> lowerAltitudeLimitFlag)
+{
+    if (lowerAltitudeLimitFlag[0] == 1)
+    {
+        return "Lower Altitude Limit ///-> 1";
+    }
+    else
+    {
+        return "No Limit ///-> 0";
+    }
+}
+/* DFI 3002 DUI 014 J28.2(0) FILTER FLAG 1 bit*/
+std::string J2820FilterFlag(std::array<int, 1> j2820FilterFlag)
+{
+    if (j2820FilterFlag[0] == 1)
+    {
+        return "filter all J28.2(0) Messages ///-> 1";
+    }
+    else
+    {
+        return "Accept all J28.2(0) Messages ///-> 0";
+    }
+}
+/* DFI 3002 DUI 015 J28.2(X) FILTER FLAG 1 bit*/
+std::string J28XFilterFlag(std::array<int, 1> j28XFilterFlag)
+{
+    if (j28XFilterFlag[0] == 1)
+    {
+        return "filter all J28.2(X) Messages ///-> 1";
+    }
+    else
+    {
+        return "Accept all J28.2(X) Messages ///-> 0";
+    }
+}
+/* DFI 3002 DUI 016 SPECIAL PROCESSING INDICATOR FILTER FLAG 1 bit*/
+std::string SpecialProcessingIndicatorFilterFlag(std::array<int, 1> specialProcessingIndicatorFilterFlag)
+{
+    if (specialProcessingIndicatorFilterFlag[0] == 1)
+    {
+        return "filter SPI Messages ///-> 1";
+    }
+    else
+    {
+        return "No Filter ///-> 0";
+    }
+}
+/* DFI 3002 DUI 017 TYPE FILTER 1 bit*/
+std::string TypeFilter(std::array<int, 1> typeFilter)
+{
+    if (typeFilter[0] == 1)
+    {
+        return "Request Transmit Filter settings of specified type ///-> 1";
+    }
+    else
+    {
+        return "Not Specified ///-> 0";
+    }
+}
+/* DFI 3002 DUI 018 GEOGRAPHIC FILTER 1 bit*/
+std::string GeographicFilter(std::array<int, 1> geographicFilter)
+{
+    if (geographicFilter[0] == 1)
+    {
+        return "Request Transmit Filter settings of all Geographic Filters ///-> 1";
+    }
+    else
+    {
+        return "No Request ///-> 0";
+    }
+}
+/* DFI 3002 DUI 019 ALL FILTERS 1 bit*/
+std::string AllFilters(std::array<int, 1> allFilters)
+{
+    if (allFilters[0] == 1)
+    {
+        return "Request Transmit Filter settings of all Filters ///-> 1";
+    }
+    else
+    {
+        return "No Request ///-> 0";
+    }
+}
+/* DFI 3002 DUI 020 ALTERNATE NETWORK CONTROLLER ASSIGNMENT FLAG 1 bit*/
+std::string AlternateNetworkControllerAssignmentFlag(std::array<int, 1> alternateNetworkControllerAssignmentFlag)
+{
+    if (alternateNetworkControllerAssignmentFlag[0] == 1)
+    {
+        return "Alternate Network Controller Assignment ///-> 1";
+    }
+    else
+    {
+        return "No Alternate Network Controller Assignment ///-> 0";
+    }
+}
+/* DFI 3002 DUI 021 ALTERNATE NETWORK CONTROLLER ASSIGNMENT RECOGNITION 1 bit*/
+std::string AlternateNetworkControllerAssignmentRecognition(std::array<int, 1> alternateNetworkControllerAssignmentRecognition)
+{
+    if (alternateNetworkControllerAssignmentRecognition[0] == 1)
+    {
+        return "Alternate Network Controller Assignment Recognized ///-> 1";
+    }
+    else
+    {
+        return "Alternate Network Controller Assignment Not Recognized ///-> 0";
+    }
+}
 
 /* DFI 3003 DUI 001 AGE LIMIT VALUE 8 bits SPECIFIED IN ONE SECOND INCREMENTS.
  * MESSAGES OLDER THAN THIS LIMIT WILL BE FILTERED BY THE DATA AGE LIMIT*/
@@ -101,34 +371,476 @@ std::string AgeLimitValue(std::array<int, 8> ageLimitValue)
     return output;
 }
 
-/* DFI 3003 DUI 002 AVERAGE RECEIVED DATA MEDIA LATENCY*/
-/* DFI 3003 DUI 003 DATA AGE*/
-/* DFI 3003 DUI 004 DATA VALID TIME*/
-/* DFI 3003 DUI 005 EVENT TIME ACCURACY*/
-/* DFI 3003 DUI 007 MAXIMUM LATENCY*/
-/* DFI 3003 DUI 008 RX JRE RECEIVE TIME (R2)*/
-/* DFI 3003 DUI 009 TX JRE TRANSMIT TIME (T1)*/
-/* DFI 3003 DUI 010 RX JRE TRANSMIT TIME (T2)*/
-/* DFI 3003 DUI 011 TIME ACCURACY*/
-/* DFI 3003 DUI 012 EVENT TIME*/
-/* DFI 3003 DUI 013 INTERVAL TIME*/
-/* DFI 3003 DUI 014 TIME ACCURACY (R2)*/
-/* DFI 3003 DUI 015 TIME ACCURACY (T1)*/
-/* DFI 3003 DUI 016 TIME ACCURACY (T2)*/
+/* DFI 3003 DUI 002 AVERAGE RECEIVED DATA MEDIA LATENCY 16 bits*/
+std::string AverageReceivedDataMediaLatency(std::array<int, 16> averageReceivedDataMediaLatency)
+{
+    int averageReceivedDataMediaLatencyInt = 0;
+    // 0 THROUGH 65535 (int 32) specific interval on the data that the JRE Processor is receiving from the source in 1/32 second increments. 
+    // For example, a value of 32 would indicate that the average latency of the data being received from the source is 1 second. 
+    //A value of 0 would indicate that the average latency is less than 1/32 second.
+    //it will respond in 0 through 2047 and 31/32 seconds
+    for (int i = 0; i < 16; i++)
+    {
+        averageReceivedDataMediaLatencyInt += averageReceivedDataMediaLatency[i] * std::pow(2, 15 - i);
+    }
+    std::string output = "";
+    if (averageReceivedDataMediaLatencyInt == 0)
+    {
+        output = "Less than 1/32 second ///-> 0000000000000000";
+    }
+    else
+    {
+        double latencyInSeconds = averageReceivedDataMediaLatencyInt / 32.0;
+        output = std::to_string(latencyInSeconds) + " seconds ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < averageReceivedDataMediaLatency.size(); i++)
+        {
+            binaryset.append(std::to_string(averageReceivedDataMediaLatency[i]));
+        }
+        output += binaryset;
+    }
+    return output;
+}
+/* DFI 3003 DUI 003 DATA AGE 13 bits
+Typical response is 0 THROUGH 255 AND 31/32 seconds atual values are 0-8191 */
+std::string DataAge(std::array<int, 13> dataAge)
+{
+    int dataAgeInt = 0;
+    for (int i = 0; i < 13; i++)
+    {
+        dataAgeInt += dataAge[i] * std::pow(2, 12 - i);
+    }
+    std::string output = "";
+    if (dataAgeInt == 0)
+    {
+        output = "Less than 1/32 second ///-> 0000000000000";
+    }
+    else
+    {
+        double ageInSeconds = dataAgeInt / 32.0;
+        output = std::to_string(ageInSeconds) + " seconds ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < dataAge.size(); i++)
+        {
+            binaryset.append(std::to_string(dataAge[i]));
+        }
+        output += binaryset;
+    }
+    return output;
+}
 
-/* DFI 3004 DUI 001 JRE NC, C*/
+/* DFI 3003 DUI 004 DATA VALID TIME 28 bits
+ 0 – 86399 AND 1023/1024 SECONDS 0 - 88473599  88473600 THROUGH  268435455 are illegal*/
+std::string DataValidTime(std::array<int, 28> dataValidTime)
+{
+    int dataValidTimeInt = 0;
+    for (std::size_t i = 0; i < dataValidTime.size(); i++)
+    {
+        dataValidTimeInt += dataValidTime[i] * std::pow(2, 27 - i);
+    }
+    std::string output = "";
+    if (dataValidTimeInt >= 0 && dataValidTimeInt <= 88473599)
+    {
+        double timeInSeconds = dataValidTimeInt / 1024.0;
+        output = std::to_string(timeInSeconds) + " seconds since 00:00:00 ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < dataValidTime.size(); i++)
+        {
+            binaryset.append(std::to_string(dataValidTime[i]));
+        }
+        output += binaryset;
+    }
+    else
+    {
+        output = "Illegal ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < dataValidTime.size(); i++)
+        {
+            binaryset.append(std::to_string(dataValidTime[i]));
+        }
+        output += binaryset;
+    }
+    return output;
+}
+/* DFI 3003 DUI 005 EVENT TIME ACCURACY 4 bits*/
+std::string EventTimeAccuracy(std::array<int, 4> eventTimeAccuracy)
+{
+    int eventTimeAccuracyInt = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        eventTimeAccuracyInt += eventTimeAccuracy[i] * std::pow(2, 3 - i);
+    }
+    std::string output = "";
+    switch (eventTimeAccuracyInt)
+    {
+    case 0:
+        output = "No statement ///-> 0000";
+        break;
+    case 1:
+        output = "Less than or equal to 1 ms ///-> 0001";
+        break;
+    case 2:
+        output = "Greater than 1 ms, less than or equal to 2 ms ///-> 0010";
+        break;
+    case 3:
+        output = "Greater than 2 ms, less than or equal to 4 ms ///-> 0011";
+        break;
+    case 4:
+        output = "Greater than 4 ms, less than or equal to 8 ms ///-> 0100";
+        break;
+    case 5:
+        output = "Greater than 8 ms, less than or equal to 16 ms ///-> 0101";
+        break;
+    case 6:
+        output = "Greater than 16 ms, less than or equal to 32 ms ///-> 0110";
+        break;
+    case 7:
+        output = "Greater than 32 ms, less than or equal to 64 ms ///-> 0111";
+        break;
+    case 8:
+        output = "Greater than 64 ms, less than or equal to 128 ms ///-> 1000";
+        break;
+    case 9:
+        output = "Greater than 128 ms, less than or equal to 256 ms ///->1001";
+        break;
+    case 10:
+        output = "Greater than 256 ms, less than or equal to 512 ms ///->1010";
+        break;
+    case 11:
+        output = "Greater than 512 ms, less than or equal to1024 ms ///->1011";
+        break;
+    case 12:
+        output = "Greater than1024 ms, less than or equal to2048 ms ///->1100";
+        break;
+    case 13:
+        output = "Greater than2048 ms, less than or equal to4096 ms ///->1101";
+        break;
+    case 14:
+        output = "Greater than4096 ms, less than or equal to8192 ms ///->1110";
+        break;
+    case 15:
+        output = "Greater than8192 ms, less than or equal to16384 ms ///->1111";
+        break;
+    default:
+        output = "Illegal ///-> ";
+        break;
+    }
+    return output;
+}
+/* DFI 3003 DUI 007 MAXIMUM LATENCY 16 bits
+ 0 THROUGH 2047 AND 31/32 SECONDS 0 throught 65535*/
+std::string MaximumLatency(std::array<int, 16> maximumLatency)
+{
+    int maximumLatencyInt = 0;
+    //take all the bits and convert them into an int32
+    for (int i = 0; i < 16; i++)
+    {
+        maximumLatencyInt += maximumLatency[i] * std::pow(2, 15 - i);
+    }
+    std::string output = "";
+    if (maximumLatencyInt == 0)
+    {
+        output = "Less than 1/32 second ///-> 0000000000000000";
+    }
+    else
+    {
+        double latencyInSeconds = maximumLatencyInt / 32.0;
+        output = std::to_string(latencyInSeconds) + " seconds ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < maximumLatency.size(); i++)
+        {
+            binaryset.append(std::to_string(maximumLatency[i]));
+        }
+        output += binaryset;
+    }
+    return output;
+}
+/* DFI 3003 DUI 008 RX JRE RECEIVE TIME (R2) 28 bits
+same as coding for JRE Transmit Time*/
+std::string RxJreReceiveTime(std::array<int, 28> rxJreReceiveTime)
+{
+//process through JRE Transmit Time since it is the same coding
+    return TxJreTransmitTime(rxJreReceiveTime);
+}   
+/* DFI 3003 DUI 009 TX JRE TRANSMIT TIME (T1) 28 bits*/
+std::string TxJreTransmitTime(std::array<int, 28> txJreTransmitTime)
+{
+    int txJreTransmitTimeInt = 0;
+    for (std::size_t i = 0; i < txJreTransmitTime.size(); i++)
+    {
+        txJreTransmitTimeInt += txJreTransmitTime[i] * std::pow(2, 27 - i);
+    }
+    std::string output = "";
+    if (txJreTransmitTimeInt >= 0 && txJreTransmitTimeInt <= 88473599)
+    {
+        double timeInSeconds = txJreTransmitTimeInt / 1024.0;
+        output = std::to_string(timeInSeconds) + " seconds since 00:00:00 ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < txJreTransmitTime.size(); i++)
+        {
+            binaryset.append(std::to_string(txJreTransmitTime[i]));
+        }
+        output += binaryset;
+    }
+    else
+    {
+        output = "Illegal ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < txJreTransmitTime.size(); i++)
+        {
+            binaryset.append(std::to_string(txJreTransmitTime[i]));
+        }
+        output += binaryset;
+    }
+    return output;
+}
+/* DFI 3003 DUI 010 RX JRE TRANSMIT TIME (T2) 28 bits*/
+std::string RxJreTransmitTime(std::array<int, 28> rxJreTransmitTime)
+{
+    //same coding as Tx JRE Transmit Time
+    return TxJreTransmitTime(rxJreTransmitTime);
+}   
+/* DFI 3003 DUI 011 TIME ACCURACY 4 bits*/
+std::string TimeAccuracy(std::array<int, 4> timeAccuracy)
+{
+    int timeAccuracyInt = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        timeAccuracyInt += timeAccuracy[i] * std::pow(2, 3 - i);
+    }
+    std::string output = "";
+    switch (timeAccuracyInt)
+    {
+    case 0:
+        output = "No statement ///-> 0000";
+        break;
+    case 1:
+        output = "Less than or equal to 1 ms ///-> 0001";
+        break;
+    case 2:
+        output = "Greater than 1 ms, less than or equal to 2 ms ///-> 0010";
+        break;
+    case 3:
+        output = "Greater than 2 ms, less than or equal to 4 ms ///-> 0011";
+        break;
+    case 4:
+        output = "Greater than 4 ms, less than or equal to 8 ms ///-> 0100";
+        break;
+    case 5:
+        output = "Greater than 8 ms, less than or equal to 16 ms ///-> 0101";
+        break;
+    case 6:
+        output = "Greater than 16 ms, less than or equal to 32 ms ///-> 0110";
+        break;
+    case 7:
+        output = "Greater than 32 ms, less than or equal to 64 ms ///-> 0111";
+        break;
+    case 8:
+        output = "Greater than 64 ms, less than or equal to 128 ms ///->1000";
+        break;
+    case 9:
+        output = "Greater than 128 ms, less than or equal to256 ms ///->1001";
+        break;
+    case 10:
+        output = "Greater than 256 ms, less than or equal to 512 ms ///->1010";
+        break;
+    case 11:
+        output = "Greater than 512 ms, less than or equal to 1024 ms ///->1011";
+        break;
+    case 12:
+        output = "Greater than 1024 ms, less than or equal to 2048 ms ///->1100";
+        break;
+    case 13:
+        output = "Greater than 2048 ms, less than or equal to 4096 ms ///->1101";
+        break;
+    case 14:
+        output = "Greater than 4096 ms, less than or equal to 8192 ms ///->1110";
+        break;
+    case 15:
+        output = "Greater than 8192 ms, less than or equal to 16384 ms ///->1111";
+        break;
+    default:
+        output = "Illegal ///-> ";
+        break;
+    }
+    return output;
+}
+/* DFI 3003 DUI 012 EVENT TIME 28 bits
+ 0 – 86399 AND 1023/1024 seconds 0- 88473599,  88473600-268435455 are illegal  
+ NUMBER OF SECONDS ELAPSED PAST MIDNIGHT in 1/1024 SECOND INCREMENTS*/
+std::string EventTime(std::array<int, 28> eventTime)
+{
+    int eventTimeInt = 0;
+    for (std::size_t i = 0; i < eventTime.size(); i++)
+    {
+        eventTimeInt += eventTime[i] * std::pow(2, 27 - i);
+    }
+    std::string output = "";
+    if (eventTimeInt >= 0 && eventTimeInt <= 88473599)
+    {
+        double timeInSeconds = eventTimeInt / 1024.0;
+        output = std::to_string(timeInSeconds) + " seconds since 00:00:00 ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < eventTime.size(); i++)
+        {
+            binaryset.append(std::to_string(eventTime[i]));
+        }
+        output += binaryset;
+    }
+    else
+    {
+        output = "Illegal ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < eventTime.size(); i++)
+        {
+            binaryset.append(std::to_string(eventTime[i]));
+        }
+        output += binaryset;
+    }
+    return output;
+}   
+/* DFI 3003 DUI 013 INTERVAL TIME 10 bits
+ 0-no interval 1-1023 seconds*/
+std::string IntervalTime(std::array<int, 10> intervalTime)
+{
+    int intervalTimeInt = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        intervalTimeInt += intervalTime[i] * std::pow(2, 9 - i);
+    }
+    std::string output = "";
+    if (intervalTimeInt == 0)
+    {
+        output = "No interval ///-> 0000000000";
+    }
+    else
+    {
+        output = std::to_string(intervalTimeInt) + " seconds ///-> ";
+        std::string binaryset = "";
+        for (std::size_t i = 0; i < intervalTime.size(); i++)
+        {
+            binaryset.append(std::to_string(intervalTime[i]));
+        }
+        output += binaryset;
+    }
+    return output;
+}   
+/* DFI 3003 DUI 014 TIME ACCURACY (R2) 4 bits 
+Same as Time Accuracy*/
+std::string TimeAccuracyR2(std::array<int, 4> timeAccuracyR2)
+{
+    //same coding as Time Accuracy
+    return TimeAccuracy(timeAccuracyR2);
+}
+/* DFI 3003 DUI 015 TIME ACCURACY (T1) 4 bits*/
+std::string TimeAccuracyT1(std::array<int, 4> timeAccuracyT1)
+{
+    //same coding as Time Accuracy
+    return TimeAccuracy(timeAccuracyT1);
+}
+/* DFI 3003 DUI 016 TIME ACCURACY (T2) 4 bits*/
+std::string TimeAccuracyT2(std::array<int, 4> timeAccuracyT2)
+{
+    //same coding as Time Accuracy
+    return TimeAccuracy(timeAccuracyT2);
+}
+/* DFI 3004 DUI 001 JRE NC, C 1 bit*/
+std::string JreNcC(std::array<int, 1> jreNcC)
+{
+    if (jreNcC[0] == 1)
+    {
+        return "Capable ///-> 1";
+    }
+    else
+    {
+        return "Not Capable ///-> 0";
+    }
+}
 /* DFI 3004 DUI 002 RTTIME, C*/
-/* DFI 3004 DUI 003 FIXED DELAY, C*/
-/* DFI 3004 DUI 004 EVENT STROBE, C*/
-/* DFI 3004 DUI 005 UTC, C*/
+std::string RttimeC(std::array<int, 1> rttimeC)
+{
+    return JreNcC(rttimeC);
+}
+/* DFI 3004 DUI 003 FIXED DELAY, C 1 bit*/
+std::string FixedDelayC(std::array<int, 1> fixedDelayC)
+{
+    return JreNcC(fixedDelayC);
+}
+/* DFI 3004 DUI 004 EVENT STROBE, C 1 bit*/
+std::string EventStrobeC(std::array<int, 1> eventStrobeC)
+{
+    return JreNcC(eventStrobeC);
+}
+/* DFI 3004 DUI 005 UTC, C 1 bit*/
+std::string UtcC(std::array<int, 1> utcC)
+{
+    return JreNcC(utcC);
+}
 
-/* DFI 3005 DUI 001 JRE NC, P*/
-/* DFI 3005 DUI 002 RTTIME, P*/
-/* DFI 3005 DUI 003 FIXED DELAY, P*/
-/* DFI 3005 DUI 004 EVENT STROBE, P*/
-/* DFI 3005 DUI 005 UTC, P*/
-
-/* DFI 3007 DUI 001 TRANSMISSION BLOCK HEADER TYPE*/
+/* DFI 3005 DUI 001 JRE NC, P 1 bit*/
+std::string JreNcP(std::array<int, 1> jreNcP)
+{
+    if (jreNcP[0] == 1)
+    {
+        return "Preferred ///-> 1";
+    }
+    else
+    {
+        return "Not Preferred ///-> 0";
+    }
+}
+/* DFI 3005 DUI 002 RTTIME, P 1 bit*/
+std::string RttimeP(std::array<int, 1> rttimeP)
+{
+    return JreNcP(rttimeP);
+}
+/* DFI 3005 DUI 003 FIXED DELAY, P 1 bit*/
+std::string FixedDelayP(std::array<int, 1> fixedDelayP)
+{
+    return JreNcP(fixedDelayP);
+}
+/* DFI 3005 DUI 004 EVENT STROBE, P 1 bit*/
+std::string EventStrobeP(std::array<int, 1> eventStrobeP)
+{
+    return JreNcP(eventStrobeP);
+}
+/* DFI 3005 DUI 005 UTC, P 1 bit*/
+std::string UtcP(std::array<int, 1> utcP)
+{
+    return JreNcP(utcP);
+}
+/* DFI 3007 DUI 001 TRANSMISSION BLOCK HEADER TYPE 4 bits*/
+std::string TransmissionBlockHeaderType(std::array<int, 4> transmissionBlockHeaderType)
+{
+    int transmissionBlockHeaderTypeInt = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        transmissionBlockHeaderTypeInt += transmissionBlockHeaderType[i] * std::pow(2, 3 - i);
+    }
+    std::string output = "";
+    switch (transmissionBlockHeaderTypeInt)
+    {
+    case 0:
+        output = "No header ///-> 0000";
+        break;
+    case 1:
+        output = "Message Group Header ///-> 0001";
+        break;
+    case 2:
+        output = "Message Header ///-> 0010";
+        break;
+    case 3:
+        output = "Filter Header ///-> 0011";
+        break;
+    case 4:
+        output = "Requested Filter Header ///-> 0100";
+        break;
+    default:
+        output = "Illegal ///-> ";
+        break;
+    }
+    return output;
+}
 /* DFI 3007 DUI 002 MESSAGE GROUP HEADER TYPE*/
 /* DFI 3007 DUI 003 HEADER TYPE*/
 
