@@ -19,7 +19,7 @@
  *       Total size                            80 bits
  *  =====================================================
  */
-std::string CommonHeaderConverter(std::array<int, 10> byteArray);
+// std::string CommonHeaderConverter(std::array<int, 10> byteArray);
 std::string HeaderType(std::array<int, 4> headerType);
 std::string MessageType(std::array<int, 4> messageType);
 std::string TransmissionTimeReferenceFlag(std::array<int, 1> transmissionTimeReferenceFlag);
@@ -29,3 +29,4 @@ std::string ApplicationBlockMessageLength(std::array<int, 16> applicationBlockMe
 std::string JreSenderID(std::array<int, 16> jreSenderID);
 std::string TimeAccuracyReporting(std::array<int, 4> timeAccuracy);
 std::string DataValidTime(std::array<int, 28> dataValidTime);
+std::string JreapApplicationHeader0(std::array<int, 10> byteArray);

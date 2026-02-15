@@ -1,11 +1,36 @@
 #include <iostream>
 #include <array>
 #include <cmath>
-/* this function takes in the complete head and returns the common header information
- * the common header information is the first 80 bits of the header
- * the common header information is the same for all JREAP messages
+/* THE JREAP APPLICATION HEADER IS USED WITH MEDIA THAT PROVIDE OSI TRANSPORT 
+ * LAYER FUNCTIONALITY THIS IS AH.0
  */
-const std::string CommonHeaderConverter(std::array<int, 10> byteArray)
+std::string CommonHeaderConverter(std::array<int, 10> byteArray)
+{
+	// declare the output string
+	std::string output = "";
+	// split the first byte out
+	int firstByte = byteArray[0];
+	// get the first four bits from the first byte
+	int headerType = (firstByte >> 4) & 0x0F;
+	if (headerType == 1)
+	{
+		output = "ATP JREAP-A \n";
+	}
+	else if (headerType == 2)
+	{
+		output = "PTP JREAP-B \n";
+	}
+	else if (headerType == 3)
+	{
+		output = "JREAP-C \n";
+	}
+	else
+	{
+		output = "Unknown Header Type\n";
+	}
+	return output;
+}
+const std::string JreapApplicationHeader0(std::array<int, 10> byteArray)
 {
 	// declare the output string
 
@@ -17,38 +42,41 @@ const std::string CommonHeaderConverter(std::array<int, 10> byteArray)
 
 	// get the first four bits from the first byte
 
-	int firstFourBits = (firstByte >> 4) & 0x0F;
+	int headerType = (firstByte >> 4) & 0x0F;
 
-	if (firstFourBits == 1)
+	if (headerType == 1)
 	{
-		output = "ATP JREAP-A";
+		output = "ATP JREAP-A \n";
 	}
-	else if (firstFourBits == 2)
+	else if (headerType == 2)
 	{
-		output = "PTP JREAP-B";
+		output = "PTP JREAP-B \n";
 	}
-	else if (firstFourBits == 3)
+	else if (headerType == 3)
 	{
-		output = "Application JREAP-C " + std::to_string(firstFourBits) + "\n";
-		// get the  last four bits from first byte and add to output
-		int messageType = firstByte & 0x0F;
-		int transmissionTimeReferenceFlag = (byteArray[1] >> 2) & 0x01;
-		int spare = (byteArray[1] >> 2) & 0x0F;
-		int applicationProtocolVersion = byteArray[1] & 0x0F;
-		int applicationBlockMessageLength = (byteArray[2] & 0x0F) << 8 | byteArray[3];
-		int jreSenderID = byteArray[4] << 8 | byteArray[5];
-		// convert the int to octal
-		int jreSenderIDOctal = 0;
-		int i = 1;
-		int tempJreSenderID = jreSenderID;
-		while (tempJreSenderID != 0)
-		{
-			jreSenderIDOctal += (tempJreSenderID % 8) * i;
-			tempJreSenderID /= 8;
-			i *= 10;
-		}
-		jreSenderID = jreSenderIDOctal;
-		int timeAccuracy = (byteArray[6] >> 4) & 0x0F;
+		output = "JREAP-C \n";
+		// // set the 
+		// // get the  last four bits from first byte and add to output
+		// int messageType = firstByte & 0x0F;
+		// //convert the messageType to an array of 4 bits based on messageType
+		// //redeclare the messageType variable as the string output of the message type;
+		// int transmissionTimeReferenceFlag = (byteArray[1] >> 2) & 0x01;
+		// int spare = (byteArray[1] >> 2) & 0x0F;
+		// int applicationProtocolVersion = byteArray[1] & 0x0F;
+		// int applicationBlockMessageLength = (byteArray[2] & 0x0F) << 8 | byteArray[3];
+		// int jreSenderID = byteArray[4] << 8 | byteArray[5];
+		// // convert the int to octal
+		// int jreSenderIDOctal = 0;
+		// int i = 1;
+		// int tempJreSenderID = jreSenderID;
+		// while (tempJreSenderID != 0)
+		// {
+		// 	jreSenderIDOctal += (tempJreSenderID % 8) * i;
+		// 	tempJreSenderID /= 8;
+		// 	i *= 10;
+		// }
+		// jreSenderID = jreSenderIDOctal;
+		// int timeAccuracy = (byteArray[6] >> 4) & 0x0F;
 
 		/*Data valid time is an unsigned 28 bit integer
 		* Here's a detailed breakdown of what data validation time does:
@@ -83,10 +111,10 @@ const std::string CommonHeaderConverter(std::array<int, 10> byteArray)
 		* multi-byte values from a byte stream or hardware registers.
 		*/
 
-		int dataValidTime = (byteArray[6] & 0x0F) << 24 | byteArray[7] << 16 | byteArray[8] << 8 | byteArray[9];
+		// int dataValidTime = (byteArray[6] & 0x0F) << 24 | byteArray[7] << 16 | byteArray[8] << 8 | byteArray[9];
 
-		/*output to the console in a string format for raylib to make it pretty*/
-		output += "Message Type: " + std::to_string(messageType) + "\n" + "Transmission Time Reference Flag: " + std::to_string(transmissionTimeReferenceFlag) + "\n" + "Spare: " + std::to_string(spare) + "\n" + "Application Protocol Version: " + std::to_string(applicationProtocolVersion) + "\n" + "Application Block Message Length: " + std::to_string(applicationBlockMessageLength) + "\n" + "JRE Sender ID: " + std::to_string(jreSenderID) + "\n" + "Time Accuracy: " + std::to_string(timeAccuracy) + "\n" + "Data Valid Time: " + std::to_string(dataValidTime);
+		// /*output to the console in a string format for raylib to make it pretty*/
+		//output += "Message Type: " + std::to_string(messageType) + "\n" + "Transmission Time Reference Flag: " + std::to_string(transmissionTimeReferenceFlag) + "\n" + "Spare: " + std::to_string(spare) + "\n" + "Application Protocol Version: " + std::to_string(applicationProtocolVersion) + "\n" + "Application Block Message Length: " + std::to_string(applicationBlockMessageLength) + "\n" + "JRE Sender ID: " + std::to_string(jreSenderID) + "\n" + "Time Accuracy: " + std::to_string(timeAccuracy) + "\n" + "Data Valid Time: " + std::to_string(dataValidTime);
 	}
 	else
 	{
@@ -95,6 +123,8 @@ const std::string CommonHeaderConverter(std::array<int, 10> byteArray)
 
 	return output;
 }
+
+
 
 /* the header type is a 4 bit unsigned integer identifying the type of JREAP message
  * 0 Undefined
