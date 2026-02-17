@@ -7,7 +7,7 @@
 #include <algorithm>
 
 /* DFI 3002 DUI 001 ADD/DELETE INDICATOR 1 bit*/
-std::string Dui001(std::array<int, 1> addDeleteIndicator)
+std::string Dui001(const std::array<int, 1>& addDeleteIndicator)
 {
     if (addDeleteIndicator[0] == 1)
     {
@@ -19,7 +19,7 @@ std::string Dui001(std::array<int, 1> addDeleteIndicator)
     }
 }
 /* DFI 3002 DUI 002 ACTIVE/INACTIVE FLAG 1 bit*/
-std::string Dui002(std::array<int, 1> activeInactiveFlag)
+std::string Dui002(const std::array<int, 1>& activeInactiveFlag)
 {
     if (activeInactiveFlag[0] == 1)
     {
@@ -31,7 +31,7 @@ std::string Dui002(std::array<int, 1> activeInactiveFlag)
     }
 }
 /* DFI 3002 DUI 003 ACKNOWLEDGEMENT REQUEST FLAG 1 bit*/
-std::string Dui003(std::array<int, 1> acknowledgementRequestFlag)
+std::string Dui003(const std::array<int, 1>& acknowledgementRequestFlag)
 {
     if (acknowledgementRequestFlag[0] == 1)
     {
@@ -43,7 +43,7 @@ std::string Dui003(std::array<int, 1> acknowledgementRequestFlag)
     }
 }
 /* DFI 3002 DUI 004 COMMAND AND CONTROL INDICATOR OVERRIDE*/
-std::string Dui004(std::array<int, 1> commandAndControlIndicatorOverride)
+std::string Dui004(const std::array<int, 1>& commandAndControlIndicatorOverride)
 {
     if (commandAndControlIndicatorOverride[0] == 1)
     {
@@ -55,7 +55,7 @@ std::string Dui004(std::array<int, 1> commandAndControlIndicatorOverride)
     }
 }
 /* DFI 3002 DUI 005 EMERGENCY INDICATOR OVERRIDE 1 bit*/
-std::string Dui005(std::array<int, 1> emergencyIndicatorOverride)
+std::string Dui005(const std::array<int, 1>& emergencyIndicatorOverride)
 {
     if (emergencyIndicatorOverride[0] == 1)
     {
@@ -67,7 +67,7 @@ std::string Dui005(std::array<int, 1> emergencyIndicatorOverride)
     }
 }
 /* DFI 3002 DUI 006 FORCE TELL INDICATOR OVERRIDE 1 bit*/
-std::string Dui006(std::array<int, 1> forceTellIndicatorOverride)
+std::string Dui006(const std::array<int, 1>& forceTellIndicatorOverride)
 {
     if (forceTellIndicatorOverride[0] == 1)
     {
@@ -79,7 +79,7 @@ std::string Dui006(std::array<int, 1> forceTellIndicatorOverride)
     }
 }
 /* DFI 3002 DUI 007 LAST POINT FLAG 1 bit 0 no last point 1 Last point*/
-std::string Dui007(std::array<int, 1> lastPointFlag)
+std::string Dui007(const std::array<int, 1>& lastPointFlag)
 {
     if (lastPointFlag[0] == 1)
     {
@@ -91,7 +91,7 @@ std::string Dui007(std::array<int, 1> lastPointFlag)
     }
 }
 /* DFI 3002 DUI 008 RECTANGLE FLAG 1 bit*/
-std::string Dui008(std::array<int, 1> rectangleFlag)
+std::string Dui008(const std::array<int, 1>& rectangleFlag)
 {
     if (rectangleFlag[0] == 1)
     {
@@ -103,7 +103,7 @@ std::string Dui008(std::array<int, 1> rectangleFlag)
     }
 }
 /* DFI 3002 DUI 009 RELAY FLAG 1 bit*/
-std::string Dui009(std::array<int, 1> relayFlag)
+std::string Dui009(const std::array<int, 1>& relayFlag)
 {
     if (relayFlag[0] == 1)
     {
@@ -115,7 +115,7 @@ std::string Dui009(std::array<int, 1> relayFlag)
     }
 }
 /* DFI 3002 DUI 010 SIMULATION INDICATOR FILTER FLAG 1 bit*/
-std::string Dui010(std::array<int, 1> simulationIndicatorFilterFlag)
+std::string Dui010(const std::array<int, 1>& simulationIndicatorFilterFlag)
 {
     if (simulationIndicatorFilterFlag[0] == 1)
     {
@@ -127,7 +127,7 @@ std::string Dui010(std::array<int, 1> simulationIndicatorFilterFlag)
     }
 }
 /* DFI 3002 DUI 011 TRANSMISSION TIME REFERENCE FLAG 1 bit*/
-std::string Dui011(std::array<int, 1> transmissionTimeReferenceFlag)
+std::string Dui011(const std::array<int, 1>& transmissionTimeReferenceFlag)
 {
     if (transmissionTimeReferenceFlag[0] == 1)
     {
@@ -139,7 +139,7 @@ std::string Dui011(std::array<int, 1> transmissionTimeReferenceFlag)
     }
 }
 /* DFI 3002 DUI 012 UPPER ALTITUDE LIMIT FLAG 1 bit*/
-std::string Dui012(std::array<int, 1> upperAltitudeLimitFlag)
+std::string Dui012(const std::array<int, 1>& upperAltitudeLimitFlag)
 {
     if (upperAltitudeLimitFlag[0] == 1)
     {
@@ -151,7 +151,7 @@ std::string Dui012(std::array<int, 1> upperAltitudeLimitFlag)
     }
 }
 /* DFI 3002 DUI 013 LOWER ALTITUDE LIMIT FLAG 1 bit*/
-std::string Dui013(std::array<int, 1> lowerAltitudeLimitFlag)
+std::string Dui013(const std::array<int, 1>& lowerAltitudeLimitFlag)
 {
     if (lowerAltitudeLimitFlag[0] == 1)
     {
@@ -163,7 +163,7 @@ std::string Dui013(std::array<int, 1> lowerAltitudeLimitFlag)
     }
 }
 /* DFI 3002 DUI 014 J28.2(0) FILTER FLAG 1 bit*/
-std::string Dui014(std::array<int, 1> j2820FilterFlag)
+std::string Dui014(const std::array<int, 1>& j2820FilterFlag)
 {
     if (j2820FilterFlag[0] == 1)
     {
@@ -175,7 +175,7 @@ std::string Dui014(std::array<int, 1> j2820FilterFlag)
     }
 }
 /* DFI 3002 DUI 015 J28.2(X) FILTER FLAG 1 bit*/
-std::string Dui015(std::array<int, 1> j28XFilterFlag)
+std::string Dui015(const std::array<int, 1>& j28XFilterFlag)
 {
     if (j28XFilterFlag[0] == 1)
     {
@@ -187,7 +187,7 @@ std::string Dui015(std::array<int, 1> j28XFilterFlag)
     }
 }
 /* DFI 3002 DUI 016 SPECIAL PROCESSING INDICATOR FILTER FLAG 1 bit*/
-std::string Dui016(std::array<int, 1> specialProcessingIndicatorFilterFlag)
+std::string Dui016(const std::array<int, 1>& specialProcessingIndicatorFilterFlag)
 {
     if (specialProcessingIndicatorFilterFlag[0] == 1)
     {
@@ -199,7 +199,7 @@ std::string Dui016(std::array<int, 1> specialProcessingIndicatorFilterFlag)
     }
 }
 /* DFI 3002 DUI 017 TYPE FILTER 1 bit*/
-std::string Dui017(std::array<int, 1> typeFilter)
+std::string Dui017(const std::array<int, 1>& typeFilter)
 {
     if (typeFilter[0] == 1)
     {
@@ -211,7 +211,7 @@ std::string Dui017(std::array<int, 1> typeFilter)
     }
 }
 /* DFI 3002 DUI 018 GEOGRAPHIC FILTER 1 bit*/
-std::string Dui018(std::array<int, 1> geographicFilter)
+std::string Dui018(const std::array<int, 1>& geographicFilter)
 {
     if (geographicFilter[0] == 1)
     {
@@ -223,7 +223,7 @@ std::string Dui018(std::array<int, 1> geographicFilter)
     }
 }
 /* DFI 3002 DUI 019 ALL FILTERS 1 bit*/
-std::string Dui019(std::array<int, 1> allFilters)
+std::string Dui019(const std::array<int, 1>& allFilters)
 {
     if (allFilters[0] == 1)
     {
@@ -235,7 +235,7 @@ std::string Dui019(std::array<int, 1> allFilters)
     }
 }
 /* DFI 3002 DUI 020 ALTERNATE NETWORK CONTROLLER ASSIGNMENT FLAG 1 bit*/
-std::string Dui020(std::array<int, 1> alternateNetworkControllerAssignmentFlag)
+std::string Dui020(const std::array<int, 1>& alternateNetworkControllerAssignmentFlag)
 {
     if (alternateNetworkControllerAssignmentFlag[0] == 1)
     {
@@ -247,7 +247,7 @@ std::string Dui020(std::array<int, 1> alternateNetworkControllerAssignmentFlag)
     }
 }
 /* DFI 3002 DUI 021 ALTERNATE NETWORK CONTROLLER ASSIGNMENT RECOGNITION 1 bit*/
-std::string Dui021(std::array<int, 1> alternateNetworkControllerAssignmentRecognition)
+std::string Dui021(const std::array<int, 1>& alternateNetworkControllerAssignmentRecognition)
 {
     if (alternateNetworkControllerAssignmentRecognition[0] == 1)
     {

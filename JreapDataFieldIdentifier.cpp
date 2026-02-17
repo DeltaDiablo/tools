@@ -1,741 +1,887 @@
 // this is the dfi (data Field Identifier) converter for MILSTD 3011D
 //  This library contains all the DFIs and the related DataUseIdentifiers (DUIs) for the JREAP-C fields.
 
+#include "JreapDataFieldIdentifier.h"
 #include <iostream>
-#include <array>
-#include <cmath>
-#include <string>
 #include <vector>
 #include <algorithm>
-#include "milstd3011/dfiset3000.cpp"
-#include "milstd3011/dfiset3001.cpp"
-#include "milstd3011/dfiset3002.cpp"
-#include "milstd3011/dfiset3003.cpp"
-#include "milstd3011/dfiset3004.cpp"
+#include <cmath>
+#include "milstd3011/dfiset3000.h"
+#include "milstd3011/dfiset3001.h"
+#include "milstd3011/dfiset3002.h"
+#include "milstd3011/dfiset3003.h"
+#include "milstd3011/dfiset3004.h"
+#include "milstd3011/dfiset3005.h"
+#include "milstd3011/dfiset3006.h"
+#include "milstd3011/dfiset3007.h"
+#include "milstd3011/dfiset3008.h"
+#include "milstd3011/dfiset3009.h"
+#include "milstd3011/dfiset3010.h"
+#include "milstd3011/dfiset3011.h"
+#include "milstd3011/dfiset3012.h"
+#include "milstd3011/dfiset3013.h"
+#include "milstd3011/dfiset3014.h"
+#include "milstd3011/dfiset3015.h"
+#include "milstd3011/dfiset3016.h"
+#include "milstd3011/dfiset3017.h"
+#include "milstd3011/dfiset3018.h"
+#include "milstd3011/dfiset3019.h"
+#include "milstd3011/dfiset3020.h"
+#include "milstd3011/dfiset3021.h"
+#include "milstd3011/dfiset3022.h"
+#include "milstd3011/dfiset3023.h"
+#include "milstd3011/dfiset3024.h"
+#include "milstd3011/dfiset3025.h"
+#include "milstd3011/dfiset3027.h"
+#include "milstd3011/dfiset3028.h"
+#include "milstd3011/dfiset3029.h"
+#include "milstd3011/dfiset3030.h"
+#include "milstd3011/dfiset3031.h"
+#include "milstd3011/dfiset3032.h"
 
 /* DFI 3000 DUI 001 PERCENT EXCEEDING LATENCY 7 bits*/
-std::string dfi3000dui001(std::array<int, 7> percentExceedingLatency)
-{   return dui001(percentExceedingLatency);
+std::string Dfi3000Dui001(std::array<int, 7> percentExceedingLatency)
+{   return Dui001(percentExceedingLatency);
 }
+
 /* DFI 3001 DUI 001 TRANSMISSION SEQUENCE NUMBER 8 bits*/
-std::string dfi3001dui001(std::array<int, 7> transmissionSequenceNumber)
+std::string Dfi3001Dui001(const std::array<int, 7>& transmissionSequenceNumber)
 {
        return dui001(transmissionSequenceNumber);
 }
 /* DFI 3001 DUI 002 TRANSMISSION SEQUENCE LIST COUNT 7 bits*/
-std::string dfi3001dui002(std::array<int, 7> transmissionSequenceListCount)
+std::string Dfi3001dui002(const std::array<int, 7>& transmissionSequenceListCount)
 {
     return dui002(transmissionSequenceListCount);
 }
-/* DFI 3002 DUI 001 ADD/DELETE INDICATOR 1 bit*/
-std::string dfi3002dui001(std::array<int, 1> addDeleteIndicator)
-{    //use the dfiset3002 Dui001 function to process the addDeleteIndicator array and return the output
+
+/* Dfi 3002 DUI 001 ADD/DELETE INDICATOR 1 bit*/
+std::string Dfi3002dui001(const std::array<int, 1>& addDeleteIndicator)
+{    //use the Dfiset3002 Dui001 function to process the addDeleteIndicator array and return the output
     return Dui001(addDeleteIndicator);
 }
-/* DFI 3002 DUI 002 ACTIVE/INACTIVE FLAG 1 bit*/
-std::string dfi3002dui002(std::array<int, 1> activeInactiveFlag)
+/* Dfi 3002 DUI 002 ACTIVE/INACTIVE FLAG 1 bit*/
+std::string Dfi3002dui002(const std::array<int, 1>& activeInactiveFlag)
 {
-    //use the dfiset3002 Dui002 function to process the activeInactiveFlag array and return the output
+    //use the Dfiset3002 Dui002 function to process the activeInactiveFlag array and return the output
     return Dui002(activeInactiveFlag);
 }
-/* DFI 3002 DUI 003 ACKNOWLEDGEMENT REQUEST FLAG 1 bit*/
-std::string dfi3002dui003(std::array<int, 1> acknowledgementRequestFlag)
+/* Dfi 3002 DUI 003 ACKNOWLEDGEMENT REQUEST FLAG 1 bit*/
+std::string Dfi3002dui003(const std::array<int, 1>& acknowledgementRequestFlag)
 {
-    //use the dfiset3002 Dui003 function to process the acknowledgementRequestFlag array and return the output
+    //use the Dfiset3002 Dui003 function to process the acknowledgementRequestFlag array and return the output
     return Dui003(acknowledgementRequestFlag);
 }
-/* DFI 3002 DUI 004 COMMAND AND CONTROL INDICATOR OVERRIDE*/
-std::string dfi3002dui004(std::array<int, 1> commandAndControlIndicatorOverride)
+/* Dfi 3002 DUI 004 COMMAND AND CONTROL INDICATOR OVERRIDE*/
+std::string Dfi3002dui004(const std::array<int, 1>& commandAndControlIndicatorOverride)
 {
-    //use the dfiset3002 Dui004 function to process the commandAndControlIndicatorOverride array and return the output
+    //use the Dfiset3002 Dui004 function to process the commandAndControlIndicatorOverride array and return the output
     return Dui004(commandAndControlIndicatorOverride);
 }
 /* DFI 3002 DUI 005 EMERGENCY INDICATOR OVERRIDE 1 bit*/
-std::string dfi3002dui005(std::array<int, 1> emergencyIndicatorOverride)
+std::string Dfi3002dui005(const std::array<int, 1>& emergencyIndicatorOverride)
 {
     //use the dfiset3002 Dui005 function to process the emergencyIndicatorOverride array and return the output
     return Dui005(emergencyIndicatorOverride);
 }
 /* DFI 3002 DUI 006 FORCE TELL INDICATOR OVERRIDE 1 bit*/
-std::string dfi3002dui006(std::array<int, 1> forceTellIndicatorOverride)
+std::string Dfi3002dui006(const std::array<int, 1>& forceTellIndicatorOverride)
 {
     //use the dfiset3002 Dui006 function to process the forceTellIndicatorOverride array and return the output
     return Dui006(forceTellIndicatorOverride);
 }
 /* DFI 3002 DUI 007 LAST POINT FLAG 1 bit 0 no last point 1 Last point*/
-std::string dfi3002dui007(std::array<int, 1> lastPointFlag)
+std::string Dfi3002dui007(const std::array<int, 1>& lastPointFlag)
 {
     //use the dfiset3002 Dui007 function to process the lastPointFlag array and return the output
     return Dui007(lastPointFlag);
 }
 /* DFI 3002 DUI 008 RECTANGLE FLAG 1 bit*/
-std::string dfi3002dui008(std::array<int, 1> rectangleFlag)
+std::string Dfi3002dui008(const std::array<int, 1>& rectangleFlag)
 {
     //use the dfiset3002 Dui008 function to process the rectangleFlag array and return the output
     return Dui008(rectangleFlag);
 }
 /* DFI 3002 DUI 009 RELAY FLAG 1 bit*/
-std::string dfi3002dui009(std::array<int, 1> relayFlag)
+std::string Dfi3002dui009(const std::array<int, 1>& relayFlag)
 {
     //use the dfiset3002 Dui009 function to process the relayFlag array and return the output
     return Dui009(relayFlag);
 }
 /* DFI 3002 DUI 010 SIMULATION INDICATOR FILTER FLAG 1 bit*/
-std::string dfi3002dui010(std::array<int, 1> simulationIndicatorFilterFlag)
+std::string Dfi3002dui010(const std::array<int, 1>& simulationIndicatorFilterFlag)
 {
     //use the dfiset3002 Dui010 function to process the simulationIndicatorFilterFlag array and return the output
     return Dui010(simulationIndicatorFilterFlag);
 }
 /* DFI 3002 DUI 011 TRANSMISSION TIME REFERENCE FLAG 1 bit*/
-std::string dfi3002dui011(std::array<int, 1> transmissionTimeReferenceFlag)
+std::string Dfi3002dui011(const std::array<int, 1>& transmissionTimeReferenceFlag)
 {
     //use the dfiset3002 Dui011 function to process the transmissionTimeReferenceFlag array and return the output
     return Dui011(transmissionTimeReferenceFlag);
 }
 /* DFI 3002 DUI 012 UPPER ALTITUDE LIMIT FLAG 1 bit*/
-std::string dfi3002dui012(std::array<int, 1> upperAltitudeLimitFlag)
+std::string Dfi3002dui012(const std::array<int, 1>& upperAltitudeLimitFlag)
 {
     //use the dfiset3002 Dui012 function to process the upperAltitudeLimitFlag array and return the output
     return Dui012(upperAltitudeLimitFlag);
 }
 /* DFI 3002 DUI 013 LOWER ALTITUDE LIMIT FLAG 1 bit*/
-std::string dfi3002dui013(std::array<int, 1> lowerAltitudeLimitFlag)
+std::string Dfi3002dui013(const std::array<int, 1>& lowerAltitudeLimitFlag)
 {
     //use the dfiset3002 Dui013 function to process the lowerAltitudeLimitFlag array and return the output
     return Dui013(lowerAltitudeLimitFlag);
 }
 /* DFI 3002 DUI 014 J28.2(0) FILTER FLAG 1 bit*/
-std::string dfi3002dui014(std::array<int, 1> j2820FilterFlag)
+std::string Dfi3002dui014(const std::array<int, 1>& j2820FilterFlag)
 {
     //use the dfiset3002 Dui014 function to process the j2820FilterFlag array and return the output
     return Dui014(j2820FilterFlag);
 }
 /* DFI 3002 DUI 015 J28.2(X) FILTER FLAG 1 bit*/
-std::string dfi3002dui015(std::array<int, 1> j28XFilterFlag)
+std::string Dfi3002dui015(const std::array<int, 1>& j28XFilterFlag)
 {
     //use the dfiset3002 Dui015 function to process the j28XFilterFlag array and return the output
     return Dui015(j28XFilterFlag);
 }
 /* DFI 3002 DUI 015 J28.2(X) FILTER FLAG 1 bit*/
-std::string dfi3002dui015(std::array<int, 1> j28XFilterFlag)
+std::string Dfi3002dui015(const std::array<int, 1>& j28XFilterFlag)
 {
     //use the dfiset3002 Dui015 function to process the j28XFilterFlag array and return the output
         return "Accept all J28.2(X) Messages ///-> 0";
 }
 /* DFI 3002 DUI 016 SPECIAL PROCESSING INDICATOR FILTER FLAG 1 bit*/
-std::string dfi3002dui016(std::array<int, 1> specialProcessingIndicatorFilterFlag)
+std::string Dfi3002dui016(const std::array<int, 1>& specialProcessingIndicatorFilterFlag)
 {
     //use the dfiset3002 Dui016 function to process the specialProcessingIndicatorFilterFlag array and return the output
     return Dui016(specialProcessingIndicatorFilterFlag);
 }
 /* DFI 3002 DUI 017 TYPE FILTER 1 bit*/
-std::string dfi3002dui017(std::array<int, 1> typeFilter)
+std::string Dfi3002Dui017(const std::array<int, 1>& typeFilter)
 {
     //use the dfiset3002 Dui017 function to process the typeFilter array and return the output
     return Dui017(typeFilter);
 }
 /* DFI 3002 DUI 018 GEOGRAPHIC FILTER 1 bit*/
-std::string dfi3002dui018(std::array<int, 1> geographicFilter)
+std::string Dfi3002Dui018(const std::array<int, 1>& geographicFilter)
 {
     //use the dfiset3002 Dui018 function to process the geographicFilter array and return the output
     return Dui018(geographicFilter);
 }
 /* DFI 3002 DUI 019 ALL FILTERS 1 bit*/
-std::string dfi3002dui019(std::array<int, 1> allFilters)
+std::string Dfi3002Dui019(const std::array<int, 1>& allFilters)
 {
     //use the dfiset3002 Dui019 function to process the allFilters array and return the output
     return Dui019(allFilters);
 }
 /* DFI 3002 DUI 020 ALTERNATE NETWORK CONTROLLER ASSIGNMENT FLAG 1 bit*/
-std::string dfi3002dui020(std::array<int, 1> alternateNetworkControllerAssignmentFlag)
+std::string Dfi3002Dui020(const std::array<int, 1>& alternateNetworkControllerAssignmentFlag)
 {
     //use the dfiset3002 Dui020 function to process the alternateNetworkControllerAssignmentFlag array and return the output
     return Dui020(alternateNetworkControllerAssignmentFlag);
 }
 /* DFI 3002 DUI 021 ALTERNATE NETWORK CONTROLLER ASSIGNMENT RECOGNITION 1 bit*/
-std::string dfi3002dui021(std::array<int, 1> alternateNetworkControllerAssignmentRecognition)
+std::string Dfi3002Dui021(const std::array<int, 1>& alternateNetworkControllerAssignmentRecognition)
 {
     //use the dfiset3002 Dui021 function to process the alternateNetworkControllerAssignmentRecognition array and return the output
     return Dui021(alternateNetworkControllerAssignmentRecognition);
 }
 
-/* DFI 3003 DUI 001 AGE LIMIT VALUE 8 bits SPECIFIED IN ONE SECOND INCREMENTS.
- * MESSAGES OLDER THAN THIS LIMIT WILL BE FILTERED BY THE DATA AGE LIMIT*/
-std::string Dif3003Dui001(std::array<int, 8> ageLimitValue)
+/* DFI 3003 DUI 001 AGE LIMIT VALUE 8 bits */
+std::string Dfi3003Dui001(const std::array<int, 8>& ageLimitValue)
 {
     return Dui001(ageLimitValue);
 }
-
 /* DFI 3003 DUI 002 AVERAGE RECEIVED DATA MEDIA LATENCY 16 bits*/
-std::string Dfi3003Dui002(std::array<int, 16> averageReceivedDataMediaLatency)
+std::string Dfi3003Dui002(const std::array<int, 16>& averageReceivedDataMediaLatency)
 {    return Dui002(averageReceivedDataMediaLatency);
 }
 /* DFI 3003 DUI 003 DATA AGE 13 bits*/
-std::string Dfi3003Dui003(std::array<int, 13> dataAge)
+std::string Dfi3003Dui003(const std::array<int, 13>& dataAge)
 {
     return Dui003(dataAge);
 }
-
-/* DFI 3003 DUI 004 DATA VALID TIME 28 bits
-*/
-std::string Dfi3003Dui004(std::array<int, 28> dataValidTime)
+/* DFI 3003 DUI 004 DATA VALID TIME 28 bits*/
+std::string Dfi3003Dui004(const std::array<int, 28>& dataValidTime)
 {
     return Dui004(dataValidTime);
 }
 /* DFI 3003 DUI 005 EVENT TIME ACCURACY 4 bits*/
-std::string Dfi3003Dui005(std::array<int, 4> eventTimeAccuracy)
+std::string Dfi3003Dui005(const std::array<int, 4>& eventTimeAccuracy)
 {
     return Dui005(eventTimeAccuracy);
 }
 /* DFI 3003 DUI 007 MAXIMUM LATENCY 16 bits*/
-std::string Dfi3003Dui007(std::array<int, 16> maximumLatency)
+std::string Dfi3003Dui007(const std::array<int, 16>& maximumLatency)
 {
     return Dui007(maximumLatency);
 }
 /* DFI 3003 DUI 008 RX JRE RECEIVE TIME (R2) 28 bits
 same as coding for JRE Transmit Time*/
-std::string Dfi3003Dui008(std::array<int, 28> rxJreReceiveTime)
+std::string Dfi3003Dui008(const std::array<int, 28>& rxJreReceiveTime)
 {    return Dui008(rxJreReceiveTime);
 }
 /* DFI 3003 DUI 009 TX JRE TRANSMIT TIME (T1) 28 bits*/
-std::string Dfi3003Dui009(std::array<int, 28> txJreTransmitTime)
+std::string Dfi3003Dui009(const std::array<int, 28>& txJreTransmitTime)
 {
     return Dui009(txJreTransmitTime);
 }
 /* DFI 3003 DUI 010 RX JRE TRANSMIT TIME (T2) 28 bits*/
-std::string Dfi3003Dui010(std::array<int, 28> rxJreTransmitTime)
+std::string Dfi3003Dui010(const std::array<int, 28>& rxJreTransmitTime)
 {
     return Dui010(rxJreTransmitTime);
 }
 /* DFI 3003 DUI 011 TIME ACCURACY 4 bits*/
-std::string Dfi3003Dui011(std::array<int, 4> timeAccuracy)
+std::string Dfi3003Dui011(const std::array<int, 4>& timeAccuracy)
 {    return Dui011(timeAccuracy);
 }
 /* DFI 3003 DUI 012 EVENT TIME 28 bits*/
-std::string Dfi3003Dui012(std::array<int, 28> eventTime)
+std::string Dfi3003Dui012(const std::array<int, 28>& eventTime)
 {
     return Dui012(eventTime);
 }
 /* DFI 3003 DUI 013 INTERVAL TIME 10 bits*/
-std::string Dfi3003Dui013(std::array<int, 10> intervalTime)
+std::string Dfi3003Dui013(const std::array<int, 10>& intervalTime)
 {
     return Dui013(intervalTime);
 }
 /* DFI 3003 DUI 014 TIME ACCURACY (R2) 4 bits*/
-std::string Dfi3003Dui014(std::array<int, 4> timeAccuracyR2)
+std::string Dfi3003Dui014(const std::array<int, 4>& timeAccuracyR2)
 {
     return Dui014(timeAccuracyR2);
 }
 /* DFI 3003 DUI 015 TIME ACCURACY (T1) 4 bits*/
-std::string Dfi3003Dui015(std::array<int, 4> timeAccuracyT1)
+std::string Dfi3003Dui015(const std::array<int, 4>& timeAccuracyT1)
 {
     return Dui015(timeAccuracyT1);
 }
 /* DFI 3003 DUI 016 TIME ACCURACY (T2) 4 bits*/
-std::string Dfi3003Dui016(std::array<int, 4> timeAccuracyT2)
+std::string Dfi3003Dui016(const std::array<int, 4>& timeAccuracyT2)
 {
     return Dui016(timeAccuracyT2);
 }
 /* DFI 3004 DUI 001 JRE NC, C 1 bit*/
-std::string Dfi3004Dui001(std::array<int, 1> jreNcC)
+std::string Dfi3004Dui001(const std::array<int, 1>& jreNcC)
 {
     return Dui001(jreNcC);
 }
+
 /* DFI 3004 DUI 002 RTTIME, C*/
-std::string Dfi3004Dui002(std::array<int, 1> rttimeC)
+std::string Dfi3004Dui002(const std::array<int, 1>& rttimeC)
 {
     return Dui002(rttimeC);
 }
 /* DFI 3004 DUI 003 FIXED DELAY, C 1 bit*/
-std::string Dfi3004Dui003(std::array<int, 1> fixedDelayC)
+std::string Dfi3004Dui003(const std::array<int, 1>& fixedDelayC)
 {
     return Dui003(fixedDelayC);
 }
 /* DFI 3004 DUI 004 EVENT STROBE, C 1 bit*/
-std::string Dfi3004Dui004(std::array<int, 1> eventStrobeC)
+std::string Dfi3004Dui004(const std::array<int, 1>& eventStrobeC)
 {
     return Dui004(eventStrobeC);
 }
 /* DFI 3004 DUI 005 UTC, C 1 bit*/
-std::string Dfi3004Dui005(std::array<int, 1> utcC)
+std::string Dfi3004Dui005(const std::array<int, 1>& utcC)
 {
     return Dui005(utcC);
 }
 
 /* DFI 3005 DUI 001 JRE NC, P 1 bit*/
-std::string JreNcP(std::array<int, 1> jreNcP)
+std::string Dfi3005Dui001(const std::array<int, 1>& jreNcP)
 {
-    if (jreNcP[0] == 1)
-    {
-        return "Preferred ///-> 1";
-    }
-    else
-    {
-        return "Not Preferred ///-> 0";
-    }
+    return Dui001(jreNcP);
 }
 /* DFI 3005 DUI 002 RTTIME, P 1 bit*/
-std::string RttimeP(std::array<int, 1> rttimeP)
+std::string Dfi3005Dui002(const std::array<int, 1>& rttimeP)
 {
-    return JreNcP(rttimeP);
+    return Dui002(rttimeP);
 }
 /* DFI 3005 DUI 003 FIXED DELAY, P 1 bit*/
-std::string FixedDelayP(std::array<int, 1> fixedDelayP)
+std::string Dfi3005Dui003(const std::array<int, 1>& fixedDelayP)
 {
-    return JreNcP(fixedDelayP);
+    return Dui003(fixedDelayP);
 }
 /* DFI 3005 DUI 004 EVENT STROBE, P 1 bit*/
-std::string EventStrobeP(std::array<int, 1> eventStrobeP)
+std::string Dfi3005Dui004(const std::array<int, 1>& eventStrobeP)
 {
-    return JreNcP(eventStrobeP);
+    return Dui004(eventStrobeP);
 }
 /* DFI 3005 DUI 005 UTC, P 1 bit*/
-std::string UtcP(std::array<int, 1> utcP)
+std::string Dfi3005Dui005(const std::array<int, 1>& utcP)
 {
-    return JreNcP(utcP);
+    return Dui005(utcP);
 }
-/* DFI 3007 DUI 001 TRANSMISSION BLOCK HEADER TYPE 4 bits*/
-std::string TransmissionBlockHeaderType(std::array<int, 4> transmissionBlockHeaderType)
+
+/* DFI 3006 DUI 001 ACKNOWLEDGEMENT PROTOCOL, 1 4 bits*/
+std::string Dfi3006Dui001(const std::array<int, 4>& acknowledgementProtocol1)
 {
-    int transmissionBlockHeaderTypeInt = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        transmissionBlockHeaderTypeInt += transmissionBlockHeaderType[i] * std::pow(2, 3 - i);
-    }
-    std::string output = "";
-    switch (transmissionBlockHeaderTypeInt)
-    {
-    case 0:
-        output = "Undefined ///-> 0000";
-        break;
-    case 1:
-        output = "JREAP-A ///-> 0001";
-        break;
-    case 2:
-        output = "JREAP-B ///-> 0010";
-        break;
-    case 3:
-        output = "JREAP-C ///-> 0011";
-        break;
-    default:
-        output = "Illegal ///-> ";
-        break;
-    }
-    return output;
+    return Dui001(acknowledgementProtocol1);
+}
+/* DFI 3006 DUI 002 ACKNOWLEDGEMENT PROTOCOL, 2 4 bits*/
+std::string Dfi3006Dui002(const std::array<int, 4>& acknowledgementProtocol2)
+{
+    return Dui002(acknowledgementProtocol2);
+}
+/* DFI 3006 DUI 003 ACKNOWLEDGEMENT PROTOCOL, 3 4 bits*/
+std::string Dfi3006Dui003(const std::array<int, 4>& acknowledgementProtocol3)
+{
+    return Dui003(acknowledgementProtocol3);
+}
+/* DFI 3006 DUI 004 ACKNOWLEDGEMENT PROTOCOL, 4 4 bits*/
+std::string Dfi3006Dui004(const std::array<int, 4>& acknowledgementProtocol4)
+{
+    return Dui004(acknowledgementProtocol4);
+}
+/* DFI 3006 DUI 005 ACKNOWLEDGEMENT PROTOCOL, 5 4 bits*/
+std::string Dfi3006Dui005(const std::array<int, 4>& acknowledgementProtocol5)
+{
+    return Dui005(acknowledgementProtocol5);
+}
+
+/* DFI 3007 DUI 001 TRANSMISSION BLOCK HEADER TYPE 4 bits*/
+std::string Dfi3007Dui001(const std::array<int, 4>& transmissionBlockHeaderType)
+{
+    return Dui001(transmissionBlockHeaderType);
 }
 /* DFI 3007 DUI 002 MESSAGE GROUP HEADER TYPE 2 bits*/
-std::string MessageGroupHeaderType(std::array<int, 2> messageGroupHeaderType)
+std::string Dfi3007Dui002(const std::array<int, 2>& messageGroupHeaderType)
 {
-    int messageGroupHeaderTypeInt = 0;
-    for (int i = 0; i < 2; i++)
-    {
-        messageGroupHeaderTypeInt += messageGroupHeaderType[i] * std::pow(2, 1 - i);
-    }
-    std::string output = "";
-    switch (messageGroupHeaderTypeInt)
-    {
-    case 0:
-        output = "Reserved ///-> 00";
-        break;
-    case 1:
-        output = "Reserved ///-> 01";
-        break;
-    case 2:
-        output = "Reserved ///-> 10";
-        break;
-    case 3:
-        output = "Full Stack Message Group Header ///-> 11";
-        break;
-    default:
-        output = "Illegal ///-> ";
-        break;
-    }
-    return output;
+    return Dui002(messageGroupHeaderType);
 }
 /* DFI 3007 DUI 003 HEADER TYPE 4 bits*/
-std::string HeaderType(std::array<int, 4> headerType)
+std::string Dfi3007Dui003(const std::array<int, 4>& headerType)
 {
-    int headerTypeInt = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        headerTypeInt += headerType[i] * std::pow(2, 3 - i);
-    }
-    std::string output = "";
-    switch (headerTypeInt)
-    {
-    case 0:
-        output = "Undefined ///-> 0000";
-        break;
-    case 1:
-        output = "Announced Token Passing ///-> 0001";
-        break;
-    case 2:
-        output = "Point To Point///-> 0010";
-        break;
-    case 3:
-        output = "Application Layer ///-> 0011";
-        break;
-    default:
-        output = "Reserved ///-> ";
-        break;
-    }
-    return output;
+    return Dui003(headerType);
 }
 
 /* DFI 3008 DUI 001 MESSAGE TYPE 4 bits*/
-std::string MessageType(std::array<int, 4> messageType)
+std::string Dfi3008Dui001(const std::array<int, 4>& messageType)
 {
-    int messageTypeInt = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        messageTypeInt += messageType[i] * std::pow(2, 3 - i);
-    }
-    std::string output = "";
-    /*
-    MANAGEMENT                        0
-    JREAP J-SERIES                    1
-    JTIDS/MIDS JREAP FREE             2
-    TEXT (CODED)
-    JTIDS/MIDS JREAP FREE             3
-    TEXT (UNCODED)
-    VMF                               4
-    LINK 22                           5
-    CMF IBS                           6
-    JREAP J SERIES WITH               7
-    NPG ASSIGHMENT
-    UNDEFINED                         8 THROUGH 14
-    RESERVED FOR EXPANSION            15*/
-    switch (messageTypeInt)
-    {
-    case 0:
-        output = "Management Message ///-> 0000";
-        break;
-    case 1:
-        output = "JREAP J-SERIES ///-> 0001";
-        break;
-    case 2:
-        output = "JTIDS/MIDS JREAP FREE TEXT (CODED) ///-> 0010";
-        break;
-    case 3:
-        output = "JTIDS/MIDS JREAP FREE TEXT (UNCODED) ///-> 0011";
-        break;
-    case 4:
-        output = "VMF ///-> 0100";
-        break;
-    case 5:
-        output = "LINK 22 ///-> 0101";
-        break;
-    case 6:
-        output = "CMF IBS ///-> 0110";
-        break;
-    case 7:
-        output = "JREAP J SERIES WITH NPG ASSIGHMENT ///-> 0111";
-        break;
-    case 8:
-        output = "Undefined ///-> 1000";
-        break;
-    case 9:
-        output = "Undefined ///-> 1001";
-        break;
-    case 10:
-        output = "Undefined ///-> 1010";
-        break;
-    case 11:
-        output = "Undefined ///-> 1011";
-        break;
-    case 12:
-        output = "Undefined ///-> 1100";
-        break;
-    case 13:
-        output = "Undefined ///-> 1101";
-        break;
-    case 14:
-        output = "Undefined ///-> 1110";
-        break;
-    case 15:
-        output = "Reserved ///-> 1111";
-        break;
-    default:
-        output = "Illegal ///-> ";
-        break;
-    }
-    return output;
-}
+    return Dui001(messageType);
+}   
 /* DFI 3008 DUI 002 MANAGEMENT MESSAGE SUBTYPE 8 bits*/
-std::string ManagementMessageSubtype(std::array<int, 8> managementMessageSubtype)
+std::string Dfi3008Dui002(const std::array<int, 8>& managementMessageSubtype)
 {
-    std::string resp = "";
-    for (std::size_t i = 0; i < managementMessageSubtype.size(); i++)
-    {
-        resp.append(std::to_string(managementMessageSubtype[i]));
-    }
-    int managementMessageSubtypeInt = 0;
-    for (int i = 0; i < 8; i++)
-    {
-        managementMessageSubtypeInt += managementMessageSubtype[i] * std::pow(2, 7 - i);
-    }
-    std::string output = "";
-    switch (managementMessageSubtypeInt)
-    {
-    case 0:
-        output = "Echo ///-> 00000000";
-        break;
-    case 1:
-        output = "Common Time Reference ///-> 00000001";
-        break;
-    case 2:
-        output = "ROUND-TRIP TIME DELAY ///-> 00000010";
-        break;
-    case 3:
-        output = "JREAP J-SERIES ACK (Full Stack) ///-> 00000011";
-        break;
-    case 4:
-        output = "JREAP J-SERIES ACK (Application Layer) ///-> 00000100";
-        break;
-    case 5:
-        output = "Latency Threshhold ///-> 00000101";
-        break;
-    case 6:
-        output = "Latency Exceeded ///-> 00000110";
-        break;
-    case 7:
-        output = "Operator to Operator ///-> 00000111";
-        break;
-    case 8:
-        output = "Special Event ///-> 00001000";
-        break;
-    case 9:
-        output = "Terminate Link ///-> 00001001";
-        break;
-    case 10:
-        output = "Remote Filter///-> 00001010";
-        break;
-    case 11:
-        output = "Secondary Track Number List ///-> 00001011";
-        break;
-    case 12:
-        output = "Direct Connection List ///-> 00001100";
-        break;
-    case 13:
-        output = "Network Connectivity Matrix ///-> 00001101";
-        break;
-    case 14:
-        output = "Connectivity Feedback ///-> 00001110";
-        break;
-    case 15 ... 199:
-        output = "Undefined ///-> " + resp;
-        break;
-    case 200 ... 209:
-        output = "Reserved for USA prototyping efforts ///-> " + resp;
-        break;
-    case 210 ... 219:
-        output = "Reserved for USAF prototyping efforts ///-> " + resp;
-        break;
-    case 220 ... 229:
-        output = "Reserved for USMC prototyping efforts ///-> " + resp;
-        break;
-    case 230 ... 239:
-        output = "Reserved for USN prototyping efforts ///-> " + resp;
-        break;
-    case 240 ... 249:
-         output = "Reserved for MDA prototyping efforts ///-> " + resp;
-        break;
-    case 250 ... 254:
-         output = "undefined ///-> " + resp;
-        break;
-    default:
-        output = "Reserved for Expansion ///-> ";
-        break;
-    }
-    return output;
+    return Dui002(managementMessageSubtype);
 }
 /* DFI 3008 DUI 003 FILTER MESSAGE TYPE 8 bits*/
-std::string FilterMessageType(std::array<int, 8> filterMessageType)
+std::string Dfi3008Dui003(const std::array<int, 8>& filterMessageType)
 {
-    std::string resp = "";
-    for (std::size_t i = 0; i < filterMessageType.size(); i++)
-    {
-        resp.append(std::to_string(filterMessageType[i]));
-    }
-    int filterMessageTypeInt = 0;
-    for (int i = 0; i < 8; i++)
-    {
-        filterMessageTypeInt += filterMessageType[i] * std::pow(2, 7 - i);
-    }
-    std::string output = "";
-    switch (filterMessageTypeInt)
-    {
-    case 0:
-        output = "All Filter Types ///-> 00000000";
-        break;
-    case 1:
-        output = "Filter Settings Summary ///-> 00000001";
-        break;
-    case 2:
-        output = "Category Identity Filter///-> 00000010";
-        break;
-    case 3:
-        output = "Label/SubLabel Filter ///-> 00000011";
-        break;
-    case 4:
-        output = "Point Type/Point Amplification Filter ///-> 00000100";
-        break;
-    case 5:
-        output = "Ellipse-Rectangle GraphicFilter ///-> 00000101";
-        break;
-    case 6:
-        output = "CClosed Polygon Geographic Filter ///-> 00000110";
-        break;
-    case 7:
-        output = "Source Track Number Filter ///-> 00000111";
-        break;
-    case 8:
-        output = "Special Processing Indicator Filter ///-> 00001000";
-        break;
-    case 9:
-        output = "J28.2(X) FILTER Filter ///-> 00001001";
-        break;
-    case 10:
-        output = "Data Age Filter ///-> 00001010";
-        break;
-    case 11:
-        output = "Simulator Filter ///-> 00001011";
-        break;
-    case 12:
-        output = "J3.6 Rocket Filter///-> 00001100";
-        break;
-    case 13:
-        output = "National use sublabel Filter ///-> 00001101";
-        break;
-    case 14:
-        output = "Network Participation Group Filter ///-> 00001110";
-        break;
-    default:
-        output = "Undefined ///-> " + resp;
-        break;
-    }
-    return output;
+    return Dui003(filterMessageType);
 }
-/* DFI 3008 DUI 004 REQUESTED FILTER MESSAGE TYPE*/
+/* DFI 3008 DUI 004 REQUESTED FILTER MESSAGE TYPE 8 bits*/
+std::string Dfi3008Dui004(const std::array<int, 8>& requestedFilterMessageType)
+{
+    return Dui004(requestedFilterMessageType);
+}
+/* DFI 3009 DUI 001 GEO FILTER SUBTYPE 3 bits*/
+std::string Dfi3009Dui001(const std::array<int, 3>& geoFilterSubtype)
+{
+    return Dui001(geoFilterSubtype);
+}
 
-/* DFI 3009 DUI 001 GEO FILTER SUBTYPE*/
+/* DFI 3010 DUI 015 LATITUDE, 0.0013 MINUTE 23 bits*/
+std::string Dfi3010Dui015(const std::array<int, 23>& latitude)
+{
+    return Dui015(latitude);
+}
+/* DFI 3010 DUI 018 LATITUDE, CENTER 0.0013 MINUTE 23 bits*/
+std::string Dfi3010Dui018(const std::array<int, 23>& latitudeCenter)
+{
+    return Dui018(latitudeCenter);
+}
 
-/* DFI 3010 DUI 015 LATITUDE, 0.0013 MINUTE*/
-/* DFI 3010 DUI 018 LATITUDE, CENTER 0.0013 MINUTE*/
-
-/* DFI 3011 DUI 015 LONGITUDE, 0.0013 MINUTE*/
-/* DFI 3011 DUI 016 LONGITUDE, CENTER 0.0013 MINUTE*/
+/* DFI 3011 DUI 015 LONGITUDE, 0.0013 MINUTE 24 bits*/
+std::string Dfi3011Dui015(const std::array<int, 24>& longitude)
+{
+    return Dui015(longitude);
+}
+/* DFI 3011 DUI 016 LONGITUDE, CENTER 0.0013 MINUTE 24 bits*/
+std::string Dfi3011Dui016(const std::array<int, 24>& longitudeCenter)
+{
+    return Dui016(longitudeCenter);
+}
 
 /* DFI 3012 DUI 001 APPLICATION BLOCK MESSAGE LENGTH*/
+std::string Dfi3012Dui001(const std::array<int, 16>& applicationBlockMessageLength)
+{
+    return Dui001(applicationBlockMessageLength);
+}
 /* DFI 3012 DUI 002 LENGTH OF MESSAGE*/
+std::string Dfi3012Dui002(const std::array<int, 16>& lengthOfMessage)
+{
+    return Dui002(lengthOfMessage);
+}
 /* DFI 3012 DUI 003 MANAGEMENT MESSAGE LENGTH*/
+std::string Dfi3012Dui003(const std::array<int, 16>& managementMessageLength)
+{
+    return Dui003(managementMessageLength);
+}
 
-/* DFI 3013 DUI 001 MAJOR AXIS LENGTH*/
-/* DFI 3013 DUI 002 MINOR AXIS LENGTH*/
+/* DFI 3013 DUI 001 MAJOR AXIS LENGTH 12 bits*/
+std::string Dfi3013Dui001(const std::array<int, 12>& majorAxisLength)
+{
+    return Dui001(majorAxisLength);
+}
+/* DFI 3013 DUI 002 MINOR AXIS LENGTH 12 bits*/
+std::string Dfi3013Dui002(const std::array<int, 12>& minorAxisLength)
+{
+    return Dui002(minorAxisLength);
+}
 
-/* DFI 3014 DUI 001 TRANSMISSION BLOCK HEADER LENGTH*/
-/* DFI 3014 DUI 002 TRANSMISSION BLOCK HEADER LENGTH, 1*/
-/* DFI 3014 DUI 003 TRANSMISSION BLOCK HEADER LENGTH, 2*/
-/* DFI 3014 DUI 004 TRANSMISSION BLOCK HEADER LENGTH, 3*/
+/* DFI 3014 DUI 001 TRANSMISSION BLOCK HEADER LENGTH 8 bits*/
+std::string Dfi3014Dui001(const std::array<int, 12>& transmissionBlockHeaderLength)
+{
+    return Dui001(transmissionBlockHeaderLength);
+}
+/* DFI 3014 DUI 002 TRANSMISSION BLOCK HEADER LENGTH, 1 8 bits*/
+std::string Dfi3014Dui002(const std::array<int, 12>& transmissionBlockHeaderLength1)
+{
+    return Dui002(transmissionBlockHeaderLength1);
+}
+/* DFI 3014 DUI 003 TRANSMISSION BLOCK HEADER LENGTH, 2 8 bits*/
+std::string Dfi3014Dui003(const std::array<int, 12>& transmissionBlockHeaderLength2)
+{
+    return Dui003(transmissionBlockHeaderLength2);
+}
+/* DFI 3014 DUI 004 TRANSMISSION BLOCK HEADER LENGTH, 3 8 bits*/
+std::string Dfi3014Dui004(const std::array<int, 12>& transmissionBlockHeaderLength3)
+{
+    return Dui004(transmissionBlockHeaderLength3);
+}
 
-/* DFI 3015 DUI 002 JRE-NP ERROR RATE*/
-/* DFI 3015 DUI 017 JRE-NC ERROR RATE*/
-/* DFI 3015 DUI 018 ERROR RATE, CURRENT*/
+/* DFI 3015 DUI 001 CURRENT ERROR RATE 7 bits*/
+std::string Dfi3015Dui001(const std::array<int, 7>& currentErrorRate)
+{
+    return Dui001(currentErrorRate);
+}
+/* DFI 3015 DUI 002 JRE-NP ERROR RATE 7 bits*/
+std::string Dfi3015Dui002(const std::array<int, 7>& jreNpErrorRate)
+{
+    return Dui002(jreNpErrorRate);
+}
+/* DFI 3015 DUI 017 JRE-NC ERROR RATE 7 bits*/
+std::string Dfi3015Dui017(const std::array<int, 7>& jreNcErrorRate)
+{
+    return Dui017(jreNcErrorRate);
+}
+/* DFI 3015 DUI 018 ERROR RATE, CURRENT 16 bits*/
+std::string Dfi3015Dui018(const std::array<int, 16>& errorRateCurrent)
+{
+    return Dui018(errorRateCurrent);
+}
 
-/* DFI 3016 DUI 001 APPLICATION DATA*/
-/* DFI 3016 DUI 002 DATA WORDS*/
-/* DFI 3016 DUI 003 TRANSPORT DATA WORD COUNT, 1*/
-/* DFI 3016 DUI 004 TRANSPORT DATA WORD COUNT, 2*/
-/* DFI 3016 DUI 005 TRANSPORT DATA WORD COUNT, 3*/
+/* DFI 3016 DUI 001 APPLICATION DATA 32 bits*/
+std::string Dfi3016Dui001(const std::array<int, 32>& applicationData)
+{
+    return Dui001(applicationData);
+}
+/* DFI 3016 DUI 002 DATA WORDS 10 bits*/
+std::string Dfi3016Dui002(const std::array<int, 10>& dataWords)
+{
+    return Dui002(dataWords);
+}
+/* DFI 3016 DUI 003 TRANSPORT DATA WORD COUNT, 1 16 bits*/
+std::string Dfi3016Dui003(const std::array<int, 16>& transportDataWordCount1)
+{
+    return Dui003(transportDataWordCount1);
+}
+/* DFI 3016 DUI 004 TRANSPORT DATA WORD COUNT, 2 16 bits*/
+std::string Dfi3016Dui004(const std::array<int, 16>& transportDataWordCount2)
+{
+    return Dui004(transportDataWordCount2);
+}
+/* DFI 3016 DUI 005 TRANSPORT DATA WORD COUNT, 3 16 bits*/
+std::string Dfi3016Dui005(const std::array<int, 16>& transportDataWordCount3)
+{
+    return Dui005(transportDataWordCount3);
+}
 
-/* DFI 3017 DUI 001 NUMBER DESTINATION ADDRESSES*/
-/* DFI 3017 DUI 002 NUMBER ADDRESSES THIS DESIGNATOR*/
-/* DFI 3017 DUI 003 NUMBER DESTINATION ADDRESSES, NON-ZERO*/
+/* DFI 3017 DUI 001 NUMBER DESTINATION ADDRESSES 8 bits*/
+std::string Dfi3017Dui001(const std::array<int, 8>& numberDestinationAddresses)
+{
+    return Dui001(numberDestinationAddresses);
+}
+/* DFI 3017 DUI 002 NUMBER ADDRESSES THIS DESIGNATOR 8 bits*/
+std::string Dfi3017Dui002(const std::array<int, 8>& numberAddressesThisDesignator)
+{
+    return Dui002(numberAddressesThisDesignator);
+}
+/* DFI 3017 DUI 003 NUMBER DESTINATION ADDRESSES, NON-ZERO 8 bits*/
+std::string Dfi3017Dui003(const std::array<int, 8>& numberDestinationAddressesNonZero)
+{
+    return Dui003(numberDestinationAddressesNonZero);
+}
 
 /* DFI 3018 DUI 001 NUMBER OF DESIGNATORS SUPPORTED*/
+std::string Dfi3018Dui001(const std::array<int, 8>& numberOfDesignatorsSupported)
+{
+    return Dui001(numberOfDesignatorsSupported);
+}
 /* DFI 3018 DUI 002 TOTAL NUMBER OF ACTIVE DESIGNATORS*/
+std::string Dfi3018Dui002(const std::array<int, 8>& totalNumberOfActiveDesignators)
+{
+    return Dui002(totalNumberOfActiveDesignators);
+}
 
 /* DFI 3019 DUI 001 CONNECTIVITY MATRIX BIT*/
+std::string Dfi3019Dui001(const std::array<int, 1>& connectivityMatrixBit)
+{
+    return Dui001(connectivityMatrixBit);
+}
 
 /* DFI 3020 DUI 001 CONTROL/RESPONSE INDICATOR, 1*/
+std::string Dfi3020Dui001(const std::array<int, 8>& controlResponseIndicator1)
+{
+    return Dui001(controlResponseIndicator1);
+}
 /* DFI 3020 DUI 002 CONTROL/RESPONSE INDICATOR, 2*/
+std::string Dfi3020Dui002(const std::array<int, 8>& controlResponseIndicator2)
+{
+    return Dui002(controlResponseIndicator2);
+}
 /* DFI 3020 DUI 003 CONTROL/RESPONSE INDICATOR, 3*/
+std::string Dfi3020Dui003(const std::array<int, 8>& controlResponseIndicator3)
+{
+    return Dui003(controlResponseIndicator3);
+}
 /* DFI 3020 DUI 004 CONTROL/RESPONSE INDICATOR, 4*/
+std::string Dfi3020Dui004(const std::array<int, 8>& controlResponseIndicator4)
+{
+    return Dui004(controlResponseIndicator4);
+}
 /* DFI 3020 DUI 005 CONTROL/RESPONSE INDICATOR, 5*/
+std::string Dfi3020Dui005(const std::array<int, 8>& controlResponseIndicator5)
+{
+    return Dui005(controlResponseIndicator5);
+}
 /* DFI 3020 DUI 006 CONTROL/RESPONSE INDICATOR, 6*/
+std::string Dfi3020Dui006(const std::array<int, 8>& controlResponseIndicator6)
+{
+    return Dui006(controlResponseIndicator6);
+}
 /* DFI 3020 DUI 007 CONTROL/RESPONSE INDICATOR, 7*/
+std::string Dfi3020Dui007(const std::array<int, 8>& controlResponseIndicator7)
+{
+    return Dui007(controlResponseIndicator7);
+}
 /* DFI 3020 DUI 008 CONTROL/RESPONSE INDICATOR, 8*/
+std::string Dfi3020Dui008(const std::array<int, 8>& controlResponseIndicator8)
+{
+    return Dui008(controlResponseIndicator8);
+}
 /* DFI 3020 DUI 009 CONTROL/RESPONSE INDICATOR, 9*/
+std::string Dfi3020Dui009(const std::array<int, 8>& controlResponseIndicator9)
+{
+    return Dui009(controlResponseIndicator9);
+}
 /* DFI 3020 DUI 010 CONTROL/RESPONSE INDICATOR, 10*/
+std::string Dfi3020Dui010(const std::array<int, 8>& controlResponseIndicator10)
+{
+    return Dui010(controlResponseIndicator10);
+}
 /* DFI 3020 DUI 011 CONTROL/RESPONSE INDICATOR, 11*/
+std::string Dfi3020Dui011(const std::array<int, 8>& controlResponseIndicator11)
+{
+    return Dui011(controlResponseIndicator11);
+}
 /* DFI 3020 DUI 012 CONTROL/RESPONSE INDICATOR, 12*/
+std::string Dfi3020Dui012(const std::array<int, 8>& controlResponseIndicator12)
+{
+    return Dui012(controlResponseIndicator12);
+}
 /* DFI 3020 DUI 013 CONTROL/RESPONSE INDICATOR, 13*/
+std::string Dfi3020Dui013(const std::array<int, 8>& controlResponseIndicator13)
+{
+    return Dui013(controlResponseIndicator13);
+}
 /* DFI 3020 DUI 014 CONTROL/RESPONSE INDICATOR*/
+std::string Dfi3020Dui014(const std::array<int, 8>& controlResponseIndicator)
+{
+    return Dui014(controlResponseIndicator);
+}
 
 /* DFI 3021 DUI 001 LINK DESIGNATOR TO FILTER*/
+std::string Dfi3021Dui001(const std::array<int, 16>& linkDesignatorToFilter)
+{
+    return Dui001(linkDesignatorToFilter);
+}
 /* DFI 3021 DUI 002 LINK DESIGNATOR*/
+std::string Dfi3021Dui002(const std::array<int, 16>& linkDesignator)
+{
+    return Dui002(linkDesignator);
+}
 /* DFI 3021 DUI 003 SOURCE LINK DESIGNATOR*/
+std::string Dfi3021Dui003(const std::array<int, 16>& sourceLinkDesignator)
+{
+    return Dui003(sourceLinkDesignator);
+}
 /* DFI 3021 DUI 004 TRANSMIT LINK DESIGNATOR*/
+std::string Dfi3021Dui004(const std::array<int, 16>& transmitLinkDesignator)
+{
+    return Dui004(transmitLinkDesignator);
+}
 
-/* DFI 3022 DUI 001 EVENT TYPE*/
+/* DFI 3022 DUI 001 EVENT TYPE 5 bits*/
+std::string Dfi3022Dui001(const std::array<int, 5>& eventType)
+{
+    return Dui001(eventType);
+}
 
 /* DFI 3023 DUI 001 APPLICATION PROTOCOL VERSION*/
+std::string Dfi3023Dui001(const std::array<int, 4>& applicationProtocolVersion)
+{
+    return Dui001(applicationProtocolVersion);
+}
 
 /* DFI 3024 DUI 001 ASCII*/
+std::string Dfi3024Dui001(const std::array<int, 8>& asciiCharacters)
+{
+    return Dui001(asciiCharacters);
+}
 
 /* DFI 3025 DUI 001 CONTROLLER MODE NP*/
+std::string Dfi3025Dui001(const std::array<int, 2>& controllerModeNp)
+{
+    return Dui001(controllerModeNp);
+}
 /* DFI 3025 DUI 002 CONTROLLER MODE NC*/
+std::string Dfi3025Dui002(const std::array<int, 2>& controllerModeNc)
+{
+    return Dui002(controllerModeNc);
+}
 
 /* DFI 3027 DUI 001 SOURCE TRACK NUMBER*/
+std::string Dfi3027Dui001(const std::array<int, 15>& sourceTrackNumber)
+{
+    return Dui001(sourceTrackNumber);
+}
 /* DFI 3027 DUI 002 SECONDARY TRACK NUMBER*/
+std::string Dfi3027Dui002(const std::array<int, 15>& secondaryTrackNumber)
+{
+    return Dui002(secondaryTrackNumber);
+}
 /* DFI 3027 DUI 003 JRE SOURCE TRACK NUMBER*/
+std::string Dfi3027Dui003(const std::array<int, 16>& jreSourceTrackNumber)
+{
+    return Dui003(jreSourceTrackNumber);
+}
 
 /* DFI 3028 DUI 001 JREAP J-SERIES MESSAGE WORD, 1*/
+std::string Dfi3028Dui001(const std::array<int, 16>& jreapJSeriesMessageWord1)
+{
+    return Dui001(jreapJSeriesMessageWord1);
+}
 /* DFI 3028 DUI 002 JREAP J-SERIES MESSAGE WORD, 2*/
+std::string Dfi3028Dui002(const std::array<int, 16>& jreapJSeriesMessageWord2)
+{
+    return Dui002(jreapJSeriesMessageWord2);
+}
 /* DFI 3028 DUI 003 JREAP J-SERIES MESSAGE WORD, 3*/
+std::string Dfi3028Dui003(const std::array<int, 16>& jreapJSeriesMessageWord3)
+{
+    return Dui003(jreapJSeriesMessageWord3);
+}
 /* DFI 3028 DUI 004 JREAP J-SERIES MESSAGE WORD, 4*/
+std::string Dfi3028Dui004(const std::array<int, 16>& jreapJSeriesMessageWord4)
+{
+    return Dui004(jreapJSeriesMessageWord4);
+}
 /* DFI 3028 DUI 005 JREAP J-SERIES MESSAGE WORD, 5*/
+std::string Dfi3028Dui005(const std::array<int, 6>& jreapJSeriesMessageWord5)
+{
+    return Dui005(jreapJSeriesMessageWord5);
+}
 
-/* DFI 3029 DUI 001 COMPLETION TIMEOUT*/
+/* DFI 3029 DUI 001 COMPLETION TIMEOUT 8 bits*/
+std::string Dfi3029Dui001(const std::array<int, 8>& completionTimeout)
+{
+    return Dui001(completionTimeout);
+}
 
-/* DFI 3030 DUI 001 JREAP/JTIDS FREE TEXT, 1*/
-/* DFI 3030 DUI 002 JREAP/JTIDS FREE TEXT, 2*/
-/* DFI 3030 DUI 003 JREAP/JTIDS FREE TEXT, 3*/
-/* DFI 3030 DUI 004 JREAP/JTIDS FREE TEXT, 4*/
-/* DFI 3030 DUI 005 JREAP/JTIDS FREE TEXT, 5*/
-/* DFI 3030 DUI 006 JREAP/JTIDS FREE TEXT, 6*/
-/* DFI 3030 DUI 007 JREAP/JTIDS FREE TEXT, 7*/
-/* DFI 3030 DUI 008 JREAP/JTIDS FREE TEXT, 8*/
-/* DFI 3030 DUI 009 JREAP/JTIDS FREE TEXT, 9*/
-/* DFI 3030 DUI 010 JREAP/JTIDS FREE TEXT, 10*/
-/* DFI 3030 DUI 011 JREAP/JTIDS FREE TEXT, 11*/
-/* DFI 3030 DUI 012 JREAP/JTIDS FREE TEXT, 12*/
-/* DFI 3030 DUI 013 JREAP/JTIDS FREE TEXT, 13*/
-/* DFI 3030 DUI 014 JREAP/JTIDS FREE TEXT, 14*/
-/* DFI 3030 DUI 015 JREAP/JTIDS FREE TEXT, 15*/
-/* DFI 3030 DUI 016 JREAP/JTIDS FREE TEXT, 16*/
-/* DFI 3030 DUI 017 JREAP/JTIDS FREE TEXT, 17*/
-/* DFI 3030 DUI 018 JREAP/JTIDS FREE TEXT, 18*/
-/* DFI 3030 DUI 019 JREAP/JTIDS FREE TEXT, 19*/
-/* DFI 3030 DUI 020 JREAP/JTIDS FREE TEXT, 20*/
-/* DFI 3030 DUI 021 JREAP/JTIDS FREE TEXT, 21*/
-/* DFI 3030 DUI 022 JREAP/JTIDS FREE TEXT, 22*/
-/* DFI 3030 DUI 023 JREAP/JTIDS FREE TEXT, 23*/
-/* DFI 3030 DUI 024 JREAP/JTIDS FREE TEXT, 24*/
-/* DFI 3030 DUI 025 JREAP/JTIDS FREE TEXT, 25*/
-/* DFI 3030 DUI 026 JREAP/JTIDS FREE TEXT, 26*/
-/* DFI 3030 DUI 027 JREAP/JTIDS FREE TEXT, 27*/
-/* DFI 3030 DUI 028 JREAP/JTIDS FREE TEXT, 28*/
-/* DFI 3030 DUI 029 JREAP/JTIDS FREE TEXT, 29*/
-/* DFI 3030 DUI 030 JREAP/JTIDS FREE TEXT, 30*/
+/* DFI 3030 DUI 001 JREAP/JTIDS FREE TEXT, 1 16 bits*/
+std::string Dfi3030Dui001(const std::array<int, 16>& jreapJtidsFreeText1)
+{
+    return Dui001(jreapJtidsFreeText1);
+}
+/* DFI 3030 DUI 002 JREAP/JTIDS FREE TEXT, 2 16 bits*/
+std::string Dfi3030Dui002(const std::array<int, 16>& jreapJtidsFreeText2)
+{
+    return Dui002(jreapJtidsFreeText2);
+}
+/* DFI 3030 DUI 003 JREAP/JTIDS FREE TEXT, 3 16 bits*/
+std::string Dfi3030Dui003(const std::array<int, 16>& jreapJtidsFreeText3)
+{
+    return Dui003(jreapJtidsFreeText3);
+}
+/* DFI 3030 DUI 004 JREAP/JTIDS FREE TEXT, 4 16 bits*/
+std::string Dfi3030Dui004(const std::array<int, 16>& jreapJtidsFreeText4)
+{
+    return Dui004(jreapJtidsFreeText4);
+}
+/* DFI 3030 DUI 005 JREAP/JTIDS FREE TEXT, 5 16 bits*/
+std::string Dfi3030Dui005(const std::array<int, 16>& jreapJtidsFreeText5)
+{
+    return Dui005(jreapJtidsFreeText5);
+}
+/* DFI 3030 DUI 006 JREAP/JTIDS FREE TEXT, 6 16 bits*/
+std::string Dfi3030Dui006(const std::array<int, 16>& jreapJtidsFreeText6)
+{
+    return Dui006(jreapJtidsFreeText6);
+}
+/* DFI 3030 DUI 007 JREAP/JTIDS FREE TEXT, 7 16 bits*/
+std::string Dfi3030Dui007(const std::array<int, 16>& jreapJtidsFreeText7)
+{
+    return Dui007(jreapJtidsFreeText7);
+}
+/* DFI 3030 DUI 008 JREAP/JTIDS FREE TEXT, 8 16 bits*/
+std::string Dfi3030Dui008(const std::array<int, 16>& jreapJtidsFreeText8)
+{
+    return Dui008(jreapJtidsFreeText8);
+}
+/* DFI 3030 DUI 009 JREAP/JTIDS FREE TEXT, 9 16 bits*/
+std::string Dfi3030Dui009(const std::array<int, 16>& jreapJtidsFreeText9)
+{
+    return Dui009(jreapJtidsFreeText9);
+}
+/* DFI 3030 DUI 010 JREAP/JTIDS FREE TEXT, 10 16 bits*/
+std::string Dfi3030Dui010(const std::array<int, 16>& jreapJtidsFreeText10)
+{
+    return Dui010(jreapJtidsFreeText10);
+}
+/* DFI 3030 DUI 011 JREAP/JTIDS FREE TEXT, 11 16 bits*/
+std::string Dfi3030Dui011(const std::array<int, 16>& jreapJtidsFreeText11)
+{
+    return Dui011(jreapJtidsFreeText11);
+}
+/* DFI 3030 DUI 012 JREAP/JTIDS FREE TEXT, 12 16 bits*/
+std::string Dfi3030Dui012(const std::array<int, 16>& jreapJtidsFreeText12)
+{
+    return Dui012(jreapJtidsFreeText12);
+}
+/* DFI 3030 DUI 013 JREAP/JTIDS FREE TEXT, 13 16 bits*/
+std::string Dfi3030Dui013(const std::array<int, 16>& jreapJtidsFreeText13)
+{
+    return Dui013(jreapJtidsFreeText13);
+}
+/* DFI 3030 DUI 014 JREAP/JTIDS FREE TEXT, 14 16 bits*/
+std::string Dfi3030Dui014(const std::array<int, 16>& jreapJtidsFreeText14)
+{
+    return Dui014(jreapJtidsFreeText14);
+}
+/* DFI 3030 DUI 015 JREAP/JTIDS FREE TEXT, 15 16 bits*/
+std::string Dfi3030Dui015(const std::array<int, 16>& jreapJtidsFreeText15)
+{
+    return Dui015(jreapJtidsFreeText15);
+}
+/* DFI 3030 DUI 016 JREAP/JTIDS FREE TEXT, 16 16 bits*/
+std::string Dfi3030Dui016(const std::array<int, 16>& jreapJtidsFreeText16)
+{
+    return Dui016(jreapJtidsFreeText16);
+}
+/* DFI 3030 DUI 017 JREAP/JTIDS FREE TEXT, 17 16 bits*/
+std::string Dfi3030Dui017(const std::array<int, 16>& jreapJtidsFreeText17)
+{
+    return Dui017(jreapJtidsFreeText17);
+}
+/* DFI 3030 DUI 018 JREAP/JTIDS FREE TEXT, 18 16 bits*/
+std::string Dfi3030Dui018(const std::array<int, 16>& jreapJtidsFreeText18)
+{
+    return Dui018(jreapJtidsFreeText18);
+}
+/* DFI 3030 DUI 019 JREAP/JTIDS FREE TEXT, 19 16 bits*/
+std::string Dfi3030Dui019(const std::array<int, 16>& jreapJtidsFreeText19)
+{
+    return Dui019(jreapJtidsFreeText19);
+}
+/* DFI 3030 DUI 020 JREAP/JTIDS FREE TEXT, 20 16 bits*/
+std::string Dfi3030Dui020(const std::array<int, 16>& jreapJtidsFreeText20)
+{
+    return Dui020(jreapJtidsFreeText20);
+}
+/* DFI 3030 DUI 021 JREAP/JTIDS FREE TEXT, 21 16 bits*/
+std::string Dfi3030Dui021(const std::array<int, 16>& jreapJtidsFreeText21)
+{
+    return Dui021(jreapJtidsFreeText21);
+}
+/* DFI 3030 DUI 022 JREAP/JTIDS FREE TEXT, 22 16 bits*/
+std::string Dfi3030Dui022(const std::array<int, 16>& jreapJtidsFreeText22)
+{
+    return Dui022(jreapJtidsFreeText22);
+}
+/* DFI 3030 DUI 023 JREAP/JTIDS FREE TEXT, 23 16 bits*/
+std::string Dfi3030Dui023(const std::array<int, 16>& jreapJtidsFreeText23)
+{
+    return Dui023(jreapJtidsFreeText23);
+}
+/* DFI 3030 DUI 024 JREAP/JTIDS FREE TEXT, 24 16 bits*/
+std::string Dfi3030Dui024(const std::array<int, 16>& jreapJtidsFreeText24)
+{
+    return Dui024(jreapJtidsFreeText24);
+}
+/* DFI 3030 DUI 025 JREAP/JTIDS FREE TEXT, 25 16 bits*/
+std::string Dfi3030Dui025(const std::array<int, 16>& jreapJtidsFreeText25)
+{
+    return Dui025(jreapJtidsFreeText25);
+}
+/* DFI 3030 DUI 026 JREAP/JTIDS FREE TEXT, 26 16 bits*/
+std::string Dfi3030Dui026(const std::array<int, 16>& jreapJtidsFreeText26)
+{
+    return Dui026(jreapJtidsFreeText26);
+}
+/* DFI 3030 DUI 027 JREAP/JTIDS FREE TEXT, 27 16 bits*/
+std::string Dfi3030Dui027(const std::array<int, 16>& jreapJtidsFreeText27)
+{
+    return Dui027(jreapJtidsFreeText27);
+}
+/* DFI 3030 DUI 028 JREAP/JTIDS FREE TEXT, 28 16 bits*/
+std::string Dfi3030Dui028(const std::array<int, 16>& jreapJtidsFreeText28)
+{
+    return Dui028(jreapJtidsFreeText28);
+}
+/* DFI 3030 DUI 029 JREAP/JTIDS FREE TEXT, 29 16 bits*/
+std::string Dfi3030Dui029(const std::array<int, 16>& jreapJtidsFreeText29)
+{
+    return Dui029(jreapJtidsFreeText29);
+}
+/* DFI 3030 DUI 030 JREAP/JTIDS FREE TEXT, 30 16 bits*/
+std::string Dfi3030Dui030(const std::array<int, 16>& jreapJtidsFreeText30)
+{
+    return Dui030(jreapJtidsFreeText30);
+}
 
-/* DFI 3031 DUI 001 GEOGRAPHIC FILTER INDEX*/
+/* DFI 3031 DUI 001 GEOGRAPHIC FILTER INDEX 5 bits*/
+std::string Dfi3031Dui001(const std::array<int, 5>& geographicFilterIndex)
+{
+    return Dui001(geographicFilterIndex);
+}
 
 /* DFI 3032 DUI 001 MESSAGE SEQUENCE NUMBER*/
+std::string Dfi3032Dui001(const std::array<int, 16>& messageSequenceNumber)
+{
+    return Dui001(messageSequenceNumber);
+}
 /* DFI 3032 DUI 002 ORIGINATING MESSAGE SEQUENCE NUMBER*/
+std::string Dfi3032Dui002(const std::array<int, 16>& originatingMessageSequenceNumber)
+{
+    return Dui002(originatingMessageSequenceNumber);
+}
 /* DFI 3032 DUI 003 J-SERIES MESSAGE SEQUENCE NUMBER*/
+std::string Dfi3032Dui003(const std::array<int, 16>& jSeriesMessageSequenceNumber)
+{
+    return Dui003(jSeriesMessageSequenceNumber);
+}
 /* DFI 3032 DUI 004 ORIGINATING J-SERIES MESSAGE SEQUENCE NUMBER*/
+std::string Dfi3032Dui004(const std::array<int, 16>& originatingJSeriesMessageSequenceNumber)
+{
+    return Dui004(originatingJSeriesMessageSequenceNumber);
+}
 /* DFI 3032 DUI 005 NETWORK PARTICIPATION GROUP*/
+std::string Dfi3032Dui005(const std::array<int, 16>& networkParticipationGroup)
+{
+    return Dui005(networkParticipationGroup);
+}
 
 /* DFI 3033 DUI 001 COUNT*/
 /* DFI 3033 DUI 002 FRAGMENT NUMBER*/
@@ -1483,161 +1629,3 @@ std::string FilterMessageType(std::array<int, 8> filterMessageType)
 /* DFI 3140 DUI 030 SUB-SUBLABEL 29*/
 /* DFI 3140 DUI 031 SUB-SUBLABEL 30*/
 /* DFI 3140 DUI 032 SUB-SUBLABEL 31*/
-
-/* DFI 3006 DUI 001 ACKNOWLEDGEMENT PROTOCOL, 1 4 bits*/
-std::string AcknowledgementProtocol(std::array<int, 4> acknowledgementProtocol)
-{
-    // we take in the four bits and it should output one of these responses
-    // Normal 0
-    // illegal 1 through 2
-    // undefined 3 through 15
-    int acknowledgementProtocolInt = 0;
-    std::string output = "";
-    for (int i = 0; i < 4; i++)
-    {
-        acknowledgementProtocolInt += acknowledgementProtocol[i] * std::pow(2, 3 - i);
-    }
-    switch (acknowledgementProtocolInt)
-    {
-    case 0:
-        output = "Normal ///-> 0000";
-        break;
-    case 1:
-    case 2:
-        output = "Illegal ///-> 0001 through 0010";
-        break;
-    default:
-        output = "Undefined ///-> 0011 through 1111";
-        break;
-    }
-    return output;
-}
-
-/* DFI 3006 DUI 002 ACKNOWLEDGEMENT PROTOCOL, 2 4 bits*/
-std::string AcknowledgementProtocol2(std::array<int, 4> acknowledgementProtocol)
-{
-    // we take in the four bits and it should output one of these responses
-    // Normal 0
-    // Processor Ack 1
-    // illegal 2
-    // undefined 3 through 15
-    int acknowledgementProtocolInt = 0;
-    std::string output = "";
-    for (int i = 0; i < 4; i++)
-    {
-        acknowledgementProtocolInt += acknowledgementProtocol[i] * std::pow(2, 3 - i);
-    }
-    switch (acknowledgementProtocolInt)
-    {
-    case 0:
-        output = "Normal ///-> 0000";
-        break;
-    case 1:
-        output = "Processor Ack ///-> 0001";
-        break;
-    case 2:
-        output = "Illegal ///-> 0010";
-        break;
-    default:
-        output = "Undefined ///-> 0011 through 1111";
-        break;
-    }
-    return output;
-}
-
-/* DFI 3006 DUI 003 ACKNOWLEDGEMENT PROTOCOL, 3 4 bits*/
-std::string AcknowledgementProtocol3(std::array<int, 4> acknowledgementProtocol)
-{
-    // we take in the four bits and it should output one of these responses
-    // Normal 0
-    // Processor Ack 1
-    // Operator Ack 2
-    // undefined 3 through 15
-    int acknowledgementProtocolInt = 0;
-    std::string output = "";
-    for (int i = 0; i < 4; i++)
-    {
-        acknowledgementProtocolInt += acknowledgementProtocol[i] * std::pow(2, 3 - i);
-    }
-    switch (acknowledgementProtocolInt)
-    {
-    case 0:
-        output = "Normal ///-> 0000";
-        break;
-    case 1:
-        output = "Processor Ack ///-> 0001";
-        break;
-    case 2:
-        output = "Operator Ack ///-> 0010";
-        break;
-    case 3:
-        output = "Illegal ///-> 0011";
-        break;
-    default:
-        output = "Undefined ///-> 0100 through 1111";
-        break;
-    }
-    return output;
-}
-
-/* DFI 3006 DUI 004 ACKNOWLEDGEMENT PROTOCOL, 4 4 bits*/
-std::string AcknowledgementProtocol4(std::array<int, 4> acknowledgementProtocol)
-{
-    // we take in the four bits and it should output one of these responses
-    // illegal 0
-    // Processor Ack 1
-    // Illegal 2
-    // undefined 3 through 15
-    int acknowledgementProtocolInt = 0;
-    std::string output = "";
-    for (int i = 0; i < 4; i++)
-    {
-        acknowledgementProtocolInt += acknowledgementProtocol[i] * std::pow(2, 3 - i);
-    }
-    switch (acknowledgementProtocolInt)
-    {
-    case 0:
-        output = "Illegal ///-> 0000";
-        break;
-    case 1:
-        output = "Processor Ack ///-> 0001";
-        break;
-    case 2:
-        output = "Illegal ///-> 0010";
-        break;
-    default:
-        output = "Undefined ///-> 0011 through 1111";
-        break;
-    }
-    return output;
-}
-
-/* DFI 3006 DUI 005 ACKNOWLEDGEMENT PROTOCOL, 5 4 bits*/
-std::string AcknowledgementProtocol5(std::array<int, 4> acknowledgementProtocol)
-{
-    // we take in the four bits and it should output one of these responses
-    // Normal 0
-    // Illegal 1-2
-    // undefined 3-15
-    int acknowledgementProtocolInt = 0;
-    std::string output = "";
-    for (int i = 0; i < 4; i++)
-    {
-        acknowledgementProtocolInt += acknowledgementProtocol[i] * std::pow(2, 3 - i);
-    }
-    switch (acknowledgementProtocolInt)
-    {
-    case 0:
-        output = "Normal ///-> 0000";
-        break;
-    case 1:
-    case 2:
-        output = "Illegal ///-> 0001 through 0010";
-        break;
-    default:
-        output = "Undefined ///-> 0011 through 1111";
-        break;
-    }
-
-    return output;
-}

@@ -18,27 +18,27 @@ std::string jreCapabilitesReport(std::array<int, 1> jreNcC)
 //end of repeatable code for the JRE capabilities report
 
 /* DFI 3004 DUI 001 JRE NC, C 1 bit*/
-std::string Dui001(std::array<int, 1> jreNcC)
+std::string Dui001(const std::array<int, 1>& jreNcC)
 {
     return jreCapabilitesReport(jreNcC);
 }
 /* DFI 3004 DUI 002 RTTIME, C*/
-std::string Dui002(std::array<int, 1> rttimeC)
+std::string Dui002(const std::array<int, 1>& rttimeC)
 {
     return jreCapabilitesReport(rttimeC);
 }
 /* DFI 3004 DUI 003 FIXED DELAY, C 1 bit*/
-std::string Dui003(std::array<int, 1> fixedDelayC)
+std::string Dui003(const std::array<int, 1>& fixedDelayC)
 {
     return jreCapabilitesReport(fixedDelayC);
 }
 /* DFI 3004 DUI 004 EVENT STROBE, C 1 bit*/
-std::string Dui004(std::array<int, 1> eventStrobeC)
+std::string Dui004(const std::array<int, 1>& eventStrobeC)
 {
     return jreCapabilitesReport(eventStrobeC);
 }
 /* DFI 3004 DUI 005 UTC, C 1 bit*/
-std::string Dui005(std::array<int, 1> utcC)
+std::string Dui005(const std::array<int, 1>& utcC)
 {
     return jreCapabilitesReport(utcC);
 }

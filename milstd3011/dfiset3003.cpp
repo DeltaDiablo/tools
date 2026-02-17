@@ -106,7 +106,7 @@ std::string txTransmitTime(std::array<int, 28> txJreTransmitTime)
 /*end of repeated grouping responses*/
 
 /* DFI 3003 DUI 001 AGE LIMIT VALUE 8 bits*/
-std::string Dui001( std::array<int, 8> ageLimitValue)
+std::string Dui001(const std::array<int, 8>& ageLimitValue)
 {
     int ageLimitValueInt = 0;
     for (int i = 0; i < 8; i++)
@@ -133,7 +133,7 @@ std::string Dui001( std::array<int, 8> ageLimitValue)
 }
 
 /* DFI 3003 DUI 002 AVERAGE RECEIVED DATA MEDIA LATENCY 16 bits*/
-std::string Dui002(std::array<int, 16> averageReceivedDataMediaLatency)
+std::string Dui002(const std::array<int, 16>& averageReceivedDataMediaLatency)
 {
     int averageReceivedDataMediaLatencyInt = 0;
     for (int i = 0; i < 16; i++)
@@ -159,7 +159,7 @@ std::string Dui002(std::array<int, 16> averageReceivedDataMediaLatency)
     return output;
 }
 /* DFI 3003 DUI 003 DATA AGE 13 bits*/
-std::string Dui003(std::array<int, 13> dataAge)
+std::string Dui003(const std::array<int, 13>& dataAge)
 {
     int dataAgeInt = 0;
     for (int i = 0; i < 13; i++)
@@ -187,7 +187,7 @@ std::string Dui003(std::array<int, 13> dataAge)
 
 /* DFI 3003 DUI 004 DATA VALID TIME 28 bits
  0 – 86399 AND 1023/1024 SECONDS 0 - 88473599  88473600 THROUGH  268435455 are illegal*/
-std::string Dui004(std::array<int, 28> dataValidTime)
+std::string Dui004(const std::array<int, 28>& dataValidTime)
 {
     int dataValidTimeInt = 0;
     for (std::size_t i = 0; i < dataValidTime.size(); i++)
@@ -219,14 +219,14 @@ std::string Dui004(std::array<int, 28> dataValidTime)
     return output;
 }
 /* DFI 3003 DUI 005 EVENT TIME ACCURACY 4 bits*/
-std::string Dui005(std::array<int, 4> eventTimeAccuracy)
+std::string Dui005(const std::array<int, 4>& eventTimeAccuracy)
 {
     // same coding as Time Accuracy
     return TimeAccuracy(eventTimeAccuracy);
 }
 /* DFI 3003 DUI 007 MAXIMUM LATENCY 16 bits
  0 THROUGH 2047 AND 31/32 SECONDS 0 throught 65535*/
-std::string Dui007(std::array<int, 16> maximumLatency)
+std::string Dui007(const std::array<int, 16>& maximumLatency)
 {
     int maximumLatencyInt = 0;
     // take all the bits and convert them into an int32
@@ -254,30 +254,30 @@ std::string Dui007(std::array<int, 16> maximumLatency)
 }
 /* DFI 3003 DUI 008 RX JRE RECEIVE TIME (R2) 28 bits
 same as coding for JRE Transmit Time*/
-std::string Dui008(std::array<int, 28> rxJreReceiveTime)
+std::string Dui008(const std::array<int, 28>& rxJreReceiveTime)
 {
     // process through JRE Transmit Time since it is the same coding
     return txTransmitTime(rxJreReceiveTime);
 }
 /* DFI 3003 DUI 009 TX JRE TRANSMIT TIME (T1) 28 bits*/
-std::string Dui009(std::array<int, 28> txJreTransmitTime)
+std::string Dui009(const std::array<int, 28>& txJreTransmitTime)
 {
     return txTransmitTime(txJreTransmitTime);
 }
 /* DFI 3003 DUI 010 RX JRE TRANSMIT TIME (T2) 28 bits*/
-std::string Dui010(std::array<int, 28> rxJreTransmitTime)
+std::string Dui010(const std::array<int, 28>& rxJreTransmitTime)
 {
     // same coding as Tx JRE Transmit Time
     return txTransmitTime(rxJreTransmitTime);
 }
 /* DFI 3003 DUI 011 TIME ACCURACY 4 bits*/
-std::string Dui011(std::array<int, 4> timeAccuracy)
+std::string Dui011(const std::array<int, 4>& timeAccuracy)
 {
     // same coding as Time Accuracy
     return TimeAccuracy(timeAccuracy);
 }
 /* DFI 3003 DUI 012 EVENT TIME 28 bits*/
-std::string Dui012(std::array<int, 28> eventTime)
+std::string Dui012(const std::array<int, 28>& eventTime)
 {
     int eventTimeInt = 0;
     for (std::size_t i = 0; i < eventTime.size(); i++)
@@ -309,7 +309,7 @@ std::string Dui012(std::array<int, 28> eventTime)
     return output;
 }
 /* DFI 3003 DUI 013 INTERVAL TIME 10 bits*/
-std::string Dui013(std::array<int, 10> intervalTime)
+std::string Dui013(const std::array<int, 10>& intervalTime)
 {
     int intervalTimeInt = 0;
     for (int i = 0; i < 10; i++)
@@ -334,19 +334,19 @@ std::string Dui013(std::array<int, 10> intervalTime)
     return output;
 }
 /* DFI 3003 DUI 014 TIME ACCURACY (R2) 4 bits*/
-std::string Dui014(std::array<int, 4> timeAccuracyR2)
+std::string Dui014(const std::array<int, 4>& timeAccuracyR2)
 {
     // same coding as Time Accuracy
     return TimeAccuracy(timeAccuracyR2);
 }
 /* DFI 3003 DUI 015 TIME ACCURACY (T1) 4 bits*/
-std::string Dui015(std::array<int, 4> timeAccuracyT1)
+std::string Dui015(const std::array<int, 4>& timeAccuracyT1)
 {
     // same coding as Time Accuracy
     return TimeAccuracy(timeAccuracyT1);
 }
 /* DFI 3003 DUI 016 TIME ACCURACY (T2) 4 bits*/
-std::string Dui016(std::array<int, 4> timeAccuracyT2)
+std::string Dui016(const std::array<int, 4>& timeAccuracyT2)
 {
     // same coding as Time Accuracy
     return TimeAccuracy(timeAccuracyT2);
