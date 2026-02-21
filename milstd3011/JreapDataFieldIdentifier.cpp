@@ -1,7 +1,7 @@
 // this is the dfi (data Field Identifier) converter for MILSTD 3011D
 //  This library contains all the DFIs and the related DataUseIdentifiers (DUIs) for the JREAP-C fields.
 
-#include "JreapDataFieldIdentifier.h"
+#include "jreapdatafieldidentifier.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>

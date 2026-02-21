@@ -1,9 +1,9 @@
-// JreapDataFieldIdentifier.h
+// jreapdatafieldidentifier.h
 // Header for DFI (Data Field Identifier) and DUI (Data Use Identifier) combos
 // Contains function declarations for DFI/DUI converters
 
-#ifndef JREAPDATAFIELDIDENTIFIER_H
-#define JREAPDATAFIELDIDENTIFIER_H
+#ifndef JREAPDATAFIELDIDENTIFIER_H_
+#define JREAPDATAFIELDIDENTIFIER_H_
 
 #include <string>
 #include <array>
@@ -80,6 +80,6 @@ std::string ManagementMessageSubtype(std::array<int, 8> managementMessageSubtype
 std::string FilterMessageType(std::array<int, 8> filterMessageType);
 
 // DFI 3057-3066, 3080-3087, 3099-3140
-#include "milstd3011/JreapDataFieldIdentifier_3057_3140_decls.inl"
+#include "milstd3011/jreapdatafieldidentifier_3057_3140_decls.inl"
 
-#endif // JREAPDATAFIELDIDENTIFIER_H
+#endif // JREAPDATAFIELDIDENTIFIER_H_

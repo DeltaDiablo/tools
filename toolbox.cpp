@@ -2,8 +2,8 @@
 #include <iostream>
 #include <array>
 #include "ByteToBits.h"
-#include "milstd3011/JReapCHeads.h"
-#include "milstd3011/JreapLibrary.h"
+#include "milstd3011/jreapcheads.h"
+#include "milstd3011/jreaplib.h"
 #include <cmath>
 
 int main()
