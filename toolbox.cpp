@@ -1,10 +1,6 @@
 #include "raylib.h"
 #include <iostream>
-#include <array>
-#include "ByteToBits.h"
-#include "milstd3011/jreapcheads.h"
 #include "milstd3011/jreaplib.h"
-#include <cmath>
 
 int main()
 {
@@ -39,7 +35,7 @@ int main()
 
         // Draw the output string below the input area
         if (!output.empty()) {
-            DrawText("Header Translation:", 10, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
+            DrawText("Message Translation:", 10, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
             // Split output into lines and draw each with extra spacing
             int y = inputBoxY + inputBoxH + 50;
             int lineSpacing = 32; // More space between lines

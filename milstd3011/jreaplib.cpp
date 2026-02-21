@@ -3,141 +3,179 @@
 #include <array>
 #include <algorithm>
 #include <cctype>
-#include <sstream>
 
-#include "jreapcheads.h"
+#include <cstddef>
+
+namespace jreap_internal {
+std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray, std::size_t byteCount, bool strictAbml);
+}
 
 namespace jreap {
 
 namespace {
 
-std::string Trim(const std::string& value)
+bool IsAllowedCsvCharacter(char character)
 {
-    std::size_t start = 0;
-    while (start < value.size() && std::isspace(static_cast<unsigned char>(value[start])))
-    {
-        ++start;
-    }
-
-    std::size_t end = value.size();
-    while (end > start && std::isspace(static_cast<unsigned char>(value[end - 1])))
-    {
-        --end;
-    }
-
-    return value.substr(start, end - start);
+    return std::isdigit(static_cast<unsigned char>(character)) ||
+           std::isspace(static_cast<unsigned char>(character)) ||
+           character == ',' || character == '+' || character == '-';
 }
 
-bool IsIntegerToken(const std::string& token)
+bool TryParseClampedByteToken(const std::string& text, std::size_t tokenStart, std::size_t tokenEnd, int& value)
 {
-    if (token.empty())
+    while (tokenStart < tokenEnd && std::isspace(static_cast<unsigned char>(text[tokenStart])))
+    {
+        ++tokenStart;
+    }
+    while (tokenEnd > tokenStart && std::isspace(static_cast<unsigned char>(text[tokenEnd - 1])))
+    {
+        --tokenEnd;
+    }
+
+    if (tokenStart >= tokenEnd)
     {
         return false;
     }
 
-    std::size_t index = 0;
-    if (token[0] == '+' || token[0] == '-')
+    int sign = 1;
+    if (text[tokenStart] == '+' || text[tokenStart] == '-')
     {
-        index = 1;
+        sign = (text[tokenStart] == '-') ? -1 : 1;
+        ++tokenStart;
     }
-    if (index >= token.size())
+
+    if (tokenStart >= tokenEnd)
     {
         return false;
     }
 
-    for (; index < token.size(); ++index)
+    long long magnitude = 0;
+    for (std::size_t index = tokenStart; index < tokenEnd; ++index)
     {
-        if (!std::isdigit(static_cast<unsigned char>(token[index])))
+        const unsigned char character = static_cast<unsigned char>(text[index]);
+        if (!std::isdigit(character))
         {
             return false;
         }
+
+        if (magnitude < 1000000000LL)
+        {
+            magnitude = (magnitude * 10) + static_cast<long long>(character - '0');
+        }
     }
+
+    long long signedValue = magnitude;
+    if (sign < 0)
+    {
+        signedValue = -signedValue;
+    }
+
+    if (signedValue < 0)
+    {
+        value = 0;
+    }
+    else if (signedValue > 255)
+    {
+        value = 255;
+    }
+    else
+    {
+        value = static_cast<int>(signedValue);
+    }
+
     return true;
 }
 
-std::vector<int> ParseCsvLine(const std::string& csvLine)
+std::vector<int> ParseCsvLineRange(const std::string& csvLine, std::size_t start, std::size_t end)
 {
     std::vector<int> output;
-    std::stringstream stream(csvLine);
-    std::string token;
+    const std::size_t commaCount = static_cast<std::size_t>(std::count(csvLine.begin() + start, csvLine.begin() + end, ','));
+    output.reserve(commaCount + 1);
 
-    while (std::getline(stream, token, ','))
+    std::size_t tokenStart = start;
+    while (tokenStart <= end)
     {
-        std::string cleaned = Trim(token);
-        if (!IsIntegerToken(cleaned))
+        std::size_t tokenEnd = csvLine.find(',', tokenStart);
+        if (tokenEnd == std::string::npos || tokenEnd > end)
         {
-            continue;
+            tokenEnd = end;
         }
 
-        int value = std::stoi(cleaned);
-        if (value < 0)
+        int parsedValue = 0;
+        if (TryParseClampedByteToken(csvLine, tokenStart, tokenEnd, parsedValue))
         {
-            value = 0;
+            output.push_back(parsedValue);
         }
-        if (value > 255)
+
+        if (tokenEnd == end)
         {
-            value = 255;
+            break;
         }
-        output.push_back(value);
+
+        tokenStart = tokenEnd + 1;
     }
 
     return output;
 }
 
-std::string ExtractBestCsvLine(const std::string& input)
+bool FindBestCsvLineRange(const std::string& input, std::size_t& bestStart, std::size_t& bestEnd)
 {
-    std::stringstream stream(input);
-    std::string line;
-    std::string bestLine;
+    bool found = false;
+    std::size_t lineStart = 0;
     std::size_t bestCommaCount = 0;
 
-    while (std::getline(stream, line))
+    for (std::size_t index = 0; index <= input.size(); ++index)
     {
-        const std::size_t commaCount = static_cast<std::size_t>(std::count(line.begin(), line.end(), ','));
-        if (commaCount == 0)
+        const bool atLineEnd = (index == input.size()) || (input[index] == '\n');
+        if (!atLineEnd)
         {
             continue;
         }
 
+        const std::size_t lineEnd = index;
+        std::size_t commaCount = 0;
         bool csvLike = true;
-        for (char character : line)
+        for (std::size_t i = lineStart; i < lineEnd; ++i)
         {
-            const bool allowed = std::isdigit(static_cast<unsigned char>(character)) ||
-                                 std::isspace(static_cast<unsigned char>(character)) ||
-                                 character == ',' || character == '+' || character == '-';
-            if (!allowed)
+            const char character = input[i];
+            if (!IsAllowedCsvCharacter(character))
             {
                 csvLike = false;
                 break;
             }
+
+            if (character == ',')
+            {
+                ++commaCount;
+            }
         }
 
-        if (!csvLike)
-        {
-            continue;
-        }
-
-        if (commaCount > bestCommaCount)
+        if (csvLike && commaCount > bestCommaCount)
         {
             bestCommaCount = commaCount;
-            bestLine = line;
+            bestStart = lineStart;
+            bestEnd = lineEnd;
+            found = true;
         }
+
+        lineStart = index + 1;
     }
 
-    return bestLine;
+    return found;
 }
 
 }
 
 std::vector<int> ParseCsvBytes(const std::string& csvBytes)
 {
-    const std::string extractedLine = ExtractBestCsvLine(csvBytes);
-    if (!extractedLine.empty())
+    std::size_t bestStart = 0;
+    std::size_t bestEnd = 0;
+    if (FindBestCsvLineRange(csvBytes, bestStart, bestEnd))
     {
-        return ParseCsvLine(extractedLine);
+        return ParseCsvLineRange(csvBytes, bestStart, bestEnd);
     }
 
-    return ParseCsvLine(csvBytes);
+    return ParseCsvLineRange(csvBytes, 0, csvBytes.size());
 }
 
 std::string DecodeApplicationMessage(const std::vector<int>& bytes, bool strictAbml)
@@ -150,7 +188,7 @@ std::string DecodeApplicationMessage(const std::vector<int>& bytes, bool strictA
         fixedBytes[index] = bytes[index];
     }
 
-    return ProcessJreapApplicationMessage(fixedBytes, count, strictAbml);
+    return jreap_internal::ProcessJreapApplicationMessage(fixedBytes, count, strictAbml);
 }
 
 std::string DecodeApplicationMessageCsv(const std::string& csvBytes, bool strictAbml)
