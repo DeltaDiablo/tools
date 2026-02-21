@@ -374,12 +374,18 @@ SRC = $(call rwildcard, *.c, *.h)
 #OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 OBJS ?= main.c
 
-ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier toolbox),)
+ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier toolbox JReapCHeads JreapCHeads jreapcheads jreap_c_smoke),)
     JREAP_SRCS = $(wildcard milstd3011/*.cpp)
     JREAP_OBJS = $(JREAP_SRCS:.cpp=.o)
     JREAP_LIB = jreaplib.a
     EXTRA_DEPS = $(JREAP_LIB)
     EXTRA_OBJS = $(JREAP_LIB)
+endif
+
+ifeq ($(BUILD_MODE),DEBUG)
+    C_SMOKE_CFLAGS = -Wall -std=c11 -D_DEFAULT_SOURCE -Wno-missing-braces -g -O0
+else
+    C_SMOKE_CFLAGS = -Wall -std=c11 -D_DEFAULT_SOURCE -Wno-missing-braces -O1
 endif
 
 # For Android platform we call a custom Makefile.Android
@@ -397,14 +403,22 @@ all:
 	$(MAKE) $(MAKEFILE_PARAMS)
 
 # Project target defined by PROJECT_NAME
+ifneq ($(PROJECT_NAME),jreap_c_smoke)
 $(PROJECT_NAME): $(OBJS) $(EXTRA_DEPS)
 	$(CC) -o $(PROJECT_NAME)$(EXT) $(OBJS) $(EXTRA_OBJS) $(CFLAGS) $(WIN_RSRC) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+endif
 
 $(JREAP_LIB): $(JREAP_OBJS)
 	$(AR) rcs $(JREAP_LIB) $(JREAP_OBJS)
 
 milstd3011/%.o: milstd3011/%.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+
+jreap_c_smoke: jreap_c_smoke.o $(JREAP_LIB)
+	$(CC) -o $@ jreap_c_smoke.o $(JREAP_LIB) $(LDFLAGS) -lstdc++
+
+jreap_c_smoke.o: jreap_c_smoke.c milstd3011/jreaplib_c.h
+	gcc -c $< -o $@ $(C_SMOKE_CFLAGS) -I. -Imilstd3011
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
