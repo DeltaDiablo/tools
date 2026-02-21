@@ -196,6 +196,7 @@ endif
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
 CFLAGS += -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces
+WIN_RSRC =
 
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g -O0
@@ -209,7 +210,7 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),WINDOWS)
         # resource file contains windows executable icon and properties
         # -Wl,--subsystem,windows hides the console window
-        CFLAGS += $(RAYLIB_PATH)/src/raylib.rc.data
+        WIN_RSRC += $(RAYLIB_PATH)/src/raylib.rc.data
     endif
     ifeq ($(PLATFORM_OS),LINUX)
         ifeq ($(RAYLIB_LIBTYPE),STATIC)
@@ -373,6 +374,14 @@ SRC = $(call rwildcard, *.c, *.h)
 #OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 OBJS ?= main.c
 
+ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier toolbox),)
+    JREAP_SRCS = $(wildcard milstd3011/*.cpp)
+    JREAP_OBJS = $(JREAP_SRCS:.cpp=.o)
+    JREAP_LIB = jreaplib.a
+    EXTRA_DEPS = $(JREAP_LIB)
+    EXTRA_OBJS = $(JREAP_LIB)
+endif
+
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)
     MAKEFILE_PARAMS = -f Makefile.Android 
@@ -388,8 +397,14 @@ all:
 	$(MAKE) $(MAKEFILE_PARAMS)
 
 # Project target defined by PROJECT_NAME
-$(PROJECT_NAME): $(OBJS)
-	$(CC) -o $(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+$(PROJECT_NAME): $(OBJS) $(EXTRA_DEPS)
+	$(CC) -o $(PROJECT_NAME)$(EXT) $(OBJS) $(EXTRA_OBJS) $(CFLAGS) $(WIN_RSRC) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+
+$(JREAP_LIB): $(JREAP_OBJS)
+	$(AR) rcs $(JREAP_LIB) $(JREAP_OBJS)
+
+milstd3011/%.o: milstd3011/%.cpp
+	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
