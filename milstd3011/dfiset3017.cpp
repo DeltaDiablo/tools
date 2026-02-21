@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3017 {
 //repeated components for DFI 3017
 
 std::string GetNumberOfAddresses(const std::array<int, 8>& binary, bool isDui002 = false)
@@ -43,4 +44,5 @@ std::string Dui002(const std::array<int, 8>& numberAddressesThisDesignator)
 std::string Dui003(const std::array<int, 8>& numberDestinationAddressesNonZero)
 {
     return GetNumberOfAddresses(numberDestinationAddressesNonZero);
+}
 }

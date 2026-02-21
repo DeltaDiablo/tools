@@ -1,5 +1,7 @@
 #include <array>
 #include <string>
+
+namespace dfi3030 {
 /*
 *THESE THIRTY FIELDS (16 BITS LONG EACH) ARE THE JREAP/JTIDS FREE TEXT FIELDS (5.5.2) AND
 *SHALL BE CONCATENATED TOGETHER TO FORM A SINGLE 472 BIT FREE TEXT DATA BLOCK AS SHOWN BELOW
@@ -38,3 +40,4 @@ std::string Dui027(const std::array<int, 16>& jreapJtidsFreeText27);
 std::string Dui028(const std::array<int, 16>& jreapJtidsFreeText28);
 std::string Dui029(const std::array<int, 16>& jreapJtidsFreeText29);
 std::string Dui030(const std::array<int, 16>& jreapJtidsFreeText30);
+}

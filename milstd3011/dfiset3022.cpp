@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3022 {
 //repeated functions for DFI 3022
 //end of repeated functions
 
@@ -25,4 +26,5 @@ std::string Dui001(const std::array<int, 5>& eventType)
 
     return output;
 
+}
 }

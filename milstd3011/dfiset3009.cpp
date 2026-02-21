@@ -2,8 +2,9 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3009 {
 /* DFI 3009 DUI 001 GEO FILTER SUBTYPE 3 bits*/
-std::string GeoFilterSubtype(const std::array<int, 3>& geoFilterSubtype)
+std::string Dui001(const std::array<int, 3>& geoFilterSubtype)
 {
     int geoFilterSubtypeInt = 0;
     for (int i = 0; i < 3; i++)
@@ -33,4 +34,5 @@ std::string GeoFilterSubtype(const std::array<int, 3>& geoFilterSubtype)
         break;
     }
     return output;
+}
 }

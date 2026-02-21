@@ -2,7 +2,8 @@
 #include <iostream>
 #include <array>
 #include "ByteToBits.h"
-#include "JreapCHeads.h"
+#include "milstd3011/JReapCHeads.h"
+#include "milstd3011/JreapLibrary.h"
 #include <cmath>
 
 int main()
@@ -23,7 +24,7 @@ int main()
         // Move input/output UI closer to the top
         DrawRectangle(inputBoxX, inputBoxY, inputBoxW, inputBoxH, (Color){30,30,30,255});
         DrawRectangleLines(inputBoxX, inputBoxY, inputBoxW, inputBoxH, YELLOW);
-        DrawText("Enter TDL message bytes (comma-separated):", inputBoxX, inputBoxY - 30, 22, DARKGRAY);
+        DrawText("Paste JTIDS/JREAP block or comma-separated bytes:", inputBoxX, inputBoxY - 30, 22, DARKGRAY);
         DrawText(input.c_str(), inputBoxX + 10, inputBoxY + 10, 22, RAYWHITE);
 
         // Draw a submit button
@@ -54,8 +55,8 @@ int main()
         }
 
         int key = GetCharPressed();
-        // Allow up to 512 chars for input
-        if ((key >= 32 && key <= 125) && input.length() < 512)
+        // Allow large pasted samples
+        if ((key >= 32 && key <= 125) && input.length() < 12000)
         {
             input += (char)key;
         }
@@ -68,7 +69,7 @@ int main()
             const char* clip = GetClipboardText();
             if (clip) {
                 input += clip;
-                if (input.length() > 512) input = input.substr(0, 512);
+                if (input.length() > 12000) input = input.substr(0, 12000);
             }
         }
 
@@ -85,18 +86,7 @@ int main()
             submitted = true;
         }
         if (submitted) {
-            // Parse up to 65 bytes from input string
-            std::array<int, 65> byteArray = {0};
-            size_t idx = 0, start = 0;
-            while (idx < 65 && start < input.length()) {
-                size_t end = input.find(',', start);
-                std::string numStr = (end == std::string::npos) ? input.substr(start) : input.substr(start, end - start);
-                try { byteArray[idx] = std::stoi(numStr); } catch (...) { byteArray[idx] = 0; }
-                start = (end == std::string::npos) ? input.length() : end + 1;
-                ++idx;
-            }
-
-            //get the byte array and pass it back to the jreapCHeads function to convert it to a string for raylib to display
+            output = jreap::DecodeApplicationMessageCsv(input, true);
 
 
             input.clear(); // clear input only once after submit
@@ -106,18 +96,3 @@ int main()
 }
 
             
-
-            //old code to determine header type and call the appropriate function this is getting cleaned up and pushed to the JreapCHeads.cpp file to keep the main function clean and focused on UI
-            // // Determine header type from first byte
-            // int firstByte = byteArray[0];
-            // int headerType = (firstByte >> 4) & 0x0F;
-            // std::array<int, 10> headerBytes = {0};
-            // for (size_t i = 0; i < 10 && i < idx; ++i) headerBytes[i] = byteArray[i];
-            // if (headerType == 3) {
-            //     // JREAP-C header: fetch all info using JreapApplicationHeader0
-            //     // output = JreapApplicationHeader0(headerBytes);
-            //     output = "JREAP-C Header Detected. Detailed parsing not implemented in this demo.";
-            // } else {
-            //     // For other header types, use CommonHeaderConverter
-            //     output =  "No header data provided." ;
-            // }

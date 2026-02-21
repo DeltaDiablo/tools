@@ -1,6 +1,7 @@
 #include <string>
 #include <array>
 
+namespace dfi3015 {
 /**
  * DFI 3015: CURRENT ERROR RATE
  *
@@ -36,3 +37,4 @@ std::string Dui001(const std::array<int, 7>& currentErrorRate);
 std::string Dui002(const std::array<int, 7>& jreNpErrorRate);
 std::string Dui017(const std::array<int, 7>& jreNcErrorRate);
 std::string Dui018(const std::array<int, 16>& errorRateCurrent);
+}

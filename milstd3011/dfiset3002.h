@@ -2,6 +2,7 @@
 #include <array>
 #include <string>
 
+namespace dfi3002 {
 std::string dui001(const std::array<int, 7>& percentExceedingLatency);
 std::string dui002(const std::array<int, 8>& transmissionSequenceNumber);
 std::string dui003(const std::array<int, 7>& transmissionSequenceListCount);
@@ -26,3 +27,4 @@ std::string Dui018(const std::array<int, 1>& geographicFilter);
 std::string Dui019(const std::array<int, 1>& allFilters);
 std::string Dui020(const std::array<int, 1>& alternateNetworkControllerAssignmentFlag);
 std::string Dui021(const std::array<int, 1>& alternateNetworkControllerAssignmentRecognition);
+}

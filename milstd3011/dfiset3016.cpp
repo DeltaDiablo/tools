@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3016 {
 //repreated components for DFI 3016
 
 std::string GetTransportDataWordCount(const std::array<int, 16>& binary)
@@ -88,4 +89,5 @@ std::string Dui004(const std::array<int, 16>& transportDataWordCount2)
 std::string Dui005(const std::array<int, 16>& transportDataWordCount3)
 {
     return GetTransportDataWordCount(transportDataWordCount3);
+}
 }

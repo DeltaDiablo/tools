@@ -1,6 +1,7 @@
 #include <string>
 #include <array>
 
+namespace dfi3017 {
 /*
  * DFI 3017: NUMBER OF ADDRESSES
  * Definition: The number of IU addresses.
@@ -30,3 +31,4 @@
 std::string Dui001(const std::array<int, 8>& numberDestinationAddresses);
 std::string Dui002(const std::array<int, 8>& numberAddressesThisDesignator);
 std::string Dui003(const std::array<int, 8>& numberDestinationAddressesNonZero);
+}

@@ -2,8 +2,7 @@
 #include <cmath>
 #include <string>
 
-
-
+namespace dfi3028 {
 //repeated function for Dfi 3028
 std::array<int, 16> ConvertJSeriesWord(const std::array<int, 16>& input)
 {
@@ -73,4 +72,5 @@ std::string Dui005(const std::array<int, 6>& jreapJSeriesMessageWord5)
         output.append(std::to_string(jreapJSeriesMessageWord5[i]));
     }
     return output;
+}
 }

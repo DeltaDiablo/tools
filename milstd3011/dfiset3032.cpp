@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3032 {
 //repeated function for Dfi 3032
 std::string BinaryConversion16bit(const std::array<int, 16>& inputArray)
 {
@@ -108,4 +109,5 @@ std::string Dui005(const std::array<int, 16>& networkParticipationGroup)
     }
     output = output + binaryset;
     return output;
+}
 }

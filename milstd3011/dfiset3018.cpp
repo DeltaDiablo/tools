@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3018 {
 //repeated components for DFI 3018
 std::string GetNumberOfDesignators(const std::array<int, 8>& binary)
 {
@@ -37,4 +38,5 @@ std::string Dui001(const std::array<int, 8>& numberOfDesignatorsSupported)
 std::string Dui002(const std::array<int, 8>& totalNumberOfActiveDesignators)
 {
     return GetNumberOfDesignators(totalNumberOfActiveDesignators);
+}
 }

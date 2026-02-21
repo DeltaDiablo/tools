@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3015 {
  //repeated components for DFI 3015
  std::string GetErrorRate(const std::array<int, 7>& binary)
  {
@@ -68,4 +69,5 @@ std::string Dui018(const std::array<int, 16>& errorRateCurrent)
         output = std::to_string(decimalValue) + " ///-> " + binaryString;
     }
     return output;
+}
 }

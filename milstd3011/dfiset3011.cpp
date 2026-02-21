@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3011 {
 /* DATA ITEM                                           BIT CODE VALUE 
    0 DEGREES                                           0
    +180/8,388,607 THROUGH +180 DEGREES EAST            1 THROUGH 8388607
@@ -44,4 +45,5 @@ std::string Dui015(const std::array<int, 24>& longitude)
 std::string Dui016(const std::array<int, 24>& longitudeCenter)
 {
     return GetLongitude(longitudeCenter);
+}
 }

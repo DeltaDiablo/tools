@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3010 {
 //processor functions for DFI 3010
 std::string lat8ftPrecision(const std::array<int, 23>& latitude)
 {
@@ -49,4 +50,5 @@ std::string Dui018(const std::array<int, 23>& latitudeCenter)
 {
     //use the dfiset3010 Dui018 function to process the latitudeCenter array and return the output
     return lat8ftPrecision(latitudeCenter);
+}
 }

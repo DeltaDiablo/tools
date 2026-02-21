@@ -4,7 +4,7 @@
 #include <cmath>
 #include <string>
 
-
+namespace dfi3003 {
 /*internal repeated grouping responses*/
 std::string TimeAccuracy(std::array<int, 4> timeAccuracy)
 {
@@ -350,4 +350,5 @@ std::string Dui016(const std::array<int, 4>& timeAccuracyT2)
 {
     // same coding as Time Accuracy
     return TimeAccuracy(timeAccuracyT2);
+}
 }

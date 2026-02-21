@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3031 {
 //repeated function for Dfi 3031
 
 //end of repeated functions
@@ -28,4 +29,5 @@ std::string Dui001(const std::array<int, 5>& geographicFilterIndex)
     }
     output = output + binaryset;
     return output;
+}
 }

@@ -1,6 +1,8 @@
 #include <string>
 #include <array>
 #include <cmath>
+
+namespace dfi3020 {
 /*
  * 3020 CONTROL/RESPONSE
  *
@@ -678,4 +680,5 @@ std::string Dui014(const std::array<int, 8> &controlResponseIndicator)
     default:
         return "UNDEFINED //-> " + decimal;
     }
+}
 }

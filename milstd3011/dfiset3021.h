@@ -1,6 +1,7 @@
 #include <array>
 #include <string>
 
+namespace dfi3021 {
 /* DATA STANDARD USAGE: JREAP
  *
  * DUI NAME                           EXPLANATION                              APPLICABILITY
@@ -35,3 +36,4 @@ std::string Dui001(const std::array<int, 16>& linkDesignatorToFilter);
 std::string Dui002(const std::array<int, 16>& linkDesignator);
 std::string Dui003(const std::array<int, 16>& sourceLinkDesignator);
 std::string Dui004(const std::array<int, 16>& transmitLinkDesignator);
+}

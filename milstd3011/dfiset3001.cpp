@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 
+namespace dfi3001 {
 std::string dui001(const std::array<int, 8> &transmissionSequenceNumber)
 {
     int transmissionSequenceNumberInt = 0;
@@ -58,4 +59,5 @@ std::string dui002(const std::array<int, 7> &transmissionSequenceListCount)
         }
     }
     return output;
+}
 }

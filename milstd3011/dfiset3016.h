@@ -1,6 +1,7 @@
 #include <string>
 #include <array>
 
+namespace dfi3016 {
 // DFI 3016: DATA
 // DATA STANDARD USAGE: JREAP
 //
@@ -33,3 +34,4 @@ std::string Dui002(const std::array<int, 10>& dataWords);
 std::string Dui003(const std::array<int, 16>& transportDataWordCount1);
 std::string Dui004(const std::array<int, 16>& transportDataWordCount2);
 std::string Dui005(const std::array<int, 16>& transportDataWordCount3);
+}

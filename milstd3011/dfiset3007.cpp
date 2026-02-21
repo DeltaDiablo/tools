@@ -3,7 +3,7 @@
 #include <cmath>
 #include <string>
 
-
+namespace dfi3007 {
 /* DFI 3007 DUI 001 TRANSMISSION BLOCK HEADER TYPE 4 bits*/
 std::string Dui001(const std::array<int, 4>& transmissionBlockHeaderType)
 {
@@ -90,4 +90,5 @@ std::string Dui003(const std::array<int, 4>& headerType)
         break;
     }
     return output;
+}
 }

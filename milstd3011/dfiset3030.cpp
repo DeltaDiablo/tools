@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3030 {
 //repeatable function for Dfi 3030
 
 std::array<int, 16> converter(const std::array<int, 16>& freeTextWord) {
@@ -345,4 +346,5 @@ std::string Dui030(const std::array<int, 16>& jreapJtidsFreeText30)
         output.append(std::to_string(outputArray[i]));
     }
     return output;
+}
 }

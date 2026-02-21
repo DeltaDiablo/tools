@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3024 {
 //repeaded functions for DFI 3024
 /*ASCII 8-BIT CHARACTER SET          0 THROUGH 255 */
 //end of repeated functions
@@ -24,4 +25,5 @@ std::string Dui001(const std::array<int, 8>& asciiCharacters)
         output = "Illegal //-> " + std::to_string(asciiCharactersInt);
     }
     return output;
+}
 }

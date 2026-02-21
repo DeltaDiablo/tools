@@ -1,6 +1,7 @@
 #include <array>
 #include <string>
 
+namespace dfi3020 {
 std::string Dui001(const std::array<int, 8> &controlResponseIndicator1);
 std::string Dui002(const std::array<int, 8> &controlResponseIndicator2);
 std::string Dui003(const std::array<int, 8> &controlResponseIndicator3);
@@ -15,3 +16,4 @@ std::string Dui011(const std::array<int, 8> &controlResponseIndicator11);
 std::string Dui012(const std::array<int, 8> &controlResponseIndicator12);
 std::string Dui013(const std::array<int, 8> &controlResponseIndicator13);
 std::string Dui014(const std::array<int, 8> &controlResponseIndicator);
+}

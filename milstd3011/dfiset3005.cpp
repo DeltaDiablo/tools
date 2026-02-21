@@ -4,6 +4,7 @@
 #include <cmath>
 #include <string>
 
+namespace dfi3005 {
 //constants for DFI 3005
 std::string PreferredOrNot(const std::array<int, 1>& jreNcP)
 {
@@ -42,4 +43,5 @@ std::string Dui004(const std::array<int, 1>& eventStrobeP)
 std::string Dui005(const std::array<int, 1>& utcP)
 {
     return PreferredOrNot(utcP);
+}
 }

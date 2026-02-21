@@ -1,8 +1,7 @@
 #include <string>
 #include <array>
 
-
-
+namespace dfi3019 {
 std::string Dui001(const std::array<int, 1>& connectivityMatrixBit)
 {
     if(connectivityMatrixBit[0] == 0)
@@ -14,4 +13,5 @@ std::string Dui001(const std::array<int, 1>& connectivityMatrixBit)
         return "Data flow ///-> 1";
     }
 
+}
 }

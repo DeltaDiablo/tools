@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3014 {
 //repeated components for DFI 3014
 
 /*  *
@@ -9,7 +10,7 @@
  *   - 0: No statement
  *   - 1 through 255: Number of 16-bit words in one data word increments
  */
-std::string GetTransmissionBlockHeaderLength(const std::array<int, 8>& binary)
+std::string GetTransmissionBlockHeaderLength(const std::array<int, 12>& binary)
 {
     int decimalValue = 0;
     for (size_t i = 0; i < binary.size(); ++i) {
@@ -38,23 +39,24 @@ std::string GetTransmissionBlockHeaderLength(const std::array<int, 8>& binary)
 
 
 /* DFI 3014 DUI 001 TRANSMISSION BLOCK HEADER LENGTH 8 bits*/
-std::string Dui001(const std::array<int, 8>& transmissionBlockHeaderLength)
+std::string Dui001(const std::array<int, 12>& transmissionBlockHeaderLength)
 {
     return GetTransmissionBlockHeaderLength(transmissionBlockHeaderLength);
 }
 /* DFI 3014 DUI 002 TRANSMISSION BLOCK HEADER LENGTH, 1 8 bits*/
-std::string Dui002(const std::array<int, 8>& transmissionBlockHeaderLength1)
+std::string Dui002(const std::array<int, 12>& transmissionBlockHeaderLength1)
 {
     return GetTransmissionBlockHeaderLength(transmissionBlockHeaderLength1);
 }
 /* DFI 3014 DUI 003 TRANSMISSION BLOCK HEADER LENGTH, 2 8 bits*/
-std::string Dui003(const std::array<int, 8>& transmissionBlockHeaderLength2)
+std::string Dui003(const std::array<int, 12>& transmissionBlockHeaderLength2)
 {
     return GetTransmissionBlockHeaderLength(transmissionBlockHeaderLength2);
 }
 
 /* DFI 3014 DUI 004 TRANSMISSION BLOCK HEADER LENGTH, 3 8 bits*/
-std::string Dui004(const std::array<int, 8>& transmissionBlockHeaderLength3)
+std::string Dui004(const std::array<int, 12>& transmissionBlockHeaderLength3)
 {
     return GetTransmissionBlockHeaderLength(transmissionBlockHeaderLength3);
+}
 }

@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3025 {
 //repeaded functions for DFI 3024
 /*ASCII 8-BIT CHARACTER SET          0 THROUGH 255 */
 //end of repeated functions
@@ -32,10 +33,8 @@ std::string Dui001(const std::array<int, 2>& controllerModeNP)
         default:
             output = "Illegal ///-> " + std::to_string(controlInt);
             break;
-
-
+    }
     return output;
-}
 }
 std::string Dui002(const std::array<int, 2>& controllerModeNC)
 {
@@ -66,3 +65,4 @@ std::string Dui002(const std::array<int, 2>& controllerModeNC)
 
     return output;
 }   
+}

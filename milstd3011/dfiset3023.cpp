@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 
+namespace dfi3023 {
 //repeaded functions for DFI 3023
 //end of repeated functions
 
@@ -22,4 +23,5 @@ std::string Dui001(const std::array<int, 4>& applicationProtocolVersion)
         output = "Illegal";
     }
     return output + " ///-> " + std::to_string(applicationProtocolVersionInt);
+}
 }

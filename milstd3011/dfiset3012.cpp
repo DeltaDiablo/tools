@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3012 {
 //repeated components for DFI 3012
 //0 THROUGH 65535 indicated message length in bytes
 std::string Get16BitUnsignedInteger(const std::array<int, 16>& binary)
@@ -36,4 +37,5 @@ std::string Dui002(const std::array<int, 16>& lengthOfMessage)
 std::string Dui003(const std::array<int, 16>& managementMessageLength)
 {
     return Get16BitUnsignedInteger(managementMessageLength);
+}
 }

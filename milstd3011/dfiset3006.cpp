@@ -4,7 +4,7 @@
 #include <cmath>
 #include <string>
 
-
+namespace dfi3006 {
 /* DFI 3006 DUI 001 ACKNOWLEDGEMENT PROTOCOL, 1 4 bits*/
 std::string Dui001(const std::array<int, 4>& acknowledgementProtocol1)
 {
@@ -146,4 +146,5 @@ std::string Dui005(const std::array<int, 4>& acknowledgementProtocol5)
     }
 
     return output;
+}
 }

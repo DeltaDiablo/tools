@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 
+namespace dfi3027 {
 //repeated function for Dfi 3027
 //take in an array of ints and convert to a single octal value and return the octal vlaue
 int OctalConversion15bit(const std::array<int, 15>& inputArray)
@@ -147,4 +148,5 @@ std::string Dui003(const std::array<int, 16>& jreSourceTrackNumber)
 //NUMERIC 000000 THROUGH 177777 A RANGE OF VALID OCTALTRACK NUMBERS.
     output = output + binaryset;
     return output;
+}
 }

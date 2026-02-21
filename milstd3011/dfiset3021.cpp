@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3021 {
 // DFI repeated components for DFI 3021
 
 std::string GetLinkDesignator(const std::array<int, 16>& binary)
@@ -37,4 +38,5 @@ std::string Dui003(const std::array<int, 16>& sourceLinkDesignator)
 std::string Dui004(const std::array<int, 16>& transmitLinkDesignator)
 {
     return GetLinkDesignator(transmitLinkDesignator);
+}
 }

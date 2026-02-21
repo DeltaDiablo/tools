@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 
+namespace dfi3029 {
 //repeatable function for Dfi 3029
 int CompletionTimeoutConversion(const std::array<int, 8>& inputArray)
 {
@@ -26,10 +27,10 @@ std::string Dui001(const std::array<int, 8>& completionTimeout)
     } else {
         output += "Illegal Value ///-> ";
     }
-    output;
     return output;
 }
     // NO STATEMENT: 0
     // 1 THROUGH 255 SECONDS: 1 THROUGH 255 IN ONE SECOND INCREMENTS
 // NO STATEMENT: 0
 // 1 THROUGH 255 SECONDS: 1 THROUGH 255 IN ONE SECOND INCREMENTS
+}

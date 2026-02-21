@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 
+namespace dfi3002 {
 /* DFI 3002 DUI 001 ADD/DELETE INDICATOR 1 bit*/
 std::string Dui001(const std::array<int, 1>& addDeleteIndicator)
 {
@@ -257,4 +258,5 @@ std::string Dui021(const std::array<int, 1>& alternateNetworkControllerAssignmen
     {
         return "Alternate Network Controller Assignment Not Recognized ///-> 0";
     }
+}
 }

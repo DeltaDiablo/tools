@@ -1,6 +1,7 @@
 #include <string>
 #include <array>
 
+namespace dfi3018 {
 // DFI 3018 NUMBER OF DESIGNATORS
 // DATA STANDARD USAGE: JREAP
 //
@@ -18,3 +19,4 @@
 
 std::string Dui001(const std::array<int, 8>& numberOfDesignatorsSupported);
 std::string Dui002(const std::array<int, 8>& totalNumberOfActiveDesignators);
+}

@@ -1,6 +1,7 @@
 #include <array>
 #include <string>
 
+namespace dfi3028 {
 // THESE SIX FIELDS (BITS 64 – 135) ARE THE J-SERIES MESSAGE WORD GROUP
 // (5.5.1) AND ARE REPEATED FOR THE NUMBER OF WORDS SPECIFIED IN THE
 // NUMBER OF J WORDS FIELD (BITS 52 – 63). THESE FIVE FIELDS FORM A J-
@@ -18,3 +19,4 @@ std::string Dui002(const std::array<int, 16>& jreapJSeriesMessageWord2);
 std::string Dui003(const std::array<int, 16>& jreapJSeriesMessageWord3);
 std::string Dui004(const std::array<int, 16>& jreapJSeriesMessageWord4);
 std::string Dui005(const std::array<int, 6>& jreapJSeriesMessageWord5);
+}

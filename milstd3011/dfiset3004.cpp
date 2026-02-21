@@ -3,6 +3,7 @@
 #include <array>
 #include <string>
 
+namespace dfi3004 {
 //repeatable code for the JRE capabilities report, since all the DFI 3004 DUIs have the same coding and output just different names, we can use this function to generate the output for all of them
 std::string jreCapabilitesReport(std::array<int, 1> jreNcC)
 {
@@ -41,4 +42,5 @@ std::string Dui004(const std::array<int, 1>& eventStrobeC)
 std::string Dui005(const std::array<int, 1>& utcC)
 {
     return jreCapabilitesReport(utcC);
+}
 }

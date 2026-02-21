@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3008 {
 //repeated functions for DFI 3008
 std::string MsgFilterTypeReqested(const std::array<int, 8>& requestedFilterMessageType)
 {
@@ -72,7 +73,7 @@ std::string MsgFilterTypeReqested(const std::array<int, 8>& requestedFilterMessa
 //end of repeated functions for DFI 3008
 
 /* DFI 3008 DUI 001 MESSAGE TYPE 4 bits*/
-std::string Dui001(std::array<int, 4> messageType)
+std::string Dui001(const std::array<int, 4>& messageType)
 {
     int messageTypeInt = 0;
     for (int i = 0; i < 4; i++)
@@ -236,4 +237,5 @@ std::string Dui003(const std::array<int, 8>& filterMessageType)
 std::string Dui004(const std::array<int, 8>& requestedFilterMessageType)
 {
     return MsgFilterTypeReqested(requestedFilterMessageType);
+}
 }

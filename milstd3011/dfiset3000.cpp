@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 
+namespace dfi3000 {
 std::string dui001(const std::array<int, 7>& percentExceedingLatency) 
 {
     int percentExceedingLatencyInt = 0;
@@ -28,4 +29,5 @@ std::string dui001(const std::array<int, 7>& percentExceedingLatency)
         break;
     }
     return output;
+}
 }

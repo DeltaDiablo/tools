@@ -2,6 +2,7 @@
 #include <string>
 #include <cmath>
 
+namespace dfi3013 {
 //repeated components for DFI 3013
 
 /* AXIS LENGTH 12 bits
@@ -45,4 +46,5 @@ std::string Dui001(const std::array<int, 12>& majorAxisLength)
 std::string Dui002(const std::array<int, 12>& minorAxisLength)
 {
     return GetAxisLength(minorAxisLength);
+}
 }
