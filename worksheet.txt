@@ -1,0 +1,8 @@
+MANAGEMENT                                   0 
+JREAP J-SERIES                               1  done
+JTIDS/MIDS JREAP FREE TEXT (CODED)           2  done
+JTIDS/MIDS JREAP FREE TEXT (UNCODED)         3  done
+VMF                                          4  
+LINK 22                                      5 
+CMF IBS                                      6 
+ JREAP J SERIES WITH  NPG ASSIGHMENT         7  done

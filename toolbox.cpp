@@ -62,11 +62,20 @@ int main()
             };
 
             const int ahIndex = findLineIndex("Application Header (AH.0)");
+            const int fstbhIndex = findLineIndex("FSTBH.A.NC.0");
+            const int fsmghIndex = findLineIndex("Full Stack Message Group Header (FSMGH.3)");
             const int abmlIndex = findLineIndex("ABML consistency");
+            const int fsConsistencyIndex = findLineIndex("Full Stack consistency");
             const int dispatchIndex = findLineIndex("Dispatch by Message Type");
 
+            int headerIndex = -1;
+            if (ahIndex >= 0) headerIndex = ahIndex;
+            else if (fstbhIndex >= 0) headerIndex = fstbhIndex;
+            else headerIndex = fsmghIndex;
+            const int validationIndex = (abmlIndex >= 0) ? abmlIndex : fsConsistencyIndex;
+
             const bool hasStructuredSections =
-                (ahIndex >= 0) && (abmlIndex > ahIndex) && (dispatchIndex > abmlIndex);
+                (headerIndex >= 0) && (validationIndex > headerIndex) && (dispatchIndex > validationIndex);
 
             const int contentTop = inputBoxY + inputBoxH + 50;
             const int outputFontSize = 18;
@@ -84,8 +93,8 @@ int main()
             };
 
             if (hasStructuredSections) {
-                std::vector<std::string> headerLines(lines.begin() + ahIndex, lines.begin() + abmlIndex);
-                std::vector<std::string> abmlLines(lines.begin() + abmlIndex, lines.begin() + dispatchIndex);
+                std::vector<std::string> headerLines(lines.begin() + headerIndex, lines.begin() + validationIndex);
+                std::vector<std::string> abmlLines(lines.begin() + validationIndex, lines.begin() + dispatchIndex);
                 std::vector<std::string> jSeriesLines(lines.begin() + dispatchIndex, lines.end());
 
                 const int sidePadding = 10;

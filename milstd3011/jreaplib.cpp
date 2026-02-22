@@ -7,7 +7,7 @@
 #include <cstddef>
 
 namespace jreap_internal {
-std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray, std::size_t byteCount, bool strictAbml);
+std::string ProcessJreapApplicationMessage(const std::array<int, 512>& byteArray, std::size_t byteCount, bool strictAbml);
 }
 
 namespace jreap {
@@ -180,7 +180,7 @@ std::vector<int> ParseCsvBytes(const std::string& csvBytes)
 
 std::string DecodeApplicationMessage(const std::vector<int>& bytes, bool strictAbml)
 {
-    std::array<int, 65> fixedBytes{};
+    std::array<int, 512> fixedBytes{};
     const std::size_t count = std::min<std::size_t>(bytes.size(), fixedBytes.size());
 
     for (std::size_t index = 0; index < count; ++index)
