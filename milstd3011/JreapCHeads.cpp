@@ -3,23 +3,30 @@
 #include <sstream>
 #include <cstddef>
 #include <algorithm>
+#include "milstd3011/dfiset3000.h"
 #include "milstd3011/dfiset3008.h"
 #include "milstd3011/dfiset3007.h"
 #include "milstd3011/dfiset3006.h"
 #include "milstd3011/dfiset3001.h"
 #include "milstd3011/dfiset3002.h"
 #include "milstd3011/dfiset3003.h"
+#include "milstd3011/dfiset3004.h"
+#include "milstd3011/dfiset3005.h"
 #include "milstd3011/dfiset3012.h"
 #include "milstd3011/dfiset3014.h"
 #include "milstd3011/dfiset3015.h"
 #include "milstd3011/dfiset3016.h"
 #include "milstd3011/dfiset3017.h"
+#include "milstd3011/dfiset3018.h"
+#include "milstd3011/dfiset3019.h"
 #include "milstd3011/dfiset3020.h"
 #include "milstd3011/dfiset3021.h"
+#include "milstd3011/dfiset3022.h"
+#include "milstd3011/dfiset3024.h"
+#include "milstd3011/dfiset3029.h"
 #include "milstd3011/dfiset3025.h"
 #include "milstd3011/dfiset3027.h"
 #include "milstd3011/dfiset3028.h"
-#include "milstd3011/dfiset3029.h"
 #include "milstd3011/dfiset3030.h"
 #include "milstd3011/dfiset3032.h"
 #include "milstd3011/dfiset3033.h"
@@ -375,19 +382,577 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 512>& byteArray
 	case 0:
 	{
 		out << kDispatchManagementDetected;
-		if (effectivePayloadBytes >= 1)
+		if (effectivePayloadBytes == 0)
 		{
-			auto subtypeBits = SliceBits<8>(bits, 0);
-			for (std::size_t i = 0; i < 8; ++i)
+			out << "\n" << kDispatchNoManagementSubtype;
+			break;
+		}
+
+		auto getManagementPayloadBit = [&](std::size_t payloadBitIndex) -> int
+		{
+			std::size_t sourceByte = 10 + (payloadBitIndex / 8);
+			std::size_t bitInByte = payloadBitIndex % 8;
+			return (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
+		};
+
+		auto readPayloadBits = [&](auto& target, std::size_t startBit)
+		{
+			for (std::size_t i = 0; i < target.size(); ++i)
 			{
-				subtypeBits[i] = (byteArray[10] >> (7 - i)) & 0x01;
+				target[i] = getManagementPayloadBit(startBit + i);
 			}
-			out << "\n" << kDispatchManagementSubtypeLabel << ": " << dfi3008::Dui002(subtypeBits);
+		};
+
+		const std::size_t payloadBits = effectivePayloadBytes * 8;
+		std::array<int, 8> managementSubtypeBits{};
+		readPayloadBits(managementSubtypeBits, 0);
+		const int managementSubtypeValue = BitsToUInt(managementSubtypeBits);
+		out << "\n" << kDispatchManagementSubtypeLabel << ": " << dfi3008::Dui002(managementSubtypeBits);
+
+		constexpr std::size_t mmshFixedBitsBeforeDestinations = 112;
+		if (payloadBits < mmshFixedBitsBeforeDestinations)
+		{
+			out << "\nMMSH.0 decode incomplete: need at least " << mmshFixedBitsBeforeDestinations
+				<< " bits, received " << payloadBits << " bits.";
+			break;
+		}
+
+		std::array<int, 4> managementVersionBits{};
+		std::array<int, 4> acknowledgementProtocolBits{};
+		std::array<int, 16> managementMessageLengthBits{};
+		std::array<int, 8> numberDestinationAddressesBits{};
+		std::array<int, 8> completionTimeoutBits{};
+		std::array<int, 16> messageSequenceNumberBits{};
+		std::array<int, 8> controlResponseIndicatorBits{};
+		std::array<int, 8> errorCodeBits{};
+		std::array<int, 8> fragmentNumberBits{};
+		std::array<int, 8> totalNumberFragmentsBits{};
+		std::array<int, 16> originatingMessageSequenceNumberBits{};
+
+		readPayloadBits(managementVersionBits, 8);
+		readPayloadBits(acknowledgementProtocolBits, 12);
+		readPayloadBits(managementMessageLengthBits, 16);
+		readPayloadBits(numberDestinationAddressesBits, 32);
+		readPayloadBits(completionTimeoutBits, 40);
+		readPayloadBits(messageSequenceNumberBits, 48);
+		readPayloadBits(controlResponseIndicatorBits, 64);
+		readPayloadBits(errorCodeBits, 72);
+		readPayloadBits(fragmentNumberBits, 80);
+		readPayloadBits(totalNumberFragmentsBits, 88);
+		readPayloadBits(originatingMessageSequenceNumberBits, 96);
+
+		out << "\n\nManagement Message Subheader (MMSH.0)";
+		out << "\nManagement Message Subtype: " << dfi3008::Dui002(managementSubtypeBits);
+		out << "\nManagement Version: " << dfi3044::Dfi3044Dui001(managementVersionBits);
+		if (managementSubtypeValue == 5 || managementSubtypeValue == 9)
+		{
+			out << "\nAcknowledgement Protocol, 2: " << dfi3006::Dui002(acknowledgementProtocolBits);
+		}
+		else if (managementSubtypeValue == 7)
+		{
+			out << "\nAcknowledgement Protocol, 3: " << dfi3006::Dui003(acknowledgementProtocolBits);
 		}
 		else
 		{
-			out << "\n" << kDispatchNoManagementSubtype;
+			out << "\nAcknowledgement Protocol, 1: " << dfi3006::Dui001(acknowledgementProtocolBits);
 		}
+		out << "\nManagement Message Length: " << dfi3012::Dui003(managementMessageLengthBits);
+		if (managementSubtypeValue == 2 || managementSubtypeValue == 4 || managementSubtypeValue == 5 || managementSubtypeValue == 10)
+		{
+			out << "\nNumber Destination Addresses: " << dfi3017::Dui003(numberDestinationAddressesBits);
+		}
+		else
+		{
+			out << "\nNumber Destination Addresses: " << dfi3017::Dui001(numberDestinationAddressesBits);
+		}
+		out << "\nCompletion Timeout: " << dfi3029::Dui001(completionTimeoutBits);
+		out << "\nMessage Sequence Number: " << dfi3032::Dui001(messageSequenceNumberBits);
+
+		if (managementSubtypeValue == 0)
+		{
+			out << "\nControl/Response Indicator, 1: " << dfi3020::Dui001(controlResponseIndicatorBits);
+			out << "\nError Code, 1: " << dfi3034::Dui001(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 1)
+		{
+			out << "\nControl/Response Indicator, 2: " << dfi3020::Dui002(controlResponseIndicatorBits);
+			out << "\nError Code, 3: " << dfi3034::Dui003(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 2)
+		{
+			out << "\nControl/Response Indicator, 1: " << dfi3020::Dui001(controlResponseIndicatorBits);
+			out << "\nError Code, 2: " << dfi3034::Dui002(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 4)
+		{
+			out << "\nControl/Response Indicator, 3: " << dfi3020::Dui003(controlResponseIndicatorBits);
+			out << "\nError Code, 4: " << dfi3034::Dui004(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 5)
+		{
+			out << "\nControl/Response Indicator, 4: " << dfi3020::Dui004(controlResponseIndicatorBits);
+			out << "\nError Code, 2: " << dfi3034::Dui002(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 6)
+		{
+			out << "\nControl/Response Indicator, 12: " << dfi3020::Dui012(controlResponseIndicatorBits);
+			out << "\nError Code, 1: " << dfi3034::Dui001(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 7)
+		{
+			out << "\nControl/Response Indicator, 5: " << dfi3020::Dui005(controlResponseIndicatorBits);
+			out << "\nError Code, 5: " << dfi3034::Dui005(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 8)
+		{
+			out << "\nControl/Response Indicator, 13: " << dfi3020::Dui013(controlResponseIndicatorBits);
+			out << "\nError Code, 2: " << dfi3034::Dui002(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 9)
+		{
+			out << "\nControl/Response Indicator, 6: " << dfi3020::Dui006(controlResponseIndicatorBits);
+			out << "\nError Code, 1: " << dfi3034::Dui001(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 10)
+		{
+			out << "\nControl/Response Indicator, 11: " << dfi3020::Dui011(controlResponseIndicatorBits);
+			out << "\nError Code, 7: " << dfi3034::Dui007(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 11)
+		{
+			out << "\nControl/Response Indicator, 10: " << dfi3020::Dui010(controlResponseIndicatorBits);
+			out << "\nError Code, 6: " << dfi3034::Dui006(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 12)
+		{
+			out << "\nControl/Response Indicator, 12: " << dfi3020::Dui012(controlResponseIndicatorBits);
+			out << "\nError Code, 4: " << dfi3034::Dui004(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 13)
+		{
+			out << "\nControl/Response Indicator, 12: " << dfi3020::Dui012(controlResponseIndicatorBits);
+			out << "\nError Code, 4: " << dfi3034::Dui004(errorCodeBits);
+		}
+		else if (managementSubtypeValue == 14)
+		{
+			out << "\nControl/Response Indicator, 12: " << dfi3020::Dui012(controlResponseIndicatorBits);
+			out << "\nError Code, 4: " << dfi3034::Dui004(errorCodeBits);
+		}
+		else
+		{
+			out << "\nControl/Response Indicator: " << dfi3020::Dui007(controlResponseIndicatorBits);
+			out << "\nError Code: " << dfi3034::Dui007(errorCodeBits);
+		}
+
+		out << "\nFragment Number: " << dfi3033::Dui002(fragmentNumberBits);
+		out << "\nTotal Number Fragments: " << dfi3033::Dui003(totalNumberFragmentsBits);
+		out << "\nOriginating Message Sequence Number: " << dfi3032::Dui002(originatingMessageSequenceNumberBits);
+
+		const int destinationCountRequested = BitsToUInt(numberDestinationAddressesBits);
+		const std::size_t destinationBitsAvailable = (payloadBits > mmshFixedBitsBeforeDestinations)
+			? (payloadBits - mmshFixedBitsBeforeDestinations)
+			: 0;
+		const std::size_t destinationCountAvailable = destinationBitsAvailable / 16;
+		const std::size_t destinationCountDecoded = std::min<std::size_t>(
+			static_cast<std::size_t>(destinationCountRequested), destinationCountAvailable);
+
+		std::size_t destinationStartBit = mmshFixedBitsBeforeDestinations;
+		for (std::size_t destinationIndex = 0; destinationIndex < destinationCountDecoded; ++destinationIndex)
+		{
+			std::array<int, 16> destinationAddressBits{};
+			readPayloadBits(destinationAddressBits, destinationStartBit);
+			out << "\nDestination Address " << (destinationIndex + 1) << ": "
+				<< dfi3036::Dfi3036Dui020(destinationAddressBits);
+			destinationStartBit += 16;
+		}
+
+		if (destinationCountDecoded < static_cast<std::size_t>(destinationCountRequested))
+		{
+			out << "\nDestination address list truncated: requested " << destinationCountRequested
+				<< ", decoded " << destinationCountDecoded << ".";
+		}
+
+		if (managementSubtypeValue == 0)
+		{
+			constexpr std::size_t x000EchoBits = 32;
+			const std::size_t echoStartBit = destinationStartBit;
+			if (payloadBits < (echoStartBit + x000EchoBits))
+			{
+				out << "\n\nX0.0.0 Echo decode incomplete: need "
+					<< x000EchoBits << " bits after destination addresses, received "
+					<< (payloadBits > echoStartBit ? (payloadBits - echoStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 32> applicationDataBits{};
+			readPayloadBits(applicationDataBits, echoStartBit);
+
+			out << "\n\nX0.0.0 Echo";
+			out << "\nApplication Data: " << dfi3016::Dui001(applicationDataBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 1)
+		{
+			constexpr std::size_t x010CommonTimeReferenceBits = 32;
+			const std::size_t ctrStartBit = destinationStartBit;
+			if (payloadBits < (ctrStartBit + x010CommonTimeReferenceBits))
+			{
+				out << "\n\nX0.1 Common Time Reference decode incomplete: need "
+					<< x010CommonTimeReferenceBits << " bits after destination addresses, received "
+					<< (payloadBits > ctrStartBit ? (payloadBits - ctrStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 11> spareC{};
+			std::array<int, 1> jreNcC{};
+			std::array<int, 1> rttimeC{};
+			std::array<int, 1> fixedDelayC{};
+			std::array<int, 1> eventStrobeC{};
+			std::array<int, 1> utcC{};
+			std::array<int, 11> spareP{};
+			std::array<int, 1> jreNcP{};
+			std::array<int, 1> rttimeP{};
+			std::array<int, 1> fixedDelayP{};
+			std::array<int, 1> eventStrobeP{};
+			std::array<int, 1> utcP{};
+
+			readPayloadBits(spareC, ctrStartBit + 0);
+			readPayloadBits(jreNcC, ctrStartBit + 11);
+			readPayloadBits(rttimeC, ctrStartBit + 12);
+			readPayloadBits(fixedDelayC, ctrStartBit + 13);
+			readPayloadBits(eventStrobeC, ctrStartBit + 14);
+			readPayloadBits(utcC, ctrStartBit + 15);
+			readPayloadBits(spareP, ctrStartBit + 16);
+			readPayloadBits(jreNcP, ctrStartBit + 27);
+			readPayloadBits(rttimeP, ctrStartBit + 28);
+			readPayloadBits(fixedDelayP, ctrStartBit + 29);
+			readPayloadBits(eventStrobeP, ctrStartBit + 30);
+			readPayloadBits(utcP, ctrStartBit + 31);
+
+			out << "\n\nX0.1 Common Time Reference";
+			out << "\nSpare (C): " << BitsToUInt(spareC);
+			out << "\nJRE NC, C: " << dfi3004::Dui001(jreNcC);
+			out << "\nRTTIME, C: " << dfi3004::Dui002(rttimeC);
+			out << "\nFIXED DELAY, C: " << dfi3004::Dui003(fixedDelayC);
+			out << "\nEVENT STROBE, C: " << dfi3004::Dui004(eventStrobeC);
+			out << "\nUTC, C: " << dfi3004::Dui005(utcC);
+			out << "\nSpare (P): " << BitsToUInt(spareP);
+			out << "\nJRE NC, P: " << dfi3005::Dui001(jreNcP);
+			out << "\nRTTIME, P: " << dfi3005::Dui002(rttimeP);
+			out << "\nFIXED DELAY, P: " << dfi3005::Dui003(fixedDelayP);
+			out << "\nEVENT STROBE, P: " << dfi3005::Dui004(eventStrobeP);
+			out << "\nUTC, P: " << dfi3005::Dui005(utcP);
+			break;
+		}
+
+		if (managementSubtypeValue == 4)
+		{
+			constexpr std::size_t x040AckApplicationBits = 32;
+			const std::size_t ackStartBit = destinationStartBit;
+			if (payloadBits < (ackStartBit + x040AckApplicationBits))
+			{
+				out << "\n\nX0.4.0 Acknowledgment (Application) decode incomplete: need "
+					<< x040AckApplicationBits << " bits after destination addresses, received "
+					<< (payloadBits > ackStartBit ? (payloadBits - ackStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 16> originatingJSeriesJreSenderIdBits{};
+			std::array<int, 16> originatingJSeriesMessageSequenceNumberBits{};
+
+			readPayloadBits(originatingJSeriesJreSenderIdBits, ackStartBit + 0);
+			readPayloadBits(originatingJSeriesMessageSequenceNumberBits, ackStartBit + 16);
+
+			out << "\n\nX0.4.0 Acknowledgment (Application)";
+			out << "\nOriginating J-Series JRE Sender ID: "
+				<< dfi3036::Dfi3036Dui021(originatingJSeriesJreSenderIdBits);
+			out << "\nOriginating J-Series Message Sequence Number: "
+				<< dfi3032::Dui004(originatingJSeriesMessageSequenceNumberBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 5)
+		{
+			constexpr std::size_t x050LatencyThresholdBits = 48;
+			const std::size_t latencyStartBit = destinationStartBit;
+			if (payloadBits < (latencyStartBit + x050LatencyThresholdBits))
+			{
+				out << "\n\nX0.5.0 Latency Threshold decode incomplete: need "
+					<< x050LatencyThresholdBits << " bits after destination addresses, received "
+					<< (payloadBits > latencyStartBit ? (payloadBits - latencyStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 16> maximumLatencyBits{};
+			std::array<int, 6> spare6Bits{};
+			std::array<int, 10> intervalTimeBits{};
+			std::array<int, 8> spare8Bits{};
+			std::array<int, 8> countBits{};
+
+			readPayloadBits(maximumLatencyBits, latencyStartBit + 0);
+			readPayloadBits(spare6Bits, latencyStartBit + 16);
+			readPayloadBits(intervalTimeBits, latencyStartBit + 22);
+			readPayloadBits(spare8Bits, latencyStartBit + 32);
+			readPayloadBits(countBits, latencyStartBit + 40);
+
+			out << "\n\nX0.5.0 Latency Threshold";
+			out << "\nMaximum Latency: " << dfi3003::Dui007(maximumLatencyBits);
+			out << "\nSpare (6 bits): " << BitsToUInt(spare6Bits);
+			out << "\nInterval Time: " << dfi3003::Dui013(intervalTimeBits);
+			out << "\nSpare (8 bits): " << BitsToUInt(spare8Bits);
+			out << "\nCount: " << dfi3033::Dui001(countBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 7)
+		{
+			constexpr std::size_t x070OperatorToOperatorBits = 8;
+			const std::size_t operatorMessageStartBit = destinationStartBit;
+			if (payloadBits < (operatorMessageStartBit + x070OperatorToOperatorBits))
+			{
+				out << "\n\nX0.7.0 Operator-to-Operator decode incomplete: need "
+					<< x070OperatorToOperatorBits << " bits after destination addresses, received "
+					<< (payloadBits > operatorMessageStartBit ? (payloadBits - operatorMessageStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 8> asciiBits{};
+			readPayloadBits(asciiBits, operatorMessageStartBit);
+
+			out << "\n\nX0.7.0 Operator-to-Operator";
+			out << "\nASCII: " << dfi3024::Dui001(asciiBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 6)
+		{
+			constexpr std::size_t x060LatencyExceededBits = 32;
+			const std::size_t exceededStartBit = destinationStartBit;
+			if (payloadBits < (exceededStartBit + x060LatencyExceededBits))
+			{
+				out << "\n\nX0.6.0 Latency Exceeded decode incomplete: need "
+					<< x060LatencyExceededBits << " bits after destination addresses, received "
+					<< (payloadBits > exceededStartBit ? (payloadBits - exceededStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 16> maximumLatencyBits{};
+			std::array<int, 16> jreSenderIdBits{};
+
+			readPayloadBits(maximumLatencyBits, exceededStartBit + 0);
+			readPayloadBits(jreSenderIdBits, exceededStartBit + 16);
+
+			out << "\n\nX0.6.0 Latency Exceeded";
+			out << "\nMaximum Latency: " << dfi3003::Dui007(maximumLatencyBits);
+			out << "\nJRE Sender ID: " << dfi3036::Dfi3036Dui001(jreSenderIdBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 8)
+		{
+			constexpr std::size_t x080SpecialEventBits = 48;
+			const std::size_t eventStartBit = destinationStartBit;
+			if (payloadBits < (eventStartBit + x080SpecialEventBits))
+			{
+				out << "\n\nX0.8.0 Special Event decode incomplete: need "
+					<< x080SpecialEventBits << " bits after destination addresses, received "
+					<< (payloadBits > eventStartBit ? (payloadBits - eventStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 11> spare11Bits{};
+			std::array<int, 5> eventTypeBits{};
+			std::array<int, 4> eventTimeAccuracyBits{};
+			std::array<int, 28> eventTimeBits{};
+
+			readPayloadBits(spare11Bits, eventStartBit + 0);
+			readPayloadBits(eventTypeBits, eventStartBit + 11);
+			readPayloadBits(eventTimeAccuracyBits, eventStartBit + 16);
+			readPayloadBits(eventTimeBits, eventStartBit + 20);
+
+			out << "\n\nX0.8.0 Special Event";
+			out << "\nSpare (11 bits): " << BitsToUInt(spare11Bits);
+			out << "\nEvent Type: " << dfi3022::Dui001(eventTypeBits);
+			out << "\nEvent Time Accuracy: " << dfi3003::Dui005(eventTimeAccuracyBits);
+			out << "\nEvent Time: " << dfi3003::Dui012(eventTimeBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 9)
+		{
+			out << "\n\nX0.9.0 Terminate Link";
+			break;
+		}
+
+		if (managementSubtypeValue == 10)
+		{
+			out << "\n\nX0.10 Filter Response";
+			break;
+		}
+
+		if (managementSubtypeValue == 11)
+		{
+			constexpr std::size_t x011SecondaryTrackListBits = 16;
+			const std::size_t secondaryTrackStartBit = destinationStartBit;
+			if (payloadBits < (secondaryTrackStartBit + x011SecondaryTrackListBits))
+			{
+				out << "\n\nX0.11.0 Secondary Track Number List decode incomplete: need "
+					<< x011SecondaryTrackListBits << " bits after destination addresses, received "
+					<< (payloadBits > secondaryTrackStartBit ? (payloadBits - secondaryTrackStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 1> addDeleteIndicatorBits{};
+			std::array<int, 15> secondaryTrackNumberBits{};
+
+			readPayloadBits(addDeleteIndicatorBits, secondaryTrackStartBit + 0);
+			readPayloadBits(secondaryTrackNumberBits, secondaryTrackStartBit + 1);
+
+			out << "\n\nX0.11.0 Secondary Track Number List";
+			out << "\nAdd/Delete Indicator: " << dfi3002::Dui001(addDeleteIndicatorBits);
+			out << "\nSecondary Track Number: " << dfi3027::Dui002(secondaryTrackNumberBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 12)
+		{
+			constexpr std::size_t x012DirectConnectionListBits = 48;
+			const std::size_t directConnectionStartBit = destinationStartBit;
+			if (payloadBits < (directConnectionStartBit + x012DirectConnectionListBits))
+			{
+				out << "\n\nX0.12.0 Direct Connection List decode incomplete: need "
+					<< x012DirectConnectionListBits << " bits after destination addresses, received "
+					<< (payloadBits > directConnectionStartBit ? (payloadBits - directConnectionStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 16> linkDesignatorBits{};
+			std::array<int, 8> numberAddressesThisDesignatorBits{};
+			std::array<int, 8> totalNumberOfActiveDesignatorsBits{};
+			std::array<int, 16> linkInterfaceUnitBits{};
+
+			readPayloadBits(linkDesignatorBits, directConnectionStartBit + 0);
+			readPayloadBits(numberAddressesThisDesignatorBits, directConnectionStartBit + 16);
+			readPayloadBits(totalNumberOfActiveDesignatorsBits, directConnectionStartBit + 24);
+			readPayloadBits(linkInterfaceUnitBits, directConnectionStartBit + 32);
+
+			out << "\n\nX0.12.0 Direct Connection List";
+			out << "\nLink Designator: " << dfi3021::Dui002(linkDesignatorBits);
+			out << "\nNumber Addresses This Designator: " << dfi3017::Dui002(numberAddressesThisDesignatorBits);
+			out << "\nTotal Number of Active Designators: " << dfi3018::Dui002(totalNumberOfActiveDesignatorsBits);
+			out << "\nLink Interface Unit: " << dfi3036::Dfi3036Dui022(linkInterfaceUnitBits);
+			break;
+		}
+
+		if (managementSubtypeValue == 13)
+		{
+			constexpr std::size_t x013NetworkConnectivityMatrixBits = 33;
+			const std::size_t connectivityStartBit = destinationStartBit;
+			if (payloadBits < (connectivityStartBit + x013NetworkConnectivityMatrixBits))
+			{
+				out << "\n\nX0.13.0 Network Connectivity Matrix decode incomplete: need "
+					<< x013NetworkConnectivityMatrixBits << " bits after destination addresses, received "
+					<< (payloadBits > connectivityStartBit ? (payloadBits - connectivityStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 8> spare8Bits{};
+			std::array<int, 8> numberOfDesignatorsSupportedBits{};
+			std::array<int, 16> linkDesignatorBits{};
+			std::array<int, 1> connectivityMatrixBit{};
+
+			readPayloadBits(spare8Bits, connectivityStartBit + 0);
+			readPayloadBits(numberOfDesignatorsSupportedBits, connectivityStartBit + 8);
+			readPayloadBits(linkDesignatorBits, connectivityStartBit + 16);
+			readPayloadBits(connectivityMatrixBit, connectivityStartBit + 32);
+
+			out << "\n\nX0.13.0 Network Connectivity Matrix";
+			out << "\nSpare (8 bits): " << BitsToUInt(spare8Bits);
+			out << "\nNumber of Designators Supported: " << dfi3018::Dui001(numberOfDesignatorsSupportedBits);
+			out << "\nLink Designator: " << dfi3021::Dui002(linkDesignatorBits);
+			out << "\nConnectivity Matrix Bit: " << dfi3019::Dui001(connectivityMatrixBit);
+			break;
+		}
+
+		if (managementSubtypeValue == 14)
+		{
+			constexpr std::size_t x014ConnectivityFeedbackBits = 112;
+			const std::size_t feedbackStartBit = destinationStartBit;
+			if (payloadBits < (feedbackStartBit + x014ConnectivityFeedbackBits))
+			{
+				out << "\n\nX0.14.0 Connectivity Feedback decode incomplete: need "
+					<< x014ConnectivityFeedbackBits << " bits after destination addresses, received "
+					<< (payloadBits > feedbackStartBit ? (payloadBits - feedbackStartBit) : 0) << ".";
+				break;
+			}
+
+			std::array<int, 16> lengthOfMessageBits{};
+			std::array<int, 16> jreSenderIdBits{};
+			std::array<int, 16> linkDesignatorBits{};
+			std::array<int, 16> linkInterfaceUnitBits{};
+			std::array<int, 16> averageReceivedDataMediaLatencyBits{};
+			std::array<int, 9> spare9Bits{};
+			std::array<int, 7> percentExceedingLatencyBits{};
+			std::array<int, 16> errorRateCurrentBits{};
+
+			readPayloadBits(lengthOfMessageBits, feedbackStartBit + 0);
+			readPayloadBits(jreSenderIdBits, feedbackStartBit + 16);
+			readPayloadBits(linkDesignatorBits, feedbackStartBit + 32);
+			readPayloadBits(linkInterfaceUnitBits, feedbackStartBit + 48);
+			readPayloadBits(averageReceivedDataMediaLatencyBits, feedbackStartBit + 64);
+			readPayloadBits(spare9Bits, feedbackStartBit + 80);
+			readPayloadBits(percentExceedingLatencyBits, feedbackStartBit + 89);
+			readPayloadBits(errorRateCurrentBits, feedbackStartBit + 96);
+
+			out << "\n\nX0.14.0 Connectivity Feedback";
+			out << "\nLength of Message: " << dfi3012::Dui002(lengthOfMessageBits);
+			out << "\nJRE Sender ID: " << dfi3036::Dfi3036Dui001(jreSenderIdBits);
+			out << "\nLink Designator: " << dfi3021::Dui002(linkDesignatorBits);
+			out << "\nLink Interface Unit: " << dfi3036::Dfi3036Dui022(linkInterfaceUnitBits);
+			out << "\nAverage Received Data Media Latency: " << dfi3003::Dui002(averageReceivedDataMediaLatencyBits);
+			out << "\nSpare (9 bits): " << BitsToUInt(spare9Bits);
+			out << "\nPercent Exceeding Latency: " << dfi3000::dui001(percentExceedingLatencyBits);
+			out << "\nError Rate, Current: " << dfi3015::Dui018(errorRateCurrentBits);
+			break;
+		}
+
+		if (managementSubtypeValue != 2)
+		{
+			break;
+		}
+
+		constexpr std::size_t x020RttBits = 96;
+		const std::size_t rttStartBit = destinationStartBit;
+		if (payloadBits < (rttStartBit + x020RttBits))
+		{
+			out << "\n\nX0.2.0 Round-Trip Time Delay decode incomplete: need "
+				<< x020RttBits << " bits after destination addresses, received "
+				<< (payloadBits > rttStartBit ? (payloadBits - rttStartBit) : 0) << ".";
+			break;
+		}
+
+		std::array<int, 4> timeAccuracyT1Bits{};
+		std::array<int, 28> txJreTransmitTimeT1Bits{};
+		std::array<int, 4> timeAccuracyR2Bits{};
+		std::array<int, 28> rxJreReceiveTimeR2Bits{};
+		std::array<int, 4> timeAccuracyT2Bits{};
+		std::array<int, 28> rxJreTransmitTimeT2Bits{};
+
+		readPayloadBits(timeAccuracyT1Bits, rttStartBit + 0);
+		readPayloadBits(txJreTransmitTimeT1Bits, rttStartBit + 4);
+		readPayloadBits(timeAccuracyR2Bits, rttStartBit + 32);
+		readPayloadBits(rxJreReceiveTimeR2Bits, rttStartBit + 36);
+		readPayloadBits(timeAccuracyT2Bits, rttStartBit + 64);
+		readPayloadBits(rxJreTransmitTimeT2Bits, rttStartBit + 68);
+
+		out << "\n\nX0.2.0 Round-Trip Time Delay";
+		out << "\nTime Accuracy (T1): " << dfi3003::Dui015(timeAccuracyT1Bits);
+		out << "\nTX JRE Transmit Time (T1): " << dfi3003::Dui009(txJreTransmitTimeT1Bits);
+		out << "\nTime Accuracy (R2): " << dfi3003::Dui014(timeAccuracyR2Bits);
+		out << "\nRX JRE Receive Time (R2): " << dfi3003::Dui008(rxJreReceiveTimeR2Bits);
+		out << "\nTime Accuracy (T2): " << dfi3003::Dui016(timeAccuracyT2Bits);
+		out << "\nRX JRE Transmit Time (T2): " << dfi3003::Dui010(rxJreTransmitTimeT2Bits);
 		break;
 	}
 	case 1:
