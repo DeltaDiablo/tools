@@ -42,7 +42,7 @@ constexpr const char* kDispatchNotApplicationHeader = "Dispatch: not an applicat
 constexpr const char* kDispatchStrictAbmlMismatch = "ABML mismatch in strict mode: payload decode skipped.";
 
 constexpr const char* kAbmlDeclaredBytesLabel = "Declared ABML bytes";
-constexpr const char* kAbmlReceivedPayloadBytesLabel = "Received payload bytes";
+constexpr const char* kAbmlReceivedPayloadBytesLabel = "Received payload bytes (incl. AH.0 header)";
 constexpr const char* kAbmlStatusTruncatedPrefix = "Status: payload truncated by ";
 constexpr const char* kAbmlStatusTrailingPrefix = "Status: extra trailing payload of ";
 constexpr const char* kAbmlStatusMatch = "Status: payload length matches ABML.";

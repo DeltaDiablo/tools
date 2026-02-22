@@ -1,5 +1,7 @@
 #include "raylib.h"
 #include <iostream>
+#include <vector>
+#include <algorithm>
 #include "milstd3011/jreaplib.h"
 
 int main()
@@ -8,6 +10,7 @@ int main()
     //--------------------------------------------------------------------------------------
     std::string input = "";
     std::string output = "";
+    int jSeriesScrollLines = 0;
     InitWindow(3000, 800, "Binary Tools");
     int btnX, btnY, btnW, btnH;
     bool mouseOverBtn;
@@ -33,20 +36,100 @@ int main()
         DrawRectangleLines(btnX, btnY, btnW, btnH, YELLOW);
         DrawText("Submit", btnX + 20, btnY + 10, 22, RAYWHITE);
 
-        // Draw the output string below the input area
+        // Draw compact output layout: AH.0 on the left, ABML on the right, J-Series below
         if (!output.empty()) {
             DrawText("Message Translation:", 10, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
-            // Split output into lines and draw each with extra spacing
-            int y = inputBoxY + inputBoxH + 50;
-            int lineSpacing = 32; // More space between lines
+
+            std::vector<std::string> lines;
             size_t start = 0;
-            while (start < output.length()) {
+            while (start <= output.length()) {
                 size_t end = output.find('\n', start);
-                std::string line = (end == std::string::npos) ? output.substr(start) : output.substr(start, end - start);
-                DrawText(line.c_str(), 10, y, 22, BLUE);
-                y += lineSpacing;
-                if (end == std::string::npos) break;
+                if (end == std::string::npos) {
+                    lines.push_back(output.substr(start));
+                    break;
+                }
+                lines.push_back(output.substr(start, end - start));
                 start = end + 1;
+            }
+
+            auto findLineIndex = [&](const std::string& key) -> int {
+                for (size_t i = 0; i < lines.size(); ++i) {
+                    if (lines[i].find(key) != std::string::npos) {
+                        return static_cast<int>(i);
+                    }
+                }
+                return -1;
+            };
+
+            const int ahIndex = findLineIndex("Application Header (AH.0)");
+            const int abmlIndex = findLineIndex("ABML consistency");
+            const int dispatchIndex = findLineIndex("Dispatch by Message Type");
+
+            const bool hasStructuredSections =
+                (ahIndex >= 0) && (abmlIndex > ahIndex) && (dispatchIndex > abmlIndex);
+
+            const int contentTop = inputBoxY + inputBoxH + 50;
+            const int outputFontSize = 18;
+            const int lineSpacing = 22;
+
+            auto drawLines = [&](const std::vector<std::string>& source, int x, int y, Color color) -> int {
+                int currentY = y;
+                for (const std::string& line : source) {
+                    if (!line.empty()) {
+                        DrawText(line.c_str(), x, currentY, outputFontSize, color);
+                    }
+                    currentY += lineSpacing;
+                }
+                return currentY;
+            };
+
+            if (hasStructuredSections) {
+                std::vector<std::string> headerLines(lines.begin() + ahIndex, lines.begin() + abmlIndex);
+                std::vector<std::string> abmlLines(lines.begin() + abmlIndex, lines.begin() + dispatchIndex);
+                std::vector<std::string> jSeriesLines(lines.begin() + dispatchIndex, lines.end());
+
+                const int sidePadding = 10;
+                const int sectionGap = 40;
+                const int availableWidth = GetScreenWidth() - (sidePadding * 2);
+                const int columnWidth = (availableWidth - sectionGap) / 2;
+                const int leftX = sidePadding;
+                const int rightX = sidePadding + columnWidth + sectionGap;
+
+                int leftBottom = drawLines(headerLines, leftX, contentTop, BLUE);
+                int rightBottom = drawLines(abmlLines, rightX, contentTop, DARKBLUE);
+
+                const int jSeriesTop = std::max(leftBottom, rightBottom) + 12;
+                const int viewportBottom = GetScreenHeight() - 12;
+                const int viewportHeight = std::max(0, viewportBottom - jSeriesTop);
+                const int visibleLines = std::max(1, viewportHeight / lineSpacing);
+                const int maxScrollLines = std::max(0, static_cast<int>(jSeriesLines.size()) - visibleLines);
+
+                const float wheelMove = GetMouseWheelMove();
+                if (wheelMove != 0.0f) {
+                    jSeriesScrollLines -= static_cast<int>(wheelMove);
+                    if (jSeriesScrollLines < 0) jSeriesScrollLines = 0;
+                    if (jSeriesScrollLines > maxScrollLines) jSeriesScrollLines = maxScrollLines;
+                }
+
+                if (viewportHeight > 0) {
+                    BeginScissorMode(leftX, jSeriesTop, availableWidth, viewportHeight);
+                    int currentY = jSeriesTop;
+                    for (int i = jSeriesScrollLines; i < static_cast<int>(jSeriesLines.size()); ++i) {
+                        if (currentY > viewportBottom - lineSpacing) break;
+                        if (!jSeriesLines[static_cast<size_t>(i)].empty()) {
+                            DrawText(jSeriesLines[static_cast<size_t>(i)].c_str(), leftX, currentY, outputFontSize, MAROON);
+                        }
+                        currentY += lineSpacing;
+                    }
+                    EndScissorMode();
+
+                    if (maxScrollLines > 0) {
+                        DrawText("Mouse wheel: scroll J-Series details", leftX, viewportBottom - 18, 16, DARKGRAY);
+                    }
+                }
+            } else {
+                jSeriesScrollLines = 0;
+                drawLines(lines, 10, contentTop, BLUE);
             }
         }
 
@@ -83,6 +166,7 @@ int main()
         }
         if (submitted) {
             output = jreap::DecodeApplicationMessageCsv(input, true);
+            jSeriesScrollLines = 0;
 
 
             input.clear(); // clear input only once after submit

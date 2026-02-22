@@ -294,26 +294,25 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 		return out.str();
 	}
 
-	std::size_t payloadBytes = 0;
-	if (byteCount > 10)
-	{
-		payloadBytes = byteCount - 10;
-	}
+	constexpr std::size_t ah0HeaderBytes = 10;
+	const std::size_t receivedTotalBytes = byteCount;
+	const std::size_t receivedPayloadBytes = (byteCount > ah0HeaderBytes) ? (byteCount - ah0HeaderBytes) : 0;
 
 	const std::size_t declaredAbmlBytes = static_cast<std::size_t>(appBlockMessageLengthValue);
-	const std::size_t effectivePayloadBytes = std::min(payloadBytes, declaredAbmlBytes);
-	const bool abmlMismatch = (payloadBytes != declaredAbmlBytes);
+	const std::size_t declaredPayloadBytes = (declaredAbmlBytes > ah0HeaderBytes) ? (declaredAbmlBytes - ah0HeaderBytes) : 0;
+	const std::size_t effectivePayloadBytes = std::min(receivedPayloadBytes, declaredPayloadBytes);
+	const bool abmlMismatch = (receivedTotalBytes != declaredAbmlBytes);
 
 	out << "\n" << kSectionAbmlConsistency << "\n";
 	out << kAbmlDeclaredBytesLabel << ": " << declaredAbmlBytes << "\n";
-	out << kAbmlReceivedPayloadBytesLabel << ": " << payloadBytes << "\n";
-	if (payloadBytes < declaredAbmlBytes)
+	out << kAbmlReceivedPayloadBytesLabel << ": " << receivedTotalBytes << "\n";
+	if (receivedTotalBytes < declaredAbmlBytes)
 	{
-		out << kAbmlStatusTruncatedPrefix << (declaredAbmlBytes - payloadBytes) << " byte(s).\n";
+		out << kAbmlStatusTruncatedPrefix << (declaredAbmlBytes - receivedTotalBytes) << " byte(s).\n";
 	}
-	else if (payloadBytes > declaredAbmlBytes)
+	else if (receivedTotalBytes > declaredAbmlBytes)
 	{
-		out << kAbmlStatusTrailingPrefix << (payloadBytes - declaredAbmlBytes) << " byte(s).\n";
+		out << kAbmlStatusTrailingPrefix << (receivedTotalBytes - declaredAbmlBytes) << " byte(s).\n";
 	}
 	else
 	{
