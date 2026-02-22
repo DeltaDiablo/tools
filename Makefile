@@ -408,8 +408,7 @@ $(PROJECT_NAME): $(OBJS) $(EXTRA_DEPS)
 	$(CC) -o $(PROJECT_NAME)$(EXT) $(OBJS) $(EXTRA_OBJS) $(CFLAGS) $(WIN_RSRC) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
 endif
 
-$(JREAP_LIB): $(JREAP_OBJS)
-	$(AR) rcs $(JREAP_LIB) $(JREAP_OBJS)
+$(JREAP_LIB): $(JREAP_OBJS) ; rm -f $(JREAP_LIB); $(AR) rcs $(JREAP_LIB) $(JREAP_OBJS)
 
 milstd3011/%.o: milstd3011/%.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)

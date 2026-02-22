@@ -4,8 +4,7 @@
 
 int main(void)
 {
-    const char* csv = "messageType,msgDate,msgDateFormat,msgTime,msgTimeFormat,msgOriginSystem,msgOriginator\n"
-                      "AH.0,20240101,yyyyMMdd,120000,HHmmss,TEST,SMOKE\n";
+    const char* csv = "49,1,0,17,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
 
     const char* decoded = jreap_decode_application_message_csv(csv, 0);
     if (decoded == NULL)

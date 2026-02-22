@@ -109,58 +109,6 @@
 #include "milstd3011/dfiset3130.h"
 #include "milstd3011/dfiset3131.h"
 #include "milstd3011/dfiset3140.h"
-#include "milstd3011/dfiset3057.h"
-#include "milstd3011/dfiset3058.h"
-#include "milstd3011/dfiset3059.h"
-#include "milstd3011/dfiset3060.h"
-#include "milstd3011/dfiset3061.h"
-#include "milstd3011/dfiset3062.h"
-#include "milstd3011/dfiset3063.h"
-#include "milstd3011/dfiset3064.h"
-#include "milstd3011/dfiset3065.h"
-#include "milstd3011/dfiset3066.h"
-#include "milstd3011/dfiset3080.h"
-#include "milstd3011/dfiset3081.h"
-#include "milstd3011/dfiset3082.h"
-#include "milstd3011/dfiset3083.h"
-#include "milstd3011/dfiset3084.h"
-#include "milstd3011/dfiset3085.h"
-#include "milstd3011/dfiset3086.h"      
-#include "milstd3011/dfiset3087.h"
-#include "milstd3011/dfiset3099.h"
-#include "milstd3011/dfiset3100.h"
-#include "milstd3011/dfiset3101.h"
-#include "milstd3011/dfiset3102.h"
-#include "milstd3011/dfiset3103.h"
-#include "milstd3011/dfiset3104.h"
-#include "milstd3011/dfiset3105.h"
-#include "milstd3011/dfiset3106.h"
-#include "milstd3011/dfiset3107.h"
-#include "milstd3011/dfiset3108.h"
-#include "milstd3011/dfiset3109.h"
-#include "milstd3011/dfiset3110.h"
-#include "milstd3011/dfiset3111.h"
-#include "milstd3011/dfiset3112.h"
-#include "milstd3011/dfiset3113.h"
-#include "milstd3011/dfiset3114.h"
-#include "milstd3011/dfiset3115.h"
-#include "milstd3011/dfiset3116.h"
-#include "milstd3011/dfiset3117.h"
-#include "milstd3011/dfiset3118.h"
-#include "milstd3011/dfiset3119.h"
-#include "milstd3011/dfiset3120.h"
-#include "milstd3011/dfiset3121.h"
-#include "milstd3011/dfiset3122.h"
-#include "milstd3011/dfiset3123.h"
-#include "milstd3011/dfiset3124.h"
-#include "milstd3011/dfiset3125.h"
-#include "milstd3011/dfiset3126.h"
-#include "milstd3011/dfiset3127.h"
-#include "milstd3011/dfiset3128.h"
-#include "milstd3011/dfiset3129.h"
-#include "milstd3011/dfiset3130.h"
-#include "milstd3011/dfiset3131.h"
-#include "milstd3011/dfiset3140.h"  
 
 /* DFI 3000 DUI 001 PERCENT EXCEEDING LATENCY 7 bits*/
 std::string Dfi3000Dui001(std::array<int, 7> percentExceedingLatency)
@@ -173,102 +121,102 @@ std::string Dfi3001Dui001(const std::array<int, 8>& transmissionSequenceNumber)
        return dfi3001::dui001(transmissionSequenceNumber);
 }
 /* DFI 3001 DUI 002 TRANSMISSION SEQUENCE LIST COUNT 7 bits*/
-std::string Dfi3001dui002(const std::array<int, 7>& transmissionSequenceListCount)
+std::string Dfi3001Dui002(const std::array<int, 7>& transmissionSequenceListCount)
 {
     return dfi3001::dui002(transmissionSequenceListCount);
 }
 
 /* Dfi 3002 DUI 001 ADD/DELETE INDICATOR 1 bit*/
-std::string Dfi3002dui001(const std::array<int, 1>& addDeleteIndicator)
+std::string Dfi3002Dui001(const std::array<int, 1>& addDeleteIndicator)
 {    //use the Dfiset3002 Dui001 function to process the addDeleteIndicator array and return the output
     return dfi3002::Dui001(addDeleteIndicator);
 }
 /* Dfi 3002 DUI 002 ACTIVE/INACTIVE FLAG 1 bit*/
-std::string Dfi3002dui002(const std::array<int, 1>& activeInactiveFlag)
+std::string Dfi3002Dui002(const std::array<int, 1>& activeInactiveFlag)
 {
     //use the Dfiset3002 Dui002 function to process the activeInactiveFlag array and return the output
     return dfi3002::Dui002(activeInactiveFlag);
 }
 /* Dfi 3002 DUI 003 ACKNOWLEDGEMENT REQUEST FLAG 1 bit*/
-std::string Dfi3002dui003(const std::array<int, 1>& acknowledgementRequestFlag)
+std::string Dfi3002Dui003(const std::array<int, 1>& acknowledgementRequestFlag)
 {
     //use the Dfiset3002 Dui003 function to process the acknowledgementRequestFlag array and return the output
     return dfi3002::Dui003(acknowledgementRequestFlag);
 }
 /* Dfi 3002 DUI 004 COMMAND AND CONTROL INDICATOR OVERRIDE*/
-std::string Dfi3002dui004(const std::array<int, 1>& commandAndControlIndicatorOverride)
+std::string Dfi3002Dui004(const std::array<int, 1>& commandAndControlIndicatorOverride)
 {
     //use the Dfiset3002 Dui004 function to process the commandAndControlIndicatorOverride array and return the output
     return dfi3002::Dui004(commandAndControlIndicatorOverride);
 }
 /* DFI 3002 DUI 005 EMERGENCY INDICATOR OVERRIDE 1 bit*/
-std::string Dfi3002dui005(const std::array<int, 1>& emergencyIndicatorOverride)
+std::string Dfi3002Dui005(const std::array<int, 1>& emergencyIndicatorOverride)
 {
     //use the dfiset3002 Dui005 function to process the emergencyIndicatorOverride array and return the output
     return dfi3002::Dui005(emergencyIndicatorOverride);
 }
 /* DFI 3002 DUI 006 FORCE TELL INDICATOR OVERRIDE 1 bit*/
-std::string Dfi3002dui006(const std::array<int, 1>& forceTellIndicatorOverride)
+std::string Dfi3002Dui006(const std::array<int, 1>& forceTellIndicatorOverride)
 {
     //use the dfiset3002 Dui006 function to process the forceTellIndicatorOverride array and return the output
     return dfi3002::Dui006(forceTellIndicatorOverride);
 }
 /* DFI 3002 DUI 007 LAST POINT FLAG 1 bit 0 no last point 1 Last point*/
-std::string Dfi3002dui007(const std::array<int, 1>& lastPointFlag)
+std::string Dfi3002Dui007(const std::array<int, 1>& lastPointFlag)
 {
     //use the dfiset3002 Dui007 function to process the lastPointFlag array and return the output
     return dfi3002::Dui007(lastPointFlag);
 }
 /* DFI 3002 DUI 008 RECTANGLE FLAG 1 bit*/
-std::string Dfi3002dui008(const std::array<int, 1>& rectangleFlag)
+std::string Dfi3002Dui008(const std::array<int, 1>& rectangleFlag)
 {
     //use the dfiset3002 Dui008 function to process the rectangleFlag array and return the output
     return dfi3002::Dui008(rectangleFlag);
 }
 /* DFI 3002 DUI 009 RELAY FLAG 1 bit*/
-std::string Dfi3002dui009(const std::array<int, 1>& relayFlag)
+std::string Dfi3002Dui009(const std::array<int, 1>& relayFlag)
 {
     //use the dfiset3002 Dui009 function to process the relayFlag array and return the output
     return dfi3002::Dui009(relayFlag);
 }
 /* DFI 3002 DUI 010 SIMULATION INDICATOR FILTER FLAG 1 bit*/
-std::string Dfi3002dui010(const std::array<int, 1>& simulationIndicatorFilterFlag)
+std::string Dfi3002Dui010(const std::array<int, 1>& simulationIndicatorFilterFlag)
 {
     //use the dfiset3002 Dui010 function to process the simulationIndicatorFilterFlag array and return the output
     return dfi3002::Dui010(simulationIndicatorFilterFlag);
 }
 /* DFI 3002 DUI 011 TRANSMISSION TIME REFERENCE FLAG 1 bit*/
-std::string Dfi3002dui011(const std::array<int, 1>& transmissionTimeReferenceFlag)
+std::string Dfi3002Dui011(const std::array<int, 1>& transmissionTimeReferenceFlag)
 {
     //use the dfiset3002 Dui011 function to process the transmissionTimeReferenceFlag array and return the output
     return dfi3002::Dui011(transmissionTimeReferenceFlag);
 }
 /* DFI 3002 DUI 012 UPPER ALTITUDE LIMIT FLAG 1 bit*/
-std::string Dfi3002dui012(const std::array<int, 1>& upperAltitudeLimitFlag)
+std::string Dfi3002Dui012(const std::array<int, 1>& upperAltitudeLimitFlag)
 {
     //use the dfiset3002 Dui012 function to process the upperAltitudeLimitFlag array and return the output
     return dfi3002::Dui012(upperAltitudeLimitFlag);
 }
 /* DFI 3002 DUI 013 LOWER ALTITUDE LIMIT FLAG 1 bit*/
-std::string Dfi3002dui013(const std::array<int, 1>& lowerAltitudeLimitFlag)
+std::string Dfi3002Dui013(const std::array<int, 1>& lowerAltitudeLimitFlag)
 {
     //use the dfiset3002 Dui013 function to process the lowerAltitudeLimitFlag array and return the output
     return dfi3002::Dui013(lowerAltitudeLimitFlag);
 }
 /* DFI 3002 DUI 014 J28.2(0) FILTER FLAG 1 bit*/
-std::string Dfi3002dui014(const std::array<int, 1>& j2820FilterFlag)
+std::string Dfi3002Dui014(const std::array<int, 1>& j2820FilterFlag)
 {
     //use the dfiset3002 Dui014 function to process the j2820FilterFlag array and return the output
     return dfi3002::Dui014(j2820FilterFlag);
 }
 /* DFI 3002 DUI 015 J28.2(X) FILTER FLAG 1 bit*/
-std::string Dfi3002dui015(const std::array<int, 1>& j28XFilterFlag)
+std::string Dfi3002Dui015(const std::array<int, 1>& j28XFilterFlag)
 {
     //use the dfiset3002 Dui015 function to process the j28XFilterFlag array and return the output
     return dfi3002::Dui015(j28XFilterFlag);
 }
 /* DFI 3002 DUI 016 SPECIAL PROCESSING INDICATOR FILTER FLAG 1 bit*/
-std::string Dfi3002dui016(const std::array<int, 1>& specialProcessingIndicatorFilterFlag)
+std::string Dfi3002Dui016(const std::array<int, 1>& specialProcessingIndicatorFilterFlag)
 {
     //use the dfiset3002 Dui016 function to process the specialProcessingIndicatorFilterFlag array and return the output
     return dfi3002::Dui016(specialProcessingIndicatorFilterFlag);
@@ -492,6 +440,62 @@ std::string Dfi3008Dui004(const std::array<int, 8>& requestedFilterMessageType)
 {
     return dfi3008::Dui004(requestedFilterMessageType);
 }
+
+std::string JreNcP(const std::array<int, 1>& jreNcP)
+{
+    return Dfi3005Dui001(jreNcP);
+}
+
+std::string RttimeP(std::array<int, 1> rttimeP)
+{
+    return Dfi3005Dui002(rttimeP);
+}
+
+std::string FixedDelayP(std::array<int, 1> fixedDelayP)
+{
+    return Dfi3005Dui003(fixedDelayP);
+}
+
+std::string EventStrobeP(std::array<int, 1> eventStrobeP)
+{
+    return Dfi3005Dui004(eventStrobeP);
+}
+
+std::string UtcP(std::array<int, 1> utcP)
+{
+    return Dfi3005Dui005(utcP);
+}
+
+std::string TransmissionBlockHeaderType(std::array<int, 4> transmissionBlockHeaderType)
+{
+    return Dfi3007Dui001(transmissionBlockHeaderType);
+}
+
+std::string MessageGroupHeaderType(std::array<int, 2> messageGroupHeaderType)
+{
+    return Dfi3007Dui002(messageGroupHeaderType);
+}
+
+std::string HeaderType(std::array<int, 4> headerType)
+{
+    return Dfi3007Dui003(headerType);
+}
+
+std::string MessageType(std::array<int, 4> messageType)
+{
+    return Dfi3008Dui001(messageType);
+}
+
+std::string ManagementMessageSubtype(std::array<int, 8> managementMessageSubtype)
+{
+    return Dfi3008Dui002(managementMessageSubtype);
+}
+
+std::string FilterMessageType(std::array<int, 8> filterMessageType)
+{
+    return Dfi3008Dui003(filterMessageType);
+}
+
 /* DFI 3009 DUI 001 GEO FILTER SUBTYPE 3 bits*/
 std::string Dfi3009Dui001(const std::array<int, 3>& geoFilterSubtype)
 {
@@ -1763,6 +1767,8 @@ std::string Dfi3056Dui016(const std::array<int, 1>& pt6Amp15)
 {
     return dfi3056::Dui016(pt6Amp15);
 }
+
+// DFI 3057-3066, 3080-3087, 3099-3140 wrapper group
 
 std::string Dfi3057Dui001(const std::array<int, 1>& no_statement)
 {

@@ -48,3 +48,22 @@ int main(void)
 - `undefined reference to jreap_decode_application_message_csv`: ensure `jreaplib.a` is on the linker command and appears after your object files.
 - Crash or heap corruption after decoding: free only with `jreap_free_string`; do not call `free()` directly from the caller.
 - `jreap_decode_application_message_csv` returns `NULL`: treat as allocation failure and handle as an error path.
+
+## X1.0.0 quick test
+
+Use this byte line to exercise the X1.0.0 decoder path (AH.0 + Message Type 1 + 17-byte payload):
+
+```text
+49,1,0,17,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+```
+
+Expected output includes:
+
+- `X1.0.0 decode`
+- `JRE Source Track Number: ...`
+- `J-Series Message Sequence Number: ...`
+- `Relay Flag: ...`
+- `Acknowledgement Request Flag: ...`
+- `Data Age: ...`
+- `Number of J-Words: ...`
+- `JREAP J-Series Message Word 1..5: ...`

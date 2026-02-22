@@ -1,13 +1,26 @@
 #include <iostream>
 #include <array>
-#include <cmath>
 #include <sstream>
 #include <cstddef>
 #include <algorithm>
 #include "milstd3011/dfiset3008.h"
+#include "milstd3011/dfiset3002.h"
+#include "milstd3011/dfiset3003.h"
+#include "milstd3011/dfiset3027.h"
 #include "milstd3011/dfiset3028.h"
+#include "milstd3011/dfiset3032.h"
+#include "milstd3011/dfiset3033.h"
+#include "milstd3011/jreap_field_refs.h"
 
 namespace {
+using jreap_field_refs::FieldMeta;
+using namespace jreap_field_refs;
+
+inline void AppendField(std::ostringstream& out, const FieldMeta& field, const std::string& value)
+{
+	out << field.label << ": " << value << "\n";
+}
+
 template <std::size_t N>
 std::array<int, N> SliceBits(const std::array<int, 80>& bits, std::size_t start)
 {
@@ -29,85 +42,28 @@ int BitsToUInt(const std::array<int, N>& bits)
 	}
 	return value;
 }
-}
-/* THE JREAP APPLICATION HEADER IS USED WITH MEDIA THAT PROVIDE OSI TRANSPORT 
- * LAYER FUNCTIONALITY THIS IS AH.0
- */
-std::string CommonHeaderConverter(std::array<int, 10> byteArray)
+
+template <std::size_t N>
+std::string BitsToBinaryString(const std::array<int, N>& bits)
 {
-	// declare the output string
-	std::string output = "";
-	// split the first byte out
-	int firstByte = byteArray[0];
-	// get the first four bits from the first byte
-	int headerType = (firstByte >> 4) & 0x0F;
-	if (headerType == 1)
+	std::string binary;
+	binary.reserve(N);
+	for (std::size_t i = 0; i < N; ++i)
 	{
-		output = "ATP JREAP-A \n";
+		binary.push_back(bits[i] ? '1' : '0');
 	}
-	else if (headerType == 2)
-	{
-		output = "PTP JREAP-B \n";
-	}
-	else if (headerType == 3)
-	{
-		output = "JREAP-C \n";
-	}
-	else
-	{
-		output = "Unknown Header Type\n";
-	}
-	return output;
+	return binary;
 }
-const std::string JreapApplicationHeader0(std::array<int, 10> byteArray)
-{
-	// declare the output string
-
-	std::string output = "";
-
-	// split the first byte out
-
-	int firstByte = byteArray[0];
-
-	// get the first four bits from the first byte
-
-	int headerType = (firstByte >> 4) & 0x0F;
-
-	if (headerType == 1)
-	{
-		output = "ATP JREAP-A \n";
-	}
-	else if (headerType == 2)
-	{
-		output = "PTP JREAP-B \n";
-	}
-	else if (headerType == 3)
-	{
-		output = "JREAP-C \n";
-		}
-	else
-	{
-		output = "Undefined";
-	}
-
-	return output;
 }
-
-
-
 /* the header type is a 4 bit unsigned integer identifying the type of JREAP message
  * 0 Undefined
  * 1 ATP JREAP-A
  * 2 PTP JREAP-B
  * 3 Application JREAP-C
  */
-const std::string HeaderType(std::array<int, 4> headerType)
+std::string HeaderType(const std::array<int, 4>& headerType)
 {
-	int headerTypeInt = 0;
-	for (int i = 0; i < 4; i++)
-	{
-		headerTypeInt += headerType[i] * std::pow(2, 3 - i);
-	}
+	const int headerTypeInt = BitsToUInt(headerType);
 	std::string output = "";
 	switch (headerTypeInt)
 	{
@@ -128,13 +84,7 @@ const std::string HeaderType(std::array<int, 4> headerType)
 		break;
 	}
 
-	std::string binaryset = "";
-	for (std::size_t i = 0; i < headerType.size(); i++)
-	{
-		binaryset.append(std::to_string(headerType[i]));
-	}
-
-	output = output + " ///-> " + binaryset;
+	output = output + " ///-> " + BitsToBinaryString(headerType);
 
 	return output;
 }
@@ -149,13 +99,9 @@ const std::string HeaderType(std::array<int, 4> headerType)
  * 6 Common Message Format IBS
  * 15 Reserved
  */
-const std::string MessageType(std::array<int, 4> messageType)
+std::string MessageType(const std::array<int, 4>& messageType)
 {
-	int messageTypeInt = 0;
-	for (int i = 0; i < 4; i++)
-	{
-		messageTypeInt += messageType[i] * std::pow(2, 3 - i);
-	}
+	const int messageTypeInt = BitsToUInt(messageType);
 	std::string output = "";
 	switch (messageTypeInt)
 	{
@@ -163,7 +109,7 @@ const std::string MessageType(std::array<int, 4> messageType)
 		output = "Management";
 		break;
 	case 1:
-		output = "JREAP J-Series";
+		output = "X1.0 (JREAP J-Series)";
 		break;
 	case 2:
 		output = "JTIDS FREE TEXT (CODED)";
@@ -188,13 +134,7 @@ const std::string MessageType(std::array<int, 4> messageType)
 		break;
 	}
 
-	std::string binaryset = "";
-	for (std::size_t i = 0; i < messageType.size(); i++)
-	{
-		binaryset.append(std::to_string(messageType[i]));
-	}
-
-	output = output + " ///-> " + binaryset;
+	output = output + " ///-> " + BitsToBinaryString(messageType);
 	return output;
 }
 
@@ -202,7 +142,7 @@ const std::string MessageType(std::array<int, 4> messageType)
  * 0 means this track does not correspond to the time of transmission
  * 1 means it does correspond to the time of transmission
  */
-const std::string TransmissionTimeReferenceFlag(std::array<int, 1> transmissionTimeReferenceFlag)
+std::string TransmissionTimeReferenceFlag(const std::array<int, 1>& transmissionTimeReferenceFlag)
 {
 	if (transmissionTimeReferenceFlag[0] == 1)
 	{
@@ -214,22 +154,10 @@ const std::string TransmissionTimeReferenceFlag(std::array<int, 1> transmissionT
 	}
 }
 
-const std::string Spare(std::array<int, 3> spare)
+std::string Spare(const std::array<int, 3>& spare)
 {
-	int spareInt = 0;
-	for (int i = 0; i < 3; i++)
-	{
-		spareInt += spare[i] * std::pow(2, 2 - i);
-	}
-	std::string output = std::to_string(spareInt);
-
-	std::string binaryset = "";
-	for (std::size_t i = 0; i < spare.size(); i++)
-	{
-		binaryset.append(std::to_string(spare[i]));
-	}
-
-	output = output + " ///-> " + binaryset;
+	std::string output = std::to_string(BitsToUInt(spare));
+	output = output + " ///-> " + BitsToBinaryString(spare);
 	return output;
 }
 
@@ -237,13 +165,9 @@ const std::string Spare(std::array<int, 3> spare)
  * 0 is illegal
  * the higher the number the higher the version
  */
-const std::string ApplicationProtocolVersion(std::array<int, 4> applicationProtocolVersion)
+std::string ApplicationProtocolVersion(const std::array<int, 4>& applicationProtocolVersion)
 {
-	int applicationProtocolVersionInt = 0;
-	for (int i = 0; i < 4; i++)
-	{
-		applicationProtocolVersionInt += applicationProtocolVersion[i] * std::pow(2, 3 - i);
-	}
+	const int applicationProtocolVersionInt = BitsToUInt(applicationProtocolVersion);
 	std::string output = "";
 	if (applicationProtocolVersionInt > 0)
 	{
@@ -254,35 +178,7 @@ const std::string ApplicationProtocolVersion(std::array<int, 4> applicationProto
 		output = "Illegal";
 	}
 
-	std::string binaryset = "";
-	for (std::size_t i = 0; i < applicationProtocolVersion.size(); i++)
-	{
-		binaryset.append(std::to_string(applicationProtocolVersion[i]));
-	}
-
-	output = output + " ///-> " + binaryset;
-	return output;
-}
-
-/* Time Accuracy is a 4 bit unsigned integer
- * the higher the number the lower the accuracy
- */
-const std::string TimeAccuracy(std::array<int, 4> timeAccuracy)
-{
-	int timeAccuracyInt = 0;
-	for (int i = 0; i < 4; i++)
-	{
-		timeAccuracyInt += timeAccuracy[i] * std::pow(2, 3 - i);
-	}
-	std::string binaryset = "";
-	for (std::size_t i = 0; i < timeAccuracy.size(); i++)
-	{
-		binaryset.append(std::to_string(timeAccuracy[i]));
-	}
-
-	std::string output = "";
-	output = std::to_string(timeAccuracyInt) + " ///-> " + binaryset;
-
+	output = output + " ///-> " + BitsToBinaryString(applicationProtocolVersion);
 	return output;
 }
 
@@ -292,22 +188,10 @@ const std::string TimeAccuracy(std::array<int, 4> timeAccuracy)
  * 0 to 65535
  * ==========================================================
  */
-const std::string ApplicationBlockMessageLength(std::array<int, 16> applicationBlockMessageLength)
+std::string ApplicationBlockMessageLength(const std::array<int, 16>& applicationBlockMessageLength)
 {
-	int applicationBlockMessageLengthInt = 0;
-	for (int i = 0; i < 16; i++)
-	{
-		applicationBlockMessageLengthInt += applicationBlockMessageLength[i] * std::pow(2, 15 - i);
-	}
-
-	std::string binary = "";
-	for (std::size_t i = 0; i < applicationBlockMessageLength.size(); i++)
-	{
-		binary.append(std::to_string(applicationBlockMessageLength[i]));
-	}
-
-	std::string output = "";
-	output = std::to_string(applicationBlockMessageLengthInt) + " ///-> " + binary;
+	const int applicationBlockMessageLengthInt = BitsToUInt(applicationBlockMessageLength);
+	std::string output = std::to_string(applicationBlockMessageLengthInt) + " ///-> " + BitsToBinaryString(applicationBlockMessageLength);
 	return output;
 }
 
@@ -317,13 +201,9 @@ const std::string ApplicationBlockMessageLength(std::array<int, 16> applicationB
  * 0 to 177777 octal
  * ==========================================================
  */
-const std::string JreSenderID(std::array<int, 16> jreSenderID)
+std::string JreSenderID(const std::array<int, 16>& jreSenderID)
 {
-	int jreSenderIDInt = 0;
-	for (int i = 0; i < 16; i++)
-	{
-		jreSenderIDInt += jreSenderID[i] * std::pow(2, 15 - i);
-	}
+	int jreSenderIDInt = BitsToUInt(jreSenderID);
 	// convert the int to octal
 	int octal = 0;
 	int i = 1;
@@ -334,34 +214,16 @@ const std::string JreSenderID(std::array<int, 16> jreSenderID)
 		i *= 10;
 	}
 
-	std::string binary = "";
-	for (std::size_t i = 0; i < jreSenderID.size(); i++)
-	{
-		binary.append(std::to_string(jreSenderID[i]));
-	}
-	std::string output = "";
-	output = std::to_string(octal) + " ///-> " + binary;
+	std::string output = std::to_string(octal) + " ///-> " + BitsToBinaryString(jreSenderID);
 	return output;
 }
 
 /* Time Accuracy is a 4 bit unsigned integer
  * the higher the number the lower the accuracy
  */
-const std::string TimeAccuracyReporting(std::array<int, 4> timeAccuracy)
+std::string TimeAccuracyReporting(const std::array<int, 4>& timeAccuracy)
 {
-	int timeAccuracyInt = 0;
-	for (int i = 0; i < 4; i++)
-	{
-		timeAccuracyInt += timeAccuracy[i] * std::pow(2, 3 - i);
-	}
-
-	std::string binary = "";
-	for (std::size_t i = 0; i < timeAccuracy.size(); i++)
-	{
-		binary.append(std::to_string(timeAccuracy[i]));
-	}
-
-	std::string output = std::to_string(timeAccuracyInt) + " ///-> " + binary;
+	std::string output = std::to_string(BitsToUInt(timeAccuracy)) + " ///-> " + BitsToBinaryString(timeAccuracy);
 
 	return output;
 }
@@ -369,22 +231,14 @@ const std::string TimeAccuracyReporting(std::array<int, 4> timeAccuracy)
 /* Data valid time is an unsigned 28 bit integer
  * this is the time in seconds since 00:00:00 UTC
  */
-const std::string DataValidTime(std::array<int, 28> dataValidTime)
+std::string DataValidTime(const std::array<int, 28>& dataValidTime)
 {
-	int dataValidTimeInt = 0;
-	for (std::size_t i = 0; i < 28; i++)
-	{
-		dataValidTimeInt += dataValidTime[i] * std::pow(2, 27 - i);
-	}
-
-	std::string binary = "";
-	for (std::size_t i = 0; i < dataValidTime.size(); i++)
-	{
-		binary.append(std::to_string(dataValidTime[i]));
-	}
-	std::string output = std::to_string(dataValidTimeInt) + " ///-> " + binary;
+	const int dataValidTimeInt = BitsToUInt(dataValidTime);
+	std::string output = std::to_string(dataValidTimeInt) + " ///-> " + BitsToBinaryString(dataValidTime);
 	return output;
 }
+
+namespace jreap_internal {
 
 std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray, std::size_t byteCount, bool strictAbml)
 {
@@ -423,65 +277,64 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 	const int appBlockMessageLengthValue = BitsToUInt(appBlockMessageLengthBits);
 
 	std::ostringstream out;
-	out << "AH.0 decode\n";
-	out << "Header Type: " << HeaderType(headerTypeBits) << "\n";
-	out << "Message Type: " << MessageType(messageTypeBits) << "\n";
-	out << "Transmission Time Reference Flag: " << TransmissionTimeReferenceFlag(transmissionTimeFlagBits) << "\n";
-	out << "Spare: " << Spare(spareBits) << "\n";
-	out << "Application Protocol Version: " << ApplicationProtocolVersion(appProtocolVersionBits) << "\n";
-	out << "Application Block Message Length: " << ApplicationBlockMessageLength(appBlockMessageLengthBits) << "\n";
-	out << "JRE Sender ID: " << JreSenderID(jreSenderIdBits) << "\n";
-	out << "Time Accuracy: " << TimeAccuracyReporting(timeAccuracyBits) << "\n";
-	out << "Data Valid Time: " << DataValidTime(dataValidTimeBits) << "\n";
+	out << kSectionApplicationHeader << "\n";
+	AppendField(out, kAh0HeaderType, HeaderType(headerTypeBits));
+	AppendField(out, kAh0MessageType, MessageType(messageTypeBits));
+	AppendField(out, kAh0TransmissionTimeRef, TransmissionTimeReferenceFlag(transmissionTimeFlagBits));
+	AppendField(out, kAh0Spare, Spare(spareBits));
+	AppendField(out, kAh0ProtocolVersion, ApplicationProtocolVersion(appProtocolVersionBits));
+	AppendField(out, kAh0Abml, ApplicationBlockMessageLength(appBlockMessageLengthBits));
+	AppendField(out, kAh0SenderId, JreSenderID(jreSenderIdBits));
+	AppendField(out, kAh0TimeAccuracy, TimeAccuracyReporting(timeAccuracyBits));
+	AppendField(out, kAh0DataValidTime, DataValidTime(dataValidTimeBits));
 
 	if (headerTypeValue != 3)
 	{
-		out << "Dispatch: not an application header (AH.0).";
+		out << kDispatchNotApplicationHeader;
 		return out.str();
 	}
 
-	std::size_t payloadBytes = 0;
-	if (byteCount > 10)
-	{
-		payloadBytes = byteCount - 10;
-	}
+	constexpr std::size_t ah0HeaderBytes = 10;
+	const std::size_t receivedTotalBytes = byteCount;
+	const std::size_t receivedPayloadBytes = (byteCount > ah0HeaderBytes) ? (byteCount - ah0HeaderBytes) : 0;
 
 	const std::size_t declaredAbmlBytes = static_cast<std::size_t>(appBlockMessageLengthValue);
-	const std::size_t effectivePayloadBytes = std::min(payloadBytes, declaredAbmlBytes);
-	const bool abmlMismatch = (payloadBytes != declaredAbmlBytes);
+	const std::size_t declaredPayloadBytes = (declaredAbmlBytes > ah0HeaderBytes) ? (declaredAbmlBytes - ah0HeaderBytes) : 0;
+	const std::size_t effectivePayloadBytes = std::min(receivedPayloadBytes, declaredPayloadBytes);
+	const bool abmlMismatch = (receivedTotalBytes != declaredAbmlBytes);
 
-	out << "\nABML consistency\n";
-	out << "Declared ABML bytes: " << declaredAbmlBytes << "\n";
-	out << "Received payload bytes: " << payloadBytes << "\n";
-	if (payloadBytes < declaredAbmlBytes)
+	out << "\n" << kSectionAbmlConsistency << "\n";
+	out << kAbmlDeclaredBytesLabel << ": " << declaredAbmlBytes << "\n";
+	out << kAbmlReceivedPayloadBytesLabel << ": " << receivedTotalBytes << "\n";
+	if (receivedTotalBytes < declaredAbmlBytes)
 	{
-		out << "Status: payload truncated by " << (declaredAbmlBytes - payloadBytes) << " byte(s).\n";
+		out << kAbmlStatusTruncatedPrefix << (declaredAbmlBytes - receivedTotalBytes) << " byte(s).\n";
 	}
-	else if (payloadBytes > declaredAbmlBytes)
+	else if (receivedTotalBytes > declaredAbmlBytes)
 	{
-		out << "Status: extra trailing payload of " << (payloadBytes - declaredAbmlBytes) << " byte(s).\n";
+		out << kAbmlStatusTrailingPrefix << (receivedTotalBytes - declaredAbmlBytes) << " byte(s).\n";
 	}
 	else
 	{
-		out << "Status: payload length matches ABML.\n";
+		out << kAbmlStatusMatch << "\n";
 	}
-	out << "Mode: " << (strictAbml ? "strict" : "lenient") << " ABML validation.\n";
+	out << kAbmlModeLabel << ": " << (strictAbml ? "strict" : "lenient") << " ABML validation.\n";
 
 	if (strictAbml && abmlMismatch)
 	{
-		out << "\nDispatch by Message Type\n";
-		out << "ABML mismatch in strict mode: payload decode skipped.";
-		out << "\nPayload bytes used for decode: 0";
-		out << "\nABML field value: " << appBlockMessageLengthValue;
+		out << "\n" << kSectionDispatchByMessageType << "\n";
+		out << kDispatchStrictAbmlMismatch;
+		out << "\n" << kAbmlPayloadBytesUsedLabel << ": 0";
+		out << "\n" << kAbmlFieldValueLabel << ": " << appBlockMessageLengthValue;
 		return out.str();
 	}
 
-	out << "\nDispatch by Message Type\n";
+	out << "\n" << kSectionDispatchByMessageType << "\n";
 	switch (messageTypeValue)
 	{
 	case 0:
 	{
-		out << "Management message detected.";
+		out << kDispatchManagementDetected;
 		if (effectivePayloadBytes >= 1)
 		{
 			auto subtypeBits = SliceBits<8>(bits, 0);
@@ -489,110 +342,126 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 			{
 				subtypeBits[i] = (byteArray[10] >> (7 - i)) & 0x01;
 			}
-			out << "\nManagement Subtype: " << dfi3008::Dui002(subtypeBits);
+			out << "\n" << kDispatchManagementSubtypeLabel << ": " << dfi3008::Dui002(subtypeBits);
 		}
 		else
 		{
-			out << "\nNo payload bytes available to decode management subtype.";
+			out << "\n" << kDispatchNoManagementSubtype;
 		}
 		break;
 	}
 	case 1:
 	{
-		out << "JREAP J-Series message detected.";
+		out << kDispatchX10Detected;
 		std::size_t payloadBits = effectivePayloadBytes * 8;
-		if (payloadBits < 16)
+		constexpr std::size_t x1SectionBits = 136;
+		const std::size_t sectionCount = payloadBits / x1SectionBits;
+		const std::size_t trailingBits = payloadBits % x1SectionBits;
+
+		if (sectionCount == 0)
 		{
-			out << "\nInsufficient payload for J-Series word decode (need at least 16 bits).";
+			out << "\n" << kDispatchX100Decode;
+			out << "\nNo complete X1.0 section available (need 136 bits, received " << payloadBits << ").";
 			break;
 		}
 
-		std::array<int, 16> word1{};
-		for (std::size_t i = 0; i < 16; ++i)
+		auto getPayloadBit = [&](std::size_t payloadBitIndex) -> int
 		{
-			std::size_t sourceBit = i;
-			std::size_t sourceByte = 10 + (sourceBit / 8);
-			std::size_t bitInByte = sourceBit % 8;
-			word1[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-		}
-		out << "\nJ-Series Word 1: " << dfi3028::Dui001(word1);
+			std::size_t sourceByte = 10 + (payloadBitIndex / 8);
+			std::size_t bitInByte = payloadBitIndex % 8;
+			return (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
+		};
 
-		if (payloadBits >= 32)
+		auto readBits = [&](auto& target, std::size_t startBit)
 		{
-			std::array<int, 16> word2{};
-			for (std::size_t i = 0; i < 16; ++i)
+			for (std::size_t i = 0; i < target.size(); ++i)
 			{
-				std::size_t sourceBit = 16 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word2[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
+				target[i] = getPayloadBit(startBit + i);
 			}
-			out << "\nJ-Series Word 2: " << dfi3028::Dui002(word2);
+		};
+
+		for (std::size_t sectionIndex = 0; sectionIndex < sectionCount; ++sectionIndex)
+		{
+			const std::size_t baseBit = sectionIndex * x1SectionBits;
+
+			std::array<int, 16> jreSourceTrackNumber{};
+			std::array<int, 16> jSeriesMessageSequenceNumber{};
+			std::array<int, 1> relayFlag{};
+			std::array<int, 1> acknowledgementRequestFlag{};
+			std::array<int, 1> x1SpareBit{};
+			std::array<int, 13> dataAge{};
+			std::array<int, 4> x1SpareNibble{};
+			std::array<int, 12> numberOfJWords{};
+			std::array<int, 16> jSeriesWord1{};
+			std::array<int, 16> jSeriesWord2{};
+			std::array<int, 16> jSeriesWord3{};
+			std::array<int, 16> jSeriesWord4{};
+			std::array<int, 2> x1Spare2Bits{};
+			std::array<int, 6> jSeriesWord5{};
+
+			readBits(jreSourceTrackNumber, baseBit + 0);
+			readBits(jSeriesMessageSequenceNumber, baseBit + 16);
+			readBits(relayFlag, baseBit + 32);
+			readBits(acknowledgementRequestFlag, baseBit + 33);
+			readBits(x1SpareBit, baseBit + 34);
+			readBits(dataAge, baseBit + 35);
+			readBits(x1SpareNibble, baseBit + 48);
+			readBits(numberOfJWords, baseBit + 52);
+			readBits(jSeriesWord1, baseBit + 64);
+			readBits(jSeriesWord2, baseBit + 80);
+			readBits(jSeriesWord3, baseBit + 96);
+			readBits(jSeriesWord4, baseBit + 112);
+			readBits(x1Spare2Bits, baseBit + 128);
+			readBits(jSeriesWord5, baseBit + 130);
+
+			out << "\n\n" << kDispatchJstnSectionPrefix << (sectionIndex + 1);
+			out << "\n" << kX10Jstn.label << ": " << dfi3027::Dui003(jreSourceTrackNumber);
+			out << "\n" << kX10Sequence.label << ": " << dfi3032::Dui003(jSeriesMessageSequenceNumber);
+			out << "\n" << kX10Relay.label << ": " << dfi3002::Dui009(relayFlag);
+			out << "\n" << kX10AckReq.label << ": " << dfi3002::Dui003(acknowledgementRequestFlag);
+			out << "\n" << kX10Spare1.label << ": " << BitsToUInt(x1SpareBit);
+			out << "\n" << kX10DataAge.label << ": " << dfi3003::Dui003(dataAge);
+			out << "\n" << kX10Spare4.label << ": " << BitsToUInt(x1SpareNibble);
+			out << "\n" << kX10JWords.label << ": " << dfi3033::Dui005(numberOfJWords);
+			out << "\n" << kX10Word1.label << ": " << dfi3028::Dui001(jSeriesWord1);
+			out << "\n" << kX10Word2.label << ": " << dfi3028::Dui002(jSeriesWord2);
+			out << "\n" << kX10Word3.label << ": " << dfi3028::Dui003(jSeriesWord3);
+			out << "\n" << kX10Word4.label << ": " << dfi3028::Dui004(jSeriesWord4);
+			out << "\n" << kX10Spare2.label << ": " << BitsToUInt(x1Spare2Bits);
+			out << "\n" << kX10Word5.label << ": " << dfi3028::Dui005(jSeriesWord5);
 		}
 
-		if (payloadBits >= 48)
+		if (trailingBits > 0)
 		{
-			std::array<int, 16> word3{};
-			for (std::size_t i = 0; i < 16; ++i)
-			{
-				std::size_t sourceBit = 32 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word3[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-			}
-			out << "\nJ-Series Word 3: " << dfi3028::Dui003(word3);
-		}
-
-		if (payloadBits >= 64)
-		{
-			std::array<int, 16> word4{};
-			for (std::size_t i = 0; i < 16; ++i)
-			{
-				std::size_t sourceBit = 48 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word4[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-			}
-			out << "\nJ-Series Word 4: " << dfi3028::Dui004(word4);
-		}
-
-		if (payloadBits >= 70)
-		{
-			std::array<int, 6> word5{};
-			for (std::size_t i = 0; i < 6; ++i)
-			{
-				std::size_t sourceBit = 64 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word5[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-			}
-			out << "\nJ-Series Word 5: " << dfi3028::Dui005(word5);
+			out << "\n\n" << kDispatchX10TrailingBitsPrefix << trailingBits;
 		}
 
 		break;
 	}
 	case 2:
-		out << "JTIDS/MIDS free text (coded) detected.";
+		out << kDispatchTextCoded;
 		break;
 	case 3:
-		out << "JTIDS/MIDS free text (uncoded) detected.";
+		out << kDispatchTextUncoded;
 		break;
 	case 4:
-		out << "Variable Message Format (VMF) detected.";
+		out << kDispatchVmfDetected;
 		break;
 	case 5:
-		out << "LINK 22 detected.";
+		out << kDispatchLink22Detected;
 		break;
 	case 6:
-		out << "CMF IBS detected.";
+		out << kDispatchCmfIbsDetected;
 		break;
 	default:
-		out << "Unsupported/undefined AH.0 message type " << messageTypeValue << ".";
+		out << kDispatchUnsupportedPrefix << messageTypeValue << ".";
 		break;
 	}
 
-	out << "\nPayload bytes used for decode: " << effectivePayloadBytes;
-	out << "\nABML field value: " << appBlockMessageLengthValue;
+	out << "\n" << kAbmlPayloadBytesUsedLabel << ": " << effectivePayloadBytes;
+	out << "\n" << kAbmlFieldValueLabel << ": " << appBlockMessageLengthValue;
 
 	return out.str();
+}
+
 }
