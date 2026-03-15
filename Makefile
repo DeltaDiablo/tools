@@ -373,13 +373,21 @@ OBJ_DIR = obj
 SRC = $(call rwildcard, *.c, *.h)
 #OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 OBJS ?= main.c
+EXTRA_DEPS ?=
+EXTRA_OBJS ?=
 
-ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier toolbox),)
+MILSTD6016_SRCS = $(wildcard milstd6016/*.cpp)
+MILSTD6016_OBJS = $(MILSTD6016_SRCS:.cpp=.o)
+MILSTD6016_LIB = milstd6016lib.a
+EXTRA_DEPS += $(MILSTD6016_LIB)
+EXTRA_OBJS += $(MILSTD6016_LIB)
+
+ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier),)
     JREAP_SRCS = $(wildcard milstd3011/*.cpp)
     JREAP_OBJS = $(JREAP_SRCS:.cpp=.o)
     JREAP_LIB = jreaplib.a
-    EXTRA_DEPS = $(JREAP_LIB)
-    EXTRA_OBJS = $(JREAP_LIB)
+    EXTRA_DEPS += $(JREAP_LIB)
+    EXTRA_OBJS += $(JREAP_LIB)
 endif
 
 # For Android platform we call a custom Makefile.Android
@@ -400,8 +408,14 @@ all:
 $(PROJECT_NAME): $(OBJS) $(EXTRA_DEPS)
 	$(CC) -o $(PROJECT_NAME)$(EXT) $(OBJS) $(EXTRA_OBJS) $(CFLAGS) $(WIN_RSRC) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
 
+$(MILSTD6016_LIB): $(MILSTD6016_OBJS)
+	$(AR) rcs $(MILSTD6016_LIB) $(MILSTD6016_OBJS)
+
 $(JREAP_LIB): $(JREAP_OBJS)
 	$(AR) rcs $(JREAP_LIB) $(JREAP_OBJS)
+
+milstd6016/%.o: milstd6016/%.cpp
+	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 milstd3011/%.o: milstd3011/%.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)

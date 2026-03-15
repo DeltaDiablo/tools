@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "csharpproject", "csharpproject", "{983C9E70-5136-134B-0961-023B97CE5536}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilStd3011Processor", "csharpproject\MilStd3011Processor.csproj", "{049C67E3-7C7E-415E-6129-B4E0DAA0584B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{049C67E3-7C7E-415E-6129-B4E0DAA0584B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{049C67E3-7C7E-415E-6129-B4E0DAA0584B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{049C67E3-7C7E-415E-6129-B4E0DAA0584B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{049C67E3-7C7E-415E-6129-B4E0DAA0584B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{049C67E3-7C7E-415E-6129-B4E0DAA0584B} = {983C9E70-5136-134B-0961-023B97CE5536}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {34E468A7-62A8-4E92-9997-EF1871643F70}
+	EndGlobalSection
+EndGlobal
