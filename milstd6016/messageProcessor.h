@@ -1,69 +1,36 @@
 #ifndef MILSTD6016_MESSAGEPROCESSOR_H_
 #define MILSTD6016_MESSAGEPROCESSOR_H_
 
-#include <string>
-#include <vector>
-
-namespace milstd6016 {
-
-struct WordFieldValue
-{
-	std::string name;
-	int dfi = 0;
-	int dui = 0;
-	int lowBit = 0;
-	int highBit = 0;
-	std::string bitString;
-	int numericValue = 0;
-	std::string resolvedText;
-	std::string fallbackText;
-};
-
-struct WordMessage
-{
-	bool isValid = false;
-	std::string error;
-	std::string wordNumber;
-	std::string wordTitle;
-	std::string inputBitOrder;
-	std::string transmittedBits;
-	std::string specOrderBits;
-	std::vector<WordFieldValue> fields;
-};
-
-using J00IFieldValue = WordFieldValue;
-using J00IMessage = WordMessage;
-using J00C1FieldValue = WordFieldValue;
-using J00C1Message = WordMessage;
-
-std::string DescribeValueMeaning(int dfi, int dui, const std::string& bitCode, bool resolveRanges = true);
-
-std::string DescribeAllValueMeanings(int dfi, int dui);
-
-J00IMessage ParseJ00IMessageBits(const std::string& wordBits);
-
-J00IMessage ParseJ00IMessageBytes(const std::vector<int>& bytes);
-
-J00IMessage ParseJ00IMessage(const std::string& input);
-
-J00C1Message ParseJ00C1MessageBits(const std::string& wordBits);
-
-J00C1Message ParseJ00C1MessageBytes(const std::vector<int>& bytes);
-
-J00C1Message ParseJ00C1Message(const std::string& input);
-
-std::string ProcessJ00IMessageBits(const std::string& wordBits);
-
-std::string ProcessJ00IMessageBytes(const std::vector<int>& bytes);
-
-std::string ProcessJ00IMessage(const std::string& input);
-
-std::string ProcessJ00C1MessageBits(const std::string& wordBits);
-
-std::string ProcessJ00C1MessageBytes(const std::vector<int>& bytes);
-
-std::string ProcessJ00C1Message(const std::string& input);
-
-}
+#include "messageProcessorCore.h"
+#include "messageProcessorValueMeaning.h"
+#include "messageProcessorJ00I.h"
+#include "messageProcessorJ01I.h"
+#include "messageProcessorJ02I.h"
+#include "messageProcessorJ03I.h"
+#include "messageProcessorJ04I.h"
+#include "messageProcessorJ05I.h"
+#include "messageProcessorJ06I.h"
+#include "messageProcessorJ07I.h"
+#include "messageProcessorJ10I.h"
+#include "messageProcessorJ11I.h"
+#include "messageProcessorJ00C1.h"
+#include "messageProcessorJ03C1.h"
+#include "messageProcessorJ03C2.h"
+#include "messageProcessorJ04C1.h"
+#include "messageProcessorJ04C2.h"
+#include "messageProcessorJ06C1.h"
+#include "messageProcessorJ06C2.h"
+#include "messageProcessorJ06C3.h"
+#include "messageProcessorJ06C4.h"
+#include "messageProcessorJ11C1.h"
+#include "messageProcessorJ11C2.h"
+#include "messageProcessorJ01C21.h"
+#include "messageProcessorJ00E0.h"
+#include "messageProcessorJ01E0.h"
+#include "messageProcessorJ03E0.h"
+#include "messageProcessorJ04E0.h"
+#include "messageProcessorJ07E0.h"
+#include "messageProcessorJ10E0.h"
+#include "messageProcessorJ11E0.h"
 
 #endif

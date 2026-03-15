@@ -5,7 +5,35 @@
 #include <sstream>
 #include <vector>
 #include "ByteToBits.h"
-#include "milstd6016/messageProcessor.h"
+#include "milstd6016/messageProcessorJ00I.h"
+#include "milstd6016/messageProcessorJ01I.h"
+#include "milstd6016/messageProcessorJ02I.h"
+#include "milstd6016/messageProcessorJ03I.h"
+#include "milstd6016/messageProcessorJ04I.h"
+#include "milstd6016/messageProcessorJ05I.h"
+#include "milstd6016/messageProcessorJ06I.h"
+#include "milstd6016/messageProcessorJ07I.h"
+#include "milstd6016/messageProcessorJ10I.h"
+#include "milstd6016/messageProcessorJ11I.h"
+#include "milstd6016/messageProcessorJ00C1.h"
+#include "milstd6016/messageProcessorJ03C1.h"
+#include "milstd6016/messageProcessorJ03C2.h"
+#include "milstd6016/messageProcessorJ04C1.h"
+#include "milstd6016/messageProcessorJ04C2.h"
+#include "milstd6016/messageProcessorJ06C1.h"
+#include "milstd6016/messageProcessorJ06C2.h"
+#include "milstd6016/messageProcessorJ06C3.h"
+#include "milstd6016/messageProcessorJ06C4.h"
+#include "milstd6016/messageProcessorJ11C1.h"
+#include "milstd6016/messageProcessorJ11C2.h"
+#include "milstd6016/messageProcessorJ01C21.h"
+#include "milstd6016/messageProcessorJ00E0.h"
+#include "milstd6016/messageProcessorJ01E0.h"
+#include "milstd6016/messageProcessorJ03E0.h"
+#include "milstd6016/messageProcessorJ04E0.h"
+#include "milstd6016/messageProcessorJ07E0.h"
+#include "milstd6016/messageProcessorJ10E0.h"
+#include "milstd6016/messageProcessorJ11E0.h"
 #include <cmath>
 
 namespace {
@@ -262,6 +290,90 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
     std::string jreapContext;
     std::string sourceLabel;
     std::string wordBits;
+    std::string forcedWord;
+
+    if (normalizedInput.size() > 7)
+    {
+        const std::string prefix = normalizedInput.substr(0, 7);
+        if (prefix == "J0.0E0:" || prefix == "j0.0e0:")
+        {
+            forcedWord = "J0.0E0";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.1E0:" || prefix == "j0.1e0:")
+        {
+            forcedWord = "J0.1E0";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.1C21" || prefix == "j0.1c21")
+        {
+            if (normalizedInput.size() > 8 && normalizedInput[7] == ':')
+            {
+                forcedWord = "J0.1C21";
+                normalizedInput = Trim(normalizedInput.substr(8));
+            }
+        }
+        else if (prefix == "J0.3C1:" || prefix == "j0.3c1:")
+        {
+            forcedWord = "J0.3C1";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.3E0:" || prefix == "j0.3e0:")
+        {
+            forcedWord = "J0.3E0";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.4E0:" || prefix == "j0.4e0:")
+        {
+            forcedWord = "J0.4E0";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.7E0:" || prefix == "j0.7e0:")
+        {
+            forcedWord = "J0.7E0";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J1.0E0:" || prefix == "j1.0e0:")
+        {
+            forcedWord = "J1.0E0";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J1.1E0:" || prefix == "j1.1e0:")
+        {
+            forcedWord = "J1.1E0";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.4C1:" || prefix == "j0.4c1:")
+        {
+            forcedWord = "J0.4C1";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.4C2:" || prefix == "j0.4c2:")
+        {
+            forcedWord = "J0.4C2";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.6C1:" || prefix == "j0.6c1:")
+        {
+            forcedWord = "J0.6C1";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J0.6C2:" || prefix == "j0.6c2:")
+        {
+            forcedWord = "J0.6C2";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J1.1C1:" || prefix == "j1.1c1:")
+        {
+            forcedWord = "J1.1C1";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+        else if (prefix == "J1.1C2:" || prefix == "j1.1c2:")
+        {
+            forcedWord = "J1.1C2";
+            normalizedInput = Trim(normalizedInput.substr(7));
+        }
+    }
 
     if (normalizedInput == "TEST J0.0I" || normalizedInput == "test j0.0i")
     {
@@ -305,6 +417,67 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
 
     wordBits = wordBits.substr(0, 70);
 
+    if (forcedWord == "J0.0E0")
+    {
+        return milstd6016::ProcessJ00E0MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.1E0")
+    {
+        return milstd6016::ProcessJ01E0MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.1C21")
+    {
+        return milstd6016::ProcessJ01C21MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.3C1")
+    {
+        return milstd6016::ProcessJ03C1MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.3E0")
+    {
+        return milstd6016::ProcessJ03E0MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.4E0")
+    {
+        return milstd6016::ProcessJ04E0MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.7E0")
+    {
+        return milstd6016::ProcessJ07E0MessageBits(wordBits);
+    }
+    if (forcedWord == "J1.0E0")
+    {
+        return milstd6016::ProcessJ10E0MessageBits(wordBits);
+    }
+    if (forcedWord == "J1.1E0")
+    {
+        return milstd6016::ProcessJ11E0MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.4C1")
+    {
+        return milstd6016::ProcessJ04C1MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.4C2")
+    {
+        return milstd6016::ProcessJ04C2MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.6C1")
+    {
+        return milstd6016::ProcessJ06C1MessageBits(wordBits);
+    }
+    if (forcedWord == "J0.6C2")
+    {
+        return milstd6016::ProcessJ06C2MessageBits(wordBits);
+    }
+    if (forcedWord == "J1.1C1")
+    {
+        return milstd6016::ProcessJ11C1MessageBits(wordBits);
+    }
+    if (forcedWord == "J1.1C2")
+    {
+        return milstd6016::ProcessJ11C2MessageBits(wordBits);
+    }
+
     const int wordFormat = BitsToUInt(ExtractFieldBits(wordBits, 0, 1));
     const int label = BitsToUInt(ExtractFieldBits(wordBits, 2, 6));
     const int sublabel = BitsToUInt(ExtractFieldBits(wordBits, 7, 9));
@@ -314,9 +487,65 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
     {
         decoded = milstd6016::ProcessJ00IMessageBits(wordBits);
     }
+    else if (wordFormat == 0 && label == 0 && sublabel == 1)
+    {
+        decoded = milstd6016::ProcessJ01IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 0 && sublabel == 2)
+    {
+        decoded = milstd6016::ProcessJ02IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 0 && sublabel == 3)
+    {
+        decoded = milstd6016::ProcessJ03IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 0 && sublabel == 4)
+    {
+        decoded = milstd6016::ProcessJ04IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 0 && sublabel == 5)
+    {
+        decoded = milstd6016::ProcessJ05IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 0 && sublabel == 6)
+    {
+        decoded = milstd6016::ProcessJ06IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 0 && sublabel == 7)
+    {
+        decoded = milstd6016::ProcessJ07IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 1 && sublabel == 0)
+    {
+        decoded = milstd6016::ProcessJ10IMessageBits(wordBits);
+    }
+    else if (wordFormat == 0 && label == 1 && sublabel == 1)
+    {
+        decoded = milstd6016::ProcessJ11IMessageBits(wordBits);
+    }
     else if (wordFormat == 1 && label == 1)
     {
         decoded = milstd6016::ProcessJ00C1MessageBits(wordBits);
+    }
+    else if (wordFormat == 1 && label == 2)
+    {
+        decoded = milstd6016::ProcessJ03C2MessageBits(wordBits);
+    }
+    else if (wordFormat == 1 && label == 3)
+    {
+        decoded = milstd6016::ProcessJ06C3MessageBits(wordBits);
+    }
+    else if (wordFormat == 1 && label == 4)
+    {
+        decoded = milstd6016::ProcessJ06C4MessageBits(wordBits);
+    }
+    else if (wordFormat == 1 && label == 21)
+    {
+        decoded = milstd6016::ProcessJ01C21MessageBits(wordBits);
+    }
+    else if (wordFormat == 2)
+    {
+        decoded = milstd6016::ProcessJ00E0MessageBits(wordBits);
     }
     else
     {
