@@ -193,7 +193,7 @@ WordFieldValue BuildFieldValue(const std::string& wordBits, const FieldSpec& fie
 	result.dui = field.dui;
 	result.lowBit = field.lowBit;
 	result.highBit = field.highBit;
-	result.fallbackText = (field.fallback != 0) ? field.fallback : "";
+	result.fallbackText = field.fallback;
 	result.bitString = ExtractFieldBits(wordBits, field.lowBit, field.highBit);
 	result.numericValue = BitsToUInt(result.bitString);
 	if (field.dfi > 0 && field.dui > 0)
@@ -215,9 +215,18 @@ WordMessage BuildWordMessage(const std::string& msbToLsbBits,
 	message.inputBitOrder = "transmitted order (bit 69 on the left through bit 0 on the right)";
 	message.transmittedBits = msbToLsbBits;
 	message.specOrderBits = ReverseBitOrderBySpecPosition(msbToLsbBits);
-	message.fields.reserve(fields.size());
 
-	for (std::size_t index = 0; index < fields.size(); ++index)
+	const std::size_t fieldCount = fields.size();
+	if (fieldCount > 256)
+	{
+		message.isValid = false;
+		message.error = "Internal parser state error: invalid field specification count (" + std::to_string(fieldCount) + "). Perform a clean rebuild to refresh stale object files.";
+		return message;
+	}
+
+	message.fields.reserve(fieldCount);
+
+	for (std::size_t index = 0; index < fieldCount; ++index)
 	{
 		message.fields.push_back(BuildFieldValue(msbToLsbBits, fields[index]));
 	}

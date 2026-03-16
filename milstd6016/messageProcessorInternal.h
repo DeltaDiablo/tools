@@ -11,12 +11,12 @@ namespace internal {
 
 struct FieldSpec
 {
-	const char* name;
+	std::string name;
 	int dfi;
 	int dui;
 	int lowBit;
 	int highBit;
-	const char* fallback;
+	std::string fallback;
 };
 
 std::string Trim(const std::string& value);

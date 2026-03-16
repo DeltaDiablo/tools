@@ -196,6 +196,7 @@ endif
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
 CFLAGS += -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces
+DEPFLAGS = -MMD -MP
 WIN_RSRC =
 
 ifeq ($(BUILD_MODE),DEBUG)
@@ -378,6 +379,7 @@ EXTRA_OBJS ?=
 
 MILSTD6016_SRCS = $(wildcard milstd6016/*.cpp)
 MILSTD6016_OBJS = $(MILSTD6016_SRCS:.cpp=.o)
+MILSTD6016_DEPS = $(MILSTD6016_OBJS:.o=.d)
 MILSTD6016_LIB = milstd6016lib.a
 EXTRA_DEPS += $(MILSTD6016_LIB)
 EXTRA_OBJS += $(MILSTD6016_LIB)
@@ -385,10 +387,13 @@ EXTRA_OBJS += $(MILSTD6016_LIB)
 ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier),)
     JREAP_SRCS = $(wildcard milstd3011/*.cpp)
     JREAP_OBJS = $(JREAP_SRCS:.cpp=.o)
+    JREAP_DEPS = $(JREAP_OBJS:.o=.d)
     JREAP_LIB = jreaplib.a
     EXTRA_DEPS += $(JREAP_LIB)
     EXTRA_OBJS += $(JREAP_LIB)
 endif
+
+-include $(MILSTD6016_DEPS) $(JREAP_DEPS)
 
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)
@@ -415,10 +420,10 @@ $(JREAP_LIB): $(JREAP_OBJS)
 	$(AR) rcs $(JREAP_LIB) $(JREAP_OBJS)
 
 milstd6016/%.o: milstd6016/%.cpp
-	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+	$(CC) -c $< -o $@ $(CFLAGS) $(DEPFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 milstd3011/%.o: milstd3011/%.cpp
-	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+	$(CC) -c $< -o $@ $(CFLAGS) $(DEPFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
