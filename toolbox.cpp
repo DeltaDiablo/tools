@@ -187,6 +187,114 @@ int BitsToUInt(const std::string& bits)
     return value;
 }
 
+std::string DescribeJSeriesWordFromSubheader(int wordFormat, int label, int sublabel)
+{
+    if (wordFormat == 0 && label == 0 && sublabel == 0)
+    {
+        return "J0.0I";
+    }
+    if (wordFormat == 0 && label == 0 && sublabel == 1)
+    {
+        return "J0.1I";
+    }
+    if (wordFormat == 0 && label == 0 && sublabel == 2)
+    {
+        return "J0.2I";
+    }
+    if (wordFormat == 0 && label == 0 && sublabel == 3)
+    {
+        return "J0.3I";
+    }
+    if (wordFormat == 0 && label == 0 && sublabel == 4)
+    {
+        return "J0.4I";
+    }
+    if (wordFormat == 0 && label == 0 && sublabel == 5)
+    {
+        return "J0.5I";
+    }
+    if (wordFormat == 0 && label == 0 && sublabel == 6)
+    {
+        return "J0.6I";
+    }
+    if (wordFormat == 0 && label == 0 && sublabel == 7)
+    {
+        return "J0.7I";
+    }
+    if (wordFormat == 0 && label == 1 && sublabel == 0)
+    {
+        return "J1.0I";
+    }
+    if (wordFormat == 0 && label == 1 && sublabel == 1)
+    {
+        return "J1.1I";
+    }
+    if (wordFormat == 1 && label == 1)
+    {
+        return "J0.0C1";
+    }
+    if (wordFormat == 1 && label == 2)
+    {
+        return "J0.3C2";
+    }
+    if (wordFormat == 1 && label == 3)
+    {
+        return "J0.6C3";
+    }
+    if (wordFormat == 1 && label == 4)
+    {
+        return "J0.6C4";
+    }
+    if (wordFormat == 1 && label == 21)
+    {
+        return "J0.1C21";
+    }
+    if (wordFormat == 2 && label == 0 && sublabel == 0)
+    {
+        return "J0.0E0";
+    }
+    if (wordFormat == 2 && label == 0 && sublabel == 1)
+    {
+        return "J0.1E0";
+    }
+    if (wordFormat == 2 && label == 0 && sublabel == 3)
+    {
+        return "J0.3E0";
+    }
+    if (wordFormat == 2 && label == 0 && sublabel == 4)
+    {
+        return "J0.4E0";
+    }
+    if (wordFormat == 2 && label == 0 && sublabel == 7)
+    {
+        return "J0.7E0";
+    }
+    if (wordFormat == 2 && label == 1 && sublabel == 0)
+    {
+        return "J1.0E0";
+    }
+    if (wordFormat == 2 && label == 1 && sublabel == 1)
+    {
+        return "J1.1E0";
+    }
+    if (wordFormat == 2)
+    {
+        return "Unknown E0 word";
+    }
+
+    if (wordFormat == 1)
+    {
+        return "Unknown C-word";
+    }
+
+    if (wordFormat == 0)
+    {
+        return "Unknown I-word";
+    }
+
+    return "Unknown/unsupported J-series word";
+}
+
 bool TryGetWordBits(const std::string& input, std::string& wordBits)
 {
     if (IsBinaryLike(input))
@@ -226,7 +334,15 @@ bool TryExtractJreapJSeriesPayloadBits(const std::string& input, std::string& pa
         return false;
     }
 
+    const int transmissionTimeReferenceFlag = (bytes[1] >> 7) & 0x01;
+    const int appProtocolVersion = bytes[1] & 0x0F;
     const int declaredAbml = ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
+    const int senderId = ((bytes[4] & 0xFF) << 8) | (bytes[5] & 0xFF);
+    const int timeAccuracy = (bytes[6] >> 4) & 0x0F;
+    const int dataValidTime = ((bytes[6] & 0x0F) << 24) |
+                              ((bytes[7] & 0xFF) << 16) |
+                              ((bytes[8] & 0xFF) << 8) |
+                              (bytes[9] & 0xFF);
     const int receivedPayload = static_cast<int>(bytes.size()) - 10;
     int effectivePayload = declaredAbml;
     if (effectivePayload > receivedPayload)
@@ -247,9 +363,42 @@ bool TryExtractJreapJSeriesPayloadBits(const std::string& input, std::string& pa
 
     payloadBits = BytesToBitString(payloadBytes);
 
+    int wordFormat = -1;
+    int label = -1;
+    int sublabel = -1;
+    if (payloadBits.size() >= 10)
+    {
+        wordFormat = BitsToUInt(ExtractFieldBits(payloadBits, 0, 1));
+        label = BitsToUInt(ExtractFieldBits(payloadBits, 2, 6));
+        sublabel = BitsToUInt(ExtractFieldBits(payloadBits, 7, 9));
+    }
+
     std::ostringstream context;
-    context << "JREAP AH.0 detected (HeaderType=3, MessageType=1). "
-            << "ABML=" << declaredAbml << " byte(s), payload used=" << effectivePayload << " byte(s).";
+    context << "JREAP AH.0 detected"
+            << "\nAH.0 Header Type: " << headerType
+            << "\nAH.0 Message Type: " << messageType
+            << "\nAH.0 Transmission Time Reference Flag: " << transmissionTimeReferenceFlag
+            << "\nAH.0 Application Protocol Version: " << appProtocolVersion
+            << "\nAH.0 Application Block Message Length (ABML): " << declaredAbml
+            << "\nAH.0 JRE Sender ID: " << senderId
+            << "\nAH.0 Time Accuracy: " << timeAccuracy
+            << "\nAH.0 Data Valid Time: " << dataValidTime
+            << "\nAH.0 Payload used: " << effectivePayload << " byte(s)";
+
+    if (wordFormat >= 0)
+    {
+        const std::string guessedWord = DescribeJSeriesWordFromSubheader(wordFormat, label, sublabel);
+        context << "\nJ-Series Subheader (Word 1)"
+                << "\n  WORD FORMAT: " << wordFormat
+                << "\n  LABEL: " << label
+            << "\n  SUBLABEL: " << sublabel
+            << "\n  Message Guess: " << guessedWord;
+    }
+    else
+    {
+        context << "\nJ-Series Subheader (Word 1): unavailable (payload shorter than 10 bits).";
+    }
+
     info = context.str();
 
     return payloadBits.size() >= 70;
