@@ -35,6 +35,7 @@ std::string JreSenderID(std::array<int, 16> jreSenderID);
 std::string TimeAccuracyReporting(std::array<int, 4> timeAccuracy);
 std::string DataValidTime(std::array<int, 28> dataValidTime);
 std::string JreapApplicationHeader0(std::array<int, 10> byteArray);
+std::string ProcessJWordPayload(const std::array<int, 65>& byteArray, std::size_t byteCount);
 std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray, std::size_t byteCount, bool strictAbml = false);
 
 #endif // JREAPCHEADS_H_

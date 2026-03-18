@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 #include "ByteToBits.h"
+#include "milstd3011/jreaplib.h"
 #include "milstd6016/messageProcessorJ00I.h"
 #include "milstd6016/messageProcessorJ01I.h"
 #include "milstd6016/messageProcessorJ02I.h"
@@ -203,7 +204,7 @@ std::string BytesToBitString(const std::vector<int>& bytes)
     bits.reserve(bytes.size() * 8);
     for (std::size_t index = 0; index < bytes.size(); ++index)
     {
-        bits += ByteToBinaryConverter(bytes[index], false);
+        bits += ByteToBinaryConverter(bytes[index], true);
     }
     return bits;
 }
@@ -723,6 +724,48 @@ std::string BuildJreapTestJ00IMessageCsv()
 std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
 {
     std::string normalizedInput = Trim(input);
+    std::vector<int> csvBytes;
+    if (TryParseCsvBytes(normalizedInput, csvBytes))
+    {
+        std::string jreapOutput = jreap::DecodeApplicationMessageCsv(normalizedInput, false);
+
+        std::string payloadBits;
+        std::string jreapContext;
+        if (!TryExtractJreapJSeriesPayloadBits(normalizedInput, payloadBits, jreapContext))
+        {
+            return jreapOutput;
+        }
+
+        const std::size_t fullWordCount = payloadBits.size() / 70;
+        const std::size_t trailingBits = payloadBits.size() % 70;
+        if (fullWordCount == 0)
+        {
+            return jreapOutput;
+        }
+
+        std::ostringstream combined;
+        combined << jreapOutput;
+        combined << "\n\nMIL-STD-6016 processing";
+        combined << "\nPacked J-series words detected: " << fullWordCount;
+
+        for (std::size_t wordIndex = 0; wordIndex < fullWordCount; ++wordIndex)
+        {
+            const std::string oneWordBits = payloadBits.substr(wordIndex * 70, 70);
+            const std::string decodedWord = DecodeMilStd6016Word(oneWordBits, InputMode::Raw6016);
+
+            combined << "\n\n[J-Word " << (wordIndex + 1) << "]\n";
+            combined << decodedWord;
+        }
+
+        if (trailingBits > 0)
+        {
+            combined << "\n\nNote: " << trailingBits
+                     << " trailing payload bit(s) were not decoded because MIL-STD-6016 words are 70 bits each.";
+        }
+
+        return combined.str();
+    }
+
     std::string jreapContext;
     std::string sourceLabel;
     std::string wordBits;
@@ -1118,11 +1161,73 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
         }
     }
 
+    if (!jreapContext.empty())
+    {
+        const std::size_t fullWordCount = wordBits.size() / 70;
+        const std::size_t trailingBits = wordBits.size() % 70;
+
+        if (fullWordCount > 1)
+        {
+            std::ostringstream multiWordOutput;
+            if (!sourceLabel.empty())
+            {
+                multiWordOutput << "Source: " << sourceLabel;
+            }
+            if (!jreapContext.empty())
+            {
+                if (!sourceLabel.empty())
+                {
+                    multiWordOutput << "\n";
+                }
+                multiWordOutput << jreapContext;
+            }
+            multiWordOutput << "\n\nDecoded J-Series Words: " << fullWordCount;
+            if (!forcedWord.empty())
+            {
+                multiWordOutput << "\nDecode mode: forced " << forcedWord << " for each word";
+            }
+
+            for (std::size_t wordIndex = 0; wordIndex < fullWordCount; ++wordIndex)
+            {
+                const std::string oneWordBits = wordBits.substr(wordIndex * 70, 70);
+                std::string decodedWord;
+                if (forcedWord.empty())
+                {
+                    decodedWord = DecodeMilStd6016Word(oneWordBits, InputMode::Raw6016);
+                }
+                else
+                {
+                    decodedWord = DecodeMilStd6016Word(forcedWord + ":" + oneWordBits, InputMode::Raw6016);
+                }
+
+                multiWordOutput << "\n\n[Word " << (wordIndex + 1) << "]\n";
+                multiWordOutput << decodedWord;
+            }
+
+            if (trailingBits > 0)
+            {
+                multiWordOutput << "\n\nNote: " << trailingBits
+                                << " trailing payload bit(s) were not decoded because MIL-STD-6016 words are 70 bits each.";
+            }
+
+            return multiWordOutput.str();
+        }
+    }
+
     wordBits = wordBits.substr(0, 70);
+
+    const int wordFormat = BitsToUInt(ExtractFieldBits(wordBits, 0, 1));
+    const int label = BitsToUInt(ExtractFieldBits(wordBits, 2, 6));
+    const int sublabel = BitsToUInt(ExtractFieldBits(wordBits, 7, 9));
 
     if (!forcedWord.empty())
     {
-        std::cerr << "[decode-route] forced=" << forcedWord << std::endl;
+        std::cerr << "[decode-route] wf=" << wordFormat
+                  << " label=" << label
+                  << " sublabel=" << sublabel
+                  << " selected=" << forcedWord
+                  << " mode=forced"
+                  << std::endl;
     }
 
     if (forcedWord == "J0.0E0")
@@ -1354,17 +1459,8 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
         return milstd6016::ProcessJ11C2MessageBits(wordBits);
     }
 
-    const int wordFormat = BitsToUInt(ExtractFieldBits(wordBits, 0, 1));
-    const int label = BitsToUInt(ExtractFieldBits(wordBits, 2, 6));
-    const int sublabel = BitsToUInt(ExtractFieldBits(wordBits, 7, 9));
-
-    std::cerr << "[decode-route] auto wf=" << wordFormat
-              << " label=" << label
-              << " sublabel=" << sublabel
-              << " guess=\"" << DescribeJSeriesWordFromSubheader(wordFormat, label, sublabel) << "\""
-              << std::endl;
-
     std::string decoded;
+    std::string selectedProcessor = DescribeJSeriesWordFromSubheader(wordFormat, label, sublabel);
     if (wordFormat == 0 && label == 0 && sublabel == 0)
     {
         decoded = milstd6016::ProcessJ00IMessageBits(wordBits);
@@ -1454,42 +1550,42 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
         const ContinuationWordChoice continuationWord = SelectContinuationWord(wordBits);
         if (continuationWord == ContinuationWordChoice::J20C3)
         {
-            std::cerr << "[decode-route] continuation=J2.0C3" << std::endl;
+            selectedProcessor = "J2.0C3";
             decoded = milstd6016::ProcessJ20C3MessageBits(wordBits);
         }
         else if (continuationWord == ContinuationWordChoice::J20C2)
         {
-            std::cerr << "[decode-route] continuation=J2.0C2" << std::endl;
+            selectedProcessor = "J2.0C2";
             decoded = milstd6016::ProcessJ20C2MessageBits(wordBits);
         }
         else if (continuationWord == ContinuationWordChoice::J20C1)
         {
-            std::cerr << "[decode-route] continuation=J2.0C1" << std::endl;
+            selectedProcessor = "J2.0C1";
             decoded = milstd6016::ProcessJ20C1MessageBits(wordBits);
         }
         else if (continuationWord == ContinuationWordChoice::J15C1)
         {
-            std::cerr << "[decode-route] continuation=J1.5C1" << std::endl;
+            selectedProcessor = "J1.5C1";
             decoded = milstd6016::ProcessJ15C1MessageBits(wordBits);
         }
         else if (continuationWord == ContinuationWordChoice::J22C1)
         {
-            std::cerr << "[decode-route] continuation=J2.2C1" << std::endl;
+            selectedProcessor = "J2.2C1";
             decoded = milstd6016::ProcessJ22C1MessageBits(wordBits);
         }
         else if (continuationWord == ContinuationWordChoice::J23C1)
         {
-            std::cerr << "[decode-route] continuation=J2.3C1" << std::endl;
+            selectedProcessor = "J2.3C1";
             decoded = milstd6016::ProcessJ23C1MessageBits(wordBits);
         }
         else if (continuationWord == ContinuationWordChoice::J25C1)
         {
-            std::cerr << "[decode-route] continuation=J2.5C1" << std::endl;
+            selectedProcessor = "J2.5C1";
             decoded = milstd6016::ProcessJ25C1MessageBits(wordBits);
         }
         else
         {
-            std::cerr << "[decode-route] continuation=J0.0C1" << std::endl;
+            selectedProcessor = "J0.0C1";
             decoded = milstd6016::ProcessJ00C1MessageBits(wordBits);
         }
     }
@@ -1498,17 +1594,17 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
         const Label2ContinuationWordChoice continuationWord = SelectLabel2ContinuationWord(wordBits);
         if (continuationWord == Label2ContinuationWordChoice::J22C2)
         {
-            std::cerr << "[decode-route] continuation=J2.2C2" << std::endl;
+            selectedProcessor = "J2.2C2";
             decoded = milstd6016::ProcessJ22C2MessageBits(wordBits);
         }
         else if (continuationWord == Label2ContinuationWordChoice::J23C2)
         {
-            std::cerr << "[decode-route] continuation=J2.3C2" << std::endl;
+            selectedProcessor = "J2.3C2";
             decoded = milstd6016::ProcessJ23C2MessageBits(wordBits);
         }
         else
         {
-            std::cerr << "[decode-route] continuation=J0.3C2" << std::endl;
+            selectedProcessor = "J0.3C2";
             decoded = milstd6016::ProcessJ03C2MessageBits(wordBits);
         }
     }
@@ -1517,17 +1613,17 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
         const Label3ContinuationWordChoice continuationWord = SelectLabel3ContinuationWord(wordBits);
         if (continuationWord == Label3ContinuationWordChoice::J22C3)
         {
-            std::cerr << "[decode-route] continuation=J2.2C3" << std::endl;
+            selectedProcessor = "J2.2C3";
             decoded = milstd6016::ProcessJ22C3MessageBits(wordBits);
         }
         else if (continuationWord == Label3ContinuationWordChoice::J23C3)
         {
-            std::cerr << "[decode-route] continuation=J2.3C3" << std::endl;
+            selectedProcessor = "J2.3C3";
             decoded = milstd6016::ProcessJ23C3MessageBits(wordBits);
         }
         else
         {
-            std::cerr << "[decode-route] continuation=J0.6C3" << std::endl;
+            selectedProcessor = "J0.6C3";
             decoded = milstd6016::ProcessJ06C3MessageBits(wordBits);
         }
     }
@@ -1540,12 +1636,12 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
         const Label4ContinuationWordChoice continuationWord = SelectLabel4ContinuationWord(wordBits);
         if (continuationWord == Label4ContinuationWordChoice::J25C4)
         {
-            std::cerr << "[decode-route] continuation=J2.5C4" << std::endl;
+            selectedProcessor = "J2.5C4";
             decoded = milstd6016::ProcessJ25C4MessageBits(wordBits);
         }
         else
         {
-            std::cerr << "[decode-route] continuation=J0.6C4" << std::endl;
+            selectedProcessor = "J0.6C4";
             decoded = milstd6016::ProcessJ06C4MessageBits(wordBits);
         }
     }
@@ -1607,10 +1703,12 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
     }
     else if (wordFormat == 2)
     {
+        selectedProcessor = "J0.0E0";
         decoded = milstd6016::ProcessJ00E0MessageBits(wordBits);
     }
     else
     {
+        selectedProcessor = "Unsupported";
         std::ostringstream output;
         output << "Unsupported MIL-STD-6016 word for toolbox decoder. "
                << "Detected WORD FORMAT=" << wordFormat
@@ -1618,6 +1716,13 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
                << ", SUBLABEL=" << sublabel << ".";
         decoded = output.str();
     }
+
+    std::cerr << "[decode-route] wf=" << wordFormat
+              << " label=" << label
+              << " sublabel=" << sublabel
+              << " selected=" << selectedProcessor
+              << " mode=auto"
+              << std::endl;
 
     if (sourceLabel.empty())
     {
@@ -1648,6 +1753,9 @@ int main()
     SetExitKey(KEY_NULL);
     int btnX, btnY, btnW, btnH;
     bool mouseOverBtn;
+    float outputScrollOffset = 0.0f;
+    bool isDraggingScrollbar = false;
+    float scrollbarDragOffset = 0.0f;
     int inputBoxX = 10, inputBoxY = 40, inputBoxW = 800, inputBoxH = 40;
     while (!WindowShouldClose())
     {
@@ -1673,22 +1781,182 @@ int main()
         DrawRectangleLines(btnX, btnY, btnW, btnH, YELLOW);
         DrawText("Submit", btnX + 20, btnY + 10, 22, RAYWHITE);
 
-        // Draw the output string below the input area
-        if (!output.empty()) {
-            DrawText("Header Translation:", 10, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
-            // Split output into lines and draw each with extra spacing
-            int y = inputBoxY + inputBoxH + 50;
-            int lineSpacing = 32; // More space between lines
+        // Draw the output string below the input area in a scrollable panel
+        int outputBoxX = 10;
+        int outputBoxY = inputBoxY + inputBoxH + 50;
+        int outputBoxW = GetScreenWidth() - 20;
+        int outputBoxH = GetScreenHeight() - outputBoxY - 10;
+        DrawText("Header Translation:", outputBoxX, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
+        DrawRectangle(outputBoxX, outputBoxY, outputBoxW, outputBoxH, (Color){245, 245, 245, 255});
+        DrawRectangleLines(outputBoxX, outputBoxY, outputBoxW, outputBoxH, LIGHTGRAY);
+
+        std::vector<std::string> outputLines;
+        if (!output.empty())
+        {
             size_t start = 0;
-            while (start < output.length()) {
+            while (start <= output.length())
+            {
                 size_t end = output.find('\n', start);
-                std::string line = (end == std::string::npos) ? output.substr(start) : output.substr(start, end - start);
-                DrawText(line.c_str(), 10, y, 22, BLUE);
-                y += lineSpacing;
-                if (end == std::string::npos) break;
+                if (end == std::string::npos)
+                {
+                    outputLines.push_back(output.substr(start));
+                    break;
+                }
+
+                outputLines.push_back(output.substr(start, end - start));
                 start = end + 1;
+
+                if (start == output.length())
+                {
+                    outputLines.push_back("");
+                    break;
+                }
             }
         }
+
+        const int lineSpacing = 30;
+        const int outputPadding = 8;
+        const int viewportHeight = outputBoxH - (2 * outputPadding);
+        int totalContentHeight = static_cast<int>(outputLines.size()) * lineSpacing;
+        float maxScroll = static_cast<float>(totalContentHeight - viewportHeight);
+        if (maxScroll < 0.0f)
+        {
+            maxScroll = 0.0f;
+        }
+
+        const Vector2 mousePos = GetMousePosition();
+        const bool mouseOverOutput = CheckCollisionPointRec(mousePos, (Rectangle){
+            static_cast<float>(outputBoxX),
+            static_cast<float>(outputBoxY),
+            static_cast<float>(outputBoxW),
+            static_cast<float>(outputBoxH)
+        });
+
+        const int scrollbarTrackWidth = 10;
+        const int scrollbarMargin = 4;
+        const int scrollbarX = outputBoxX + outputBoxW - scrollbarTrackWidth - scrollbarMargin;
+        const int scrollbarY = outputBoxY + scrollbarMargin;
+        const int scrollbarH = outputBoxH - (2 * scrollbarMargin);
+
+        int thumbY = scrollbarY;
+        int thumbHeight = scrollbarH;
+        if (maxScroll > 0.0f)
+        {
+            const int minThumbHeight = 24;
+            thumbHeight = static_cast<int>((static_cast<float>(viewportHeight) / static_cast<float>(totalContentHeight)) * static_cast<float>(scrollbarH));
+            if (thumbHeight < minThumbHeight)
+            {
+                thumbHeight = minThumbHeight;
+            }
+            if (thumbHeight > scrollbarH)
+            {
+                thumbHeight = scrollbarH;
+            }
+
+            const float thumbTravel = static_cast<float>(scrollbarH - thumbHeight);
+            if (thumbTravel > 0.0f)
+            {
+                thumbY = scrollbarY + static_cast<int>((outputScrollOffset / maxScroll) * thumbTravel);
+            }
+        }
+
+        const Rectangle scrollbarTrack = {
+            static_cast<float>(scrollbarX),
+            static_cast<float>(scrollbarY),
+            static_cast<float>(scrollbarTrackWidth),
+            static_cast<float>(scrollbarH)
+        };
+        const Rectangle scrollbarThumb = {
+            static_cast<float>(scrollbarX),
+            static_cast<float>(thumbY),
+            static_cast<float>(scrollbarTrackWidth),
+            static_cast<float>(thumbHeight)
+        };
+        const bool mouseOverScrollbar = CheckCollisionPointRec(mousePos, scrollbarTrack);
+
+        if (mouseOverOutput || mouseOverScrollbar)
+        {
+            outputScrollOffset -= GetMouseWheelMove() * static_cast<float>(lineSpacing);
+            if (IsKeyPressed(KEY_PAGE_DOWN)) outputScrollOffset += static_cast<float>(viewportHeight);
+            if (IsKeyPressed(KEY_PAGE_UP)) outputScrollOffset -= static_cast<float>(viewportHeight);
+            if (IsKeyPressed(KEY_HOME)) outputScrollOffset = 0.0f;
+            if (IsKeyPressed(KEY_END)) outputScrollOffset = maxScroll;
+            if (IsKeyPressed(KEY_DOWN)) outputScrollOffset += static_cast<float>(lineSpacing);
+            if (IsKeyPressed(KEY_UP)) outputScrollOffset -= static_cast<float>(lineSpacing);
+        }
+
+        if (maxScroll > 0.0f)
+        {
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos, scrollbarThumb))
+            {
+                isDraggingScrollbar = true;
+                scrollbarDragOffset = mousePos.y - static_cast<float>(thumbY);
+            }
+
+            if (isDraggingScrollbar)
+            {
+                if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+                {
+                    const float maxThumbTop = static_cast<float>(scrollbarY + scrollbarH - thumbHeight);
+                    float desiredThumbTop = mousePos.y - scrollbarDragOffset;
+                    if (desiredThumbTop < static_cast<float>(scrollbarY)) desiredThumbTop = static_cast<float>(scrollbarY);
+                    if (desiredThumbTop > maxThumbTop) desiredThumbTop = maxThumbTop;
+
+                    const float thumbTravel = static_cast<float>(scrollbarH - thumbHeight);
+                    if (thumbTravel > 0.0f)
+                    {
+                        const float normalized = (desiredThumbTop - static_cast<float>(scrollbarY)) / thumbTravel;
+                        outputScrollOffset = normalized * maxScroll;
+                    }
+                }
+                else
+                {
+                    isDraggingScrollbar = false;
+                }
+            }
+        }
+        else
+        {
+            isDraggingScrollbar = false;
+        }
+
+        if (outputScrollOffset < 0.0f)
+        {
+            outputScrollOffset = 0.0f;
+        }
+        if (outputScrollOffset > maxScroll)
+        {
+            outputScrollOffset = maxScroll;
+        }
+
+        if (!output.empty())
+        {
+            BeginScissorMode(outputBoxX + 1, outputBoxY + 1, outputBoxW - 2, outputBoxH - 2);
+            int y = outputBoxY + outputPadding - static_cast<int>(outputScrollOffset);
+            for (std::size_t index = 0; index < outputLines.size(); ++index)
+            {
+                DrawText(outputLines[index].c_str(), outputBoxX + outputPadding, y, 22, BLUE);
+                y += lineSpacing;
+            }
+            EndScissorMode();
+        }
+        else
+        {
+            DrawText("No output yet. Submit a message to decode.", outputBoxX + outputPadding, outputBoxY + outputPadding, 20, GRAY);
+        }
+
+        DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){225, 225, 225, 255});
+
+        if (maxScroll > 0.0f)
+        {
+            DrawRectangle(scrollbarX, thumbY, scrollbarTrackWidth, thumbHeight, (Color){140, 140, 140, 255});
+        }
+        else
+        {
+            DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){190, 190, 190, 255});
+        }
+
+        DrawText("Mouse wheel to scroll output", outputBoxX + outputBoxW - 280, outputBoxY - 28, 18, DARKGRAY);
 
         int key = GetCharPressed();
         // Allow large pasted samples
@@ -1736,6 +2004,11 @@ int main()
         }
         if (submitted) {
             output = DecodeMilStd6016Word(input, inputMode);
+            if (Trim(output).empty())
+            {
+                output = "Decoder returned no text for this input.";
+            }
+            outputScrollOffset = 0.0f;
 
 
             input.clear(); // clear input only once after submit

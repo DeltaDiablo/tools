@@ -212,7 +212,7 @@ WordMessage BuildWordMessage(const std::string& msbToLsbBits,
 	message.isValid = true;
 	message.wordNumber = wordNumber;
 	message.wordTitle = wordTitle;
-	message.inputBitOrder = "transmitted order (bit 69 on the left through bit 0 on the right)";
+	message.inputBitOrder = "left-to-right order (bit 0 on the left through bit 69 on the right)";
 	message.transmittedBits = msbToLsbBits;
 	message.specOrderBits = ReverseBitOrderBySpecPosition(msbToLsbBits);
 
@@ -245,8 +245,8 @@ std::string FormatWordMessage(const WordMessage& message)
 	out << message.wordNumber << " decode\n";
 	out << "WORD TITLE: " << message.wordTitle << "\n";
 	out << "Bit order supplied: " << message.inputBitOrder << ".\n";
-	out << "Word bits [69:0]: " << message.transmittedBits << "\n";
-	out << "Word bits [0:69]:  " << message.specOrderBits << "\n\n";
+	out << "Word bits [0:69]:  " << message.specOrderBits << "\n";
+	out << "Word bits [69:0]: " << message.transmittedBits << "\n\n";
 
 	for (std::size_t index = 0; index < message.fields.size(); ++index)
 	{

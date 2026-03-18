@@ -3,6 +3,7 @@
 #include <cmath>
 #include <sstream>
 #include <cstddef>
+#include <cstdio>
 #include <algorithm>
 #include "milstd3011/dfiset3008.h"
 #include "milstd3011/dfiset3028.h"
@@ -386,19 +387,126 @@ const std::string DataValidTime(std::array<int, 28> dataValidTime)
 	return output;
 }
 
+std::string ProcessJWordPayload(const std::array<int, 65>& byteArray, std::size_t byteCount, std::size_t offset = 0)
+{
+	std::ostringstream out;
+	out << "J-Series Message Payload\n";
+	out << "Total bytes: " << byteCount << "\n";
+
+	// Parse as 9-byte jwords
+	std::size_t jwordCount = byteCount / 9;
+	std::size_t remainingBytes = byteCount % 9;
+
+	out << "Number of 9-byte jwords: " << jwordCount << "\n";
+	if (remainingBytes > 0)
+	{
+		out << "Remaining bytes: " << remainingBytes << "\n";
+	}
+	out << "\n";
+
+	// Display each jword
+	for (std::size_t wordIdx = 0; wordIdx < jwordCount; ++wordIdx)
+	{
+		out << "JWord " << (wordIdx + 1) << " (bytes " << (offset + wordIdx * 9) << "-" << (offset + wordIdx * 9 + 8) << "):\n";
+		out << "  Hex: ";
+		
+		// Show hex representation
+		for (std::size_t byteIdx = 0; byteIdx < 9; ++byteIdx)
+		{
+			std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
+			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			char hexBuf[4];
+			snprintf(hexBuf, sizeof(hexBuf), "%02X", byteVal);
+			out << hexBuf;
+			if (byteIdx < 8) out << " ";
+		}
+		out << "\n";
+
+		// Show decimal representation
+		out << "  Dec: ";
+		for (std::size_t byteIdx = 0; byteIdx < 9; ++byteIdx)
+		{
+			std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
+			int byteVal = byteArray[globalByteIdx] & 0xFF;
+			out << byteVal;
+			if (byteIdx < 8) out << " ";
+		}
+		out << "\n";
+
+		// Show binary representation
+		out << "  Bin: ";
+		for (std::size_t byteIdx = 0; byteIdx < 9; ++byteIdx)
+		{
+			std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
+			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			for (int bitIdx = 7; bitIdx >= 0; --bitIdx)
+			{
+				out << ((byteVal >> bitIdx) & 0x01);
+			}
+			if (byteIdx < 8) out << " ";
+		}
+		out << "\n\n";
+	}
+
+	// Handle remaining bytes
+	if (remainingBytes > 0)
+	{
+		out << "Remaining bytes (< 9 bytes):\n";
+		out << "  Hex: ";
+		for (std::size_t byteIdx = 0; byteIdx < remainingBytes; ++byteIdx)
+		{
+			std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
+			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			char hexBuf[4];
+			snprintf(hexBuf, sizeof(hexBuf), "%02X", byteVal);
+			out << hexBuf;
+			if (byteIdx < remainingBytes - 1) out << " ";
+		}
+		out << "\n";
+
+		out << "  Dec: ";
+		for (std::size_t byteIdx = 0; byteIdx < remainingBytes; ++byteIdx)
+		{
+			std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
+			int byteVal = byteArray[globalByteIdx] & 0xFF;
+			out << byteVal;
+			if (byteIdx < remainingBytes - 1) out << " ";
+		}
+		out << "\n";
+
+		out << "  Bin: ";
+		for (std::size_t byteIdx = 0; byteIdx < remainingBytes; ++byteIdx)
+		{
+			std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
+			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			for (int bitIdx = 7; bitIdx >= 0; --bitIdx)
+			{
+				out << ((byteVal >> bitIdx) & 0x01);
+			}
+			if (byteIdx < remainingBytes - 1) out << " ";
+		}
+		out << "\n";
+	}
+
+	return out.str();
+}
+
 std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray, std::size_t byteCount, bool strictAbml)
 {
+	// Always require at least 10 bytes for AH.0 header
 	if (byteCount < 10)
 	{
 		return "Invalid input: AH.0 requires at least 10 bytes for the application header.";
 	}
 
+	// Parse AH.0 header (first 10 bytes)
 	std::array<int, 10> ahBytes{};
 	for (std::size_t i = 0; i < 10; ++i)
 	{
 		ahBytes[i] = byteArray[i] & 0xFF;
 	}
 
+	// Convert first 10 bytes to bits (80 bits total)
 	std::array<int, 80> bits{};
 	for (std::size_t i = 0; i < 10; ++i)
 	{
@@ -408,6 +516,7 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 		}
 	}
 
+	// Extract AH.0 fields
 	auto headerTypeBits = SliceBits<4>(bits, 0);
 	auto messageTypeBits = SliceBits<4>(bits, 4);
 	auto transmissionTimeFlagBits = SliceBits<1>(bits, 8);
@@ -418,181 +527,37 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 	auto timeAccuracyBits = SliceBits<4>(bits, 48);
 	auto dataValidTimeBits = SliceBits<28>(bits, 52);
 
-	const int headerTypeValue = BitsToUInt(headerTypeBits);
-	const int messageTypeValue = BitsToUInt(messageTypeBits);
-	const int appBlockMessageLengthValue = BitsToUInt(appBlockMessageLengthBits);
+	// Calculate ABML value to determine number of jwords
+	const int abmlValue = BitsToUInt(appBlockMessageLengthBits);
+	const std::size_t jwordCount = abmlValue / 9;
+	const std::size_t remainingBytes = abmlValue % 9;
 
 	std::ostringstream out;
-	out << "AH.0 decode\n";
+	out << "AH.0 JREAP Application Header\n";
 	out << "Header Type: " << HeaderType(headerTypeBits) << "\n";
 	out << "Message Type: " << MessageType(messageTypeBits) << "\n";
 	out << "Transmission Time Reference Flag: " << TransmissionTimeReferenceFlag(transmissionTimeFlagBits) << "\n";
 	out << "Spare: " << Spare(spareBits) << "\n";
 	out << "Application Protocol Version: " << ApplicationProtocolVersion(appProtocolVersionBits) << "\n";
-	out << "Application Block Message Length: " << ApplicationBlockMessageLength(appBlockMessageLengthBits) << "\n";
+	out << "Application Block Message Length: " << ApplicationBlockMessageLength(appBlockMessageLengthBits) << " bytes\n";
+	out << "  -> Number of 9-byte J-Words: " << jwordCount << "\n";
+	if (remainingBytes > 0)
+	{
+		out << "  -> Remaining bytes: " << remainingBytes << "\n";
+	}
 	out << "JRE Sender ID: " << JreSenderID(jreSenderIdBits) << "\n";
 	out << "Time Accuracy: " << TimeAccuracyReporting(timeAccuracyBits) << "\n";
 	out << "Data Valid Time: " << DataValidTime(dataValidTimeBits) << "\n";
 
-	if (headerTypeValue != 3)
-	{
-		out << "Dispatch: not an application header (AH.0).";
-		return out.str();
-	}
-
-	std::size_t payloadBytes = 0;
+	// Now handle J-Series payload (remaining bytes after AH.0 header)
 	if (byteCount > 10)
 	{
-		payloadBytes = byteCount - 10;
-	}
-
-	const std::size_t declaredAbmlBytes = static_cast<std::size_t>(appBlockMessageLengthValue);
-	const std::size_t effectivePayloadBytes = std::min(payloadBytes, declaredAbmlBytes);
-	const bool abmlMismatch = (payloadBytes != declaredAbmlBytes);
-
-	out << "\nABML consistency\n";
-	out << "Declared ABML bytes: " << declaredAbmlBytes << "\n";
-	out << "Received payload bytes: " << payloadBytes << "\n";
-	if (payloadBytes < declaredAbmlBytes)
-	{
-		out << "Status: payload truncated by " << (declaredAbmlBytes - payloadBytes) << " byte(s).\n";
-	}
-	else if (payloadBytes > declaredAbmlBytes)
-	{
-		out << "Status: extra trailing payload of " << (payloadBytes - declaredAbmlBytes) << " byte(s).\n";
+		out << "\n" << ProcessJWordPayload(byteArray, byteCount - 10, 10);
 	}
 	else
 	{
-		out << "Status: payload length matches ABML.\n";
+		out << "\nNo J-Series payload (only AH.0 header provided).";
 	}
-	out << "Mode: " << (strictAbml ? "strict" : "lenient") << " ABML validation.\n";
-
-	if (strictAbml && abmlMismatch)
-	{
-		out << "\nDispatch by Message Type\n";
-		out << "ABML mismatch in strict mode: payload decode skipped.";
-		out << "\nPayload bytes used for decode: 0";
-		out << "\nABML field value: " << appBlockMessageLengthValue;
-		return out.str();
-	}
-
-	out << "\nDispatch by Message Type\n";
-	switch (messageTypeValue)
-	{
-	case 0:
-	{
-		out << "Management message detected.";
-		if (effectivePayloadBytes >= 1)
-		{
-			auto subtypeBits = SliceBits<8>(bits, 0);
-			for (std::size_t i = 0; i < 8; ++i)
-			{
-				subtypeBits[i] = (byteArray[10] >> (7 - i)) & 0x01;
-			}
-			out << "\nManagement Subtype: " << dfi3008::Dui002(subtypeBits);
-		}
-		else
-		{
-			out << "\nNo payload bytes available to decode management subtype.";
-		}
-		break;
-	}
-	case 1:
-	{
-		out << "JREAP J-Series message detected.";
-		std::size_t payloadBits = effectivePayloadBytes * 8;
-		if (payloadBits < 16)
-		{
-			out << "\nInsufficient payload for J-Series word decode (need at least 16 bits).";
-			break;
-		}
-
-		std::array<int, 16> word1{};
-		for (std::size_t i = 0; i < 16; ++i)
-		{
-			std::size_t sourceBit = i;
-			std::size_t sourceByte = 10 + (sourceBit / 8);
-			std::size_t bitInByte = sourceBit % 8;
-			word1[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-		}
-		out << "\nJ-Series Word 1: " << dfi3028::Dui001(word1);
-
-		if (payloadBits >= 32)
-		{
-			std::array<int, 16> word2{};
-			for (std::size_t i = 0; i < 16; ++i)
-			{
-				std::size_t sourceBit = 16 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word2[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-			}
-			out << "\nJ-Series Word 2: " << dfi3028::Dui002(word2);
-		}
-
-		if (payloadBits >= 48)
-		{
-			std::array<int, 16> word3{};
-			for (std::size_t i = 0; i < 16; ++i)
-			{
-				std::size_t sourceBit = 32 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word3[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-			}
-			out << "\nJ-Series Word 3: " << dfi3028::Dui003(word3);
-		}
-
-		if (payloadBits >= 64)
-		{
-			std::array<int, 16> word4{};
-			for (std::size_t i = 0; i < 16; ++i)
-			{
-				std::size_t sourceBit = 48 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word4[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-			}
-			out << "\nJ-Series Word 4: " << dfi3028::Dui004(word4);
-		}
-
-		if (payloadBits >= 70)
-		{
-			std::array<int, 6> word5{};
-			for (std::size_t i = 0; i < 6; ++i)
-			{
-				std::size_t sourceBit = 64 + i;
-				std::size_t sourceByte = 10 + (sourceBit / 8);
-				std::size_t bitInByte = sourceBit % 8;
-				word5[i] = (byteArray[sourceByte] >> (7 - bitInByte)) & 0x01;
-			}
-			out << "\nJ-Series Word 5: " << dfi3028::Dui005(word5);
-		}
-
-		break;
-	}
-	case 2:
-		out << "JTIDS/MIDS free text (coded) detected.";
-		break;
-	case 3:
-		out << "JTIDS/MIDS free text (uncoded) detected.";
-		break;
-	case 4:
-		out << "Variable Message Format (VMF) detected.";
-		break;
-	case 5:
-		out << "LINK 22 detected.";
-		break;
-	case 6:
-		out << "CMF IBS detected.";
-		break;
-	default:
-		out << "Unsupported/undefined AH.0 message type " << messageTypeValue << ".";
-		break;
-	}
-
-	out << "\nPayload bytes used for decode: " << effectivePayloadBytes;
-	out << "\nABML field value: " << appBlockMessageLengthValue;
 
 	return out.str();
 }
