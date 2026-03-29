@@ -1,6 +1,8 @@
 *.exe
 *.dsym
+*.o
 *.a
 *.o
 *.dll
+*.d
 main
