@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build toolbox debug",
+            "label": "build messageInterpreterViewPanel debug",
             "type": "process",
             "command": "make",
             "args": [
@@ -15,7 +15,7 @@
                 "command": "C:/raylib/w64devkit/bin/mingw32-make.exe",
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "OBJS=*.cpp",
                     "BUILD_MODE=DEBUG"
                 ]
@@ -29,7 +29,7 @@
             }
         },
         {
-            "label": "build toolbox release",
+            "label": "build messageInterpreterViewPanel release",
             "type": "process",
             "command": "make",
             "args": [
@@ -39,7 +39,7 @@
                 "command": "C:/raylib/w64devkit/bin/mingw32-make.exe",
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "OBJS=*.cpp"
                 ]
             },
@@ -63,21 +63,21 @@
                 "command": "C:/raylib/w64devkit/bin/mingw32-make.exe",
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "OBJS=*.cpp",
                     "BUILD_MODE=DEBUG"
                 ]
             },
             "osx": {
                 "args": [
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "OBJS=*.cpp",
                     "BUILD_MODE=DEBUG"
                 ]
             },
             "linux": {
                 "args": [
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "DESTDIR=/home/linuxbrew/.linuxbrew",
                     "RAYLIB_LIBTYPE=SHARED",
                     "EXAMPLE_RUNTIME_PATH=/home/linuxbrew/.linuxbrew/lib",
@@ -104,19 +104,19 @@
                 "command": "C:/raylib/w64devkit/bin/mingw32-make.exe",
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "OBJS=*.cpp"
                 ]
             },
             "osx": {
                 "args": [
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "OBJS=*.cpp"
                 ]
             },
             "linux": {
                 "args": [
-                    "PROJECT_NAME=toolbox",
+                    "PROJECT_NAME=messageInterpreterViewPanel",
                     "DESTDIR=/home/linuxbrew/.linuxbrew",
                     "RAYLIB_LIBTYPE=SHARED",
                     "EXAMPLE_RUNTIME_PATH=/home/linuxbrew/.linuxbrew/lib",

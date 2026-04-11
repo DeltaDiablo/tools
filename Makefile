@@ -385,7 +385,7 @@ MILSTD6016_LIB = milstd6016lib.a
 EXTRA_DEPS += $(MILSTD6016_LIB)
 EXTRA_OBJS += $(MILSTD6016_LIB)
 
-ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier toolbox),)
+ifneq ($(filter $(PROJECT_NAME),JreapDataFieldIdentifier messageInterpreterViewPanel),)
     JREAP_SRCS = $(wildcard milstd3011/*.cpp)
     JREAP_OBJS = $(JREAP_SRCS:.cpp=.o)
     JREAP_DEPS = $(JREAP_OBJS:.o=.d)

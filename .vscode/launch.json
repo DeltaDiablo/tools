@@ -5,10 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Toolbox Debug",
+      "name": "messageInterpreterViewPanel Debug",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/toolbox.exe",
+      "program": "${workspaceFolder}/messageInterpreterViewPanel.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
@@ -31,13 +31,13 @@
       "linux": {
         "miDebuggerPath": "/usr/bin/gdb"
       },
-      "preLaunchTask": "build toolbox debug"
+      "preLaunchTask": "build messageInterpreterViewPanel debug"
     },
     {
-      "name": "Toolbox Run",
+      "name": "messageInterpreterViewPanel Run",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/toolbox.exe",
+      "program": "${workspaceFolder}/messageInterpreterViewPanel.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
@@ -53,7 +53,7 @@
       "linux": {
         "miDebuggerPath": "/usr/bin/gdb"
       },
-      "preLaunchTask": "build toolbox release"
+      "preLaunchTask": "build messageInterpreterViewPanel release"
     }
   ]
 }

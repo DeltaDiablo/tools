@@ -1718,7 +1718,7 @@ std::string DecodeMilStd6016Word(const std::string& input, InputMode mode)
     {
         selectedProcessor = "Unsupported";
         std::ostringstream output;
-        output << "Unsupported MIL-STD-6016 word for toolbox decoder. "
+        output << "Unsupported MIL-STD-6016 word for messageInterpreterViewPanel decoder. "
                << "Detected WORD FORMAT=" << wordFormat
                << ", LABEL=" << label
                << ", SUBLABEL=" << sublabel << ".";
@@ -1756,7 +1756,7 @@ int main()
     std::string input = "";
     std::string output = "";
     InputMode inputMode = InputMode::Auto;
-    InitWindow(1600, 900, "Binary Tools");
+    InitWindow(1600, 900, "messageInterpreterViewPanel");
     SetTargetFPS(60);
     SetExitKey(KEY_NULL);
     int btnX, btnY, btnW, btnH;
