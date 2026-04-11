@@ -272,22 +272,14 @@ std::string DataValidTime(const std::array<int, 28>& dataValidTime)
 
 namespace jreap_internal {
 
-std::string ProcessJreapApplicationMessage(const std::array<int, 512>& byteArray, std::size_t byteCount, bool strictAbml)
-{
-	if (byteCount < 9)
-	{
-		return "Invalid input: need at least 9 bytes for FSMGH.3 or 10 bytes for AH.0.";
-	}
-
-std::string ProcessJWordPayload(const std::array<int, 65>& byteArray, std::size_t byteCount, std::size_t offset = 0)
+std::string ProcessJWordPayload(const std::array<int, 512>& byteArray, std::size_t payloadByteCount, std::size_t offset)
 {
 	std::ostringstream out;
 	out << "J-Series Message Payload\n";
-	out << "Total bytes: " << byteCount << "\n";
+	out << "Total payload bytes: " << payloadByteCount << "\n";
 
-	// Parse as 9-byte jwords
-	std::size_t jwordCount = byteCount / 9;
-	std::size_t remainingBytes = byteCount % 9;
+	const std::size_t jwordCount = payloadByteCount / 9;
+	const std::size_t remainingBytes = payloadByteCount % 9;
 
 	out << "Number of 9-byte jwords: " << jwordCount << "\n";
 	if (remainingBytes > 0)
@@ -296,86 +288,96 @@ std::string ProcessJWordPayload(const std::array<int, 65>& byteArray, std::size_
 	}
 	out << "\n";
 
-	// Display each jword
 	for (std::size_t wordIdx = 0; wordIdx < jwordCount; ++wordIdx)
 	{
 		out << "JWord " << (wordIdx + 1) << " (bytes " << (offset + wordIdx * 9) << "-" << (offset + wordIdx * 9 + 8) << "):\n";
 		out << "  Hex: ";
-		
-		// Show hex representation
 		for (std::size_t byteIdx = 0; byteIdx < 9; ++byteIdx)
 		{
-			std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
-			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			const std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
+			const unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
 			char hexBuf[4];
 			snprintf(hexBuf, sizeof(hexBuf), "%02X", byteVal);
 			out << hexBuf;
-			if (byteIdx < 8) out << " ";
+			if (byteIdx < 8)
+			{
+				out << " ";
+			}
 		}
 		out << "\n";
 
-		// Show decimal representation
 		out << "  Dec: ";
 		for (std::size_t byteIdx = 0; byteIdx < 9; ++byteIdx)
 		{
-			std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
-			int byteVal = byteArray[globalByteIdx] & 0xFF;
-			out << byteVal;
-			if (byteIdx < 8) out << " ";
+			const std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
+			out << (byteArray[globalByteIdx] & 0xFF);
+			if (byteIdx < 8)
+			{
+				out << " ";
+			}
 		}
 		out << "\n";
 
-		// Show binary representation
 		out << "  Bin: ";
 		for (std::size_t byteIdx = 0; byteIdx < 9; ++byteIdx)
 		{
-			std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
-			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			const std::size_t globalByteIdx = offset + (wordIdx * 9) + byteIdx;
+			const unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
 			for (int bitIdx = 7; bitIdx >= 0; --bitIdx)
 			{
 				out << ((byteVal >> bitIdx) & 0x01);
 			}
-			if (byteIdx < 8) out << " ";
+			if (byteIdx < 8)
+			{
+				out << " ";
+			}
 		}
 		out << "\n\n";
 	}
 
-	// Handle remaining bytes
 	if (remainingBytes > 0)
 	{
 		out << "Remaining bytes (< 9 bytes):\n";
 		out << "  Hex: ";
 		for (std::size_t byteIdx = 0; byteIdx < remainingBytes; ++byteIdx)
 		{
-			std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
-			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			const std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
+			const unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
 			char hexBuf[4];
 			snprintf(hexBuf, sizeof(hexBuf), "%02X", byteVal);
 			out << hexBuf;
-			if (byteIdx < remainingBytes - 1) out << " ";
+			if (byteIdx < (remainingBytes - 1))
+			{
+				out << " ";
+			}
 		}
 		out << "\n";
 
 		out << "  Dec: ";
 		for (std::size_t byteIdx = 0; byteIdx < remainingBytes; ++byteIdx)
 		{
-			std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
-			int byteVal = byteArray[globalByteIdx] & 0xFF;
-			out << byteVal;
-			if (byteIdx < remainingBytes - 1) out << " ";
+			const std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
+			out << (byteArray[globalByteIdx] & 0xFF);
+			if (byteIdx < (remainingBytes - 1))
+			{
+				out << " ";
+			}
 		}
 		out << "\n";
 
 		out << "  Bin: ";
 		for (std::size_t byteIdx = 0; byteIdx < remainingBytes; ++byteIdx)
 		{
-			std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
-			unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
+			const std::size_t globalByteIdx = offset + (jwordCount * 9) + byteIdx;
+			const unsigned char byteVal = static_cast<unsigned char>(byteArray[globalByteIdx] & 0xFF);
 			for (int bitIdx = 7; bitIdx >= 0; --bitIdx)
 			{
 				out << ((byteVal >> bitIdx) & 0x01);
 			}
-			if (byteIdx < remainingBytes - 1) out << " ";
+			if (byteIdx < (remainingBytes - 1))
+			{
+				out << " ";
+			}
 		}
 		out << "\n";
 	}
@@ -383,22 +385,19 @@ std::string ProcessJWordPayload(const std::array<int, 65>& byteArray, std::size_
 	return out.str();
 }
 
-std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray, std::size_t byteCount, bool strictAbml)
+std::string ProcessJreapApplicationMessage(const std::array<int, 512>& byteArray, std::size_t byteCount, bool strictAbml)
 {
-	// Always require at least 10 bytes for AH.0 header
 	if (byteCount < 10)
 	{
 		return "Invalid input: need at least 10 bytes for AH.0 decode.";
 	}
 
-	// Parse AH.0 header (first 10 bytes)
 	std::array<int, 10> ahBytes{};
 	for (std::size_t i = 0; i < 10; ++i)
 	{
 		ahBytes[i] = byteArray[i] & 0xFF;
 	}
 
-	// Convert first 10 bytes to bits (80 bits total)
 	std::array<int, 80> bits{};
 	for (std::size_t i = 0; i < 10; ++i)
 	{
@@ -408,7 +407,6 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 		}
 	}
 
-	// Extract AH.0 fields
 	auto headerTypeBits = SliceBits<4>(bits, 0);
 	auto messageTypeBits = SliceBits<4>(bits, 4);
 	auto transmissionTimeFlagBits = SliceBits<1>(bits, 8);
@@ -419,15 +417,21 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 	auto timeAccuracyBits = SliceBits<4>(bits, 48);
 	auto dataValidTimeBits = SliceBits<28>(bits, 52);
 
-	// Calculate ABML value to determine number of jwords
-	const int abmlValue = BitsToUInt(appBlockMessageLengthBits);
-	const std::size_t jwordCount = abmlValue / 9;
-	const std::size_t remainingBytes = abmlValue % 9;
+	const std::size_t abmlTotalBytes = static_cast<std::size_t>(BitsToUInt(appBlockMessageLengthBits));
+	const std::size_t abmlPayloadBytes = (abmlTotalBytes > 10) ? (abmlTotalBytes - 10) : 0;
+	const std::size_t jwordCount = abmlPayloadBytes / 9;
+	const std::size_t remainingBytes = abmlPayloadBytes % 9;
+	const std::size_t availablePayloadBytes = (byteCount > 10) ? (byteCount - 10) : 0;
 
-	if (!looksLikeAh0)
+	if (strictAbml && byteCount != abmlTotalBytes)
 	{
-		return "Input did not match AH.0 framing. Full-stack X1.1 decode is temporarily disabled.";
+		std::ostringstream err;
+		err << "ABML mismatch: header declares " << abmlTotalBytes
+			<< " total bytes but message contains " << byteCount << " bytes.";
+		return err.str();
 	}
+
+	const std::size_t payloadToDecode = std::min(availablePayloadBytes, abmlPayloadBytes);
 
 	std::ostringstream out;
 	out << "AH.0 JREAP Application Header\n";
@@ -446,15 +450,46 @@ std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray,
 	out << "Time Accuracy: " << TimeAccuracyReporting(timeAccuracyBits) << "\n";
 	out << "Data Valid Time: " << DataValidTime(dataValidTimeBits) << "\n";
 
-	// Now handle J-Series payload (remaining bytes after AH.0 header)
-	if (byteCount > 10)
+	if (payloadToDecode > 0)
 	{
-		out << "\n" << ProcessJWordPayload(byteArray, byteCount - 10, 10);
+		out << "\n" << ProcessJWordPayload(byteArray, payloadToDecode, 10);
 	}
 	else
 	{
 		out << "\nNo J-Series payload (only AH.0 header provided).";
 	}
 
+	if (!strictAbml && byteCount != abmlTotalBytes)
+	{
+		out << "\n\nWarning: ABML total/message length mismatch (declared "
+			<< abmlTotalBytes << ", received " << byteCount << ").";
+	}
+
 	return out.str();
+}
+
+}
+
+std::string ProcessJWordPayload(const std::array<int, 65>& byteArray, std::size_t byteCount)
+{
+	std::array<int, 512> widened{};
+	const std::size_t clampedCount = std::min<std::size_t>(byteCount, byteArray.size());
+	for (std::size_t i = 0; i < clampedCount; ++i)
+	{
+		widened[i] = byteArray[i];
+	}
+
+	return jreap_internal::ProcessJWordPayload(widened, clampedCount, 0);
+}
+
+std::string ProcessJreapApplicationMessage(const std::array<int, 65>& byteArray, std::size_t byteCount, bool strictAbml)
+{
+	std::array<int, 512> widened{};
+	const std::size_t clampedCount = std::min<std::size_t>(byteCount, byteArray.size());
+	for (std::size_t i = 0; i < clampedCount; ++i)
+	{
+		widened[i] = byteArray[i];
+	}
+
+	return jreap_internal::ProcessJreapApplicationMessage(widened, clampedCount, strictAbml);
 }

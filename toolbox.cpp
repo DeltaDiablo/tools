@@ -624,15 +624,22 @@ bool TryExtractJreapJSeriesPayloadBits(const std::string& input, std::string& pa
 
     const int transmissionTimeReferenceFlag = (bytes[1] >> 7) & 0x01;
     const int appProtocolVersion = bytes[1] & 0x0F;
-    const int declaredAbml = ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
+    const int declaredAbmlTotal = ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
     const int senderId = ((bytes[4] & 0xFF) << 8) | (bytes[5] & 0xFF);
     const int timeAccuracy = (bytes[6] >> 4) & 0x0F;
     const int dataValidTime = ((bytes[6] & 0x0F) << 24) |
                               ((bytes[7] & 0xFF) << 16) |
                               ((bytes[8] & 0xFF) << 8) |
                               (bytes[9] & 0xFF);
-    const int receivedPayload = static_cast<int>(bytes.size()) - 10;
-    int effectivePayload = declaredAbml;
+    const int receivedTotal = static_cast<int>(bytes.size());
+    const int receivedPayload = receivedTotal - 10;
+    int declaredPayload = declaredAbmlTotal - 10;
+    if (declaredPayload < 0)
+    {
+        declaredPayload = 0;
+    }
+
+    int effectivePayload = declaredPayload;
     if (effectivePayload > receivedPayload)
     {
         effectivePayload = receivedPayload;
@@ -667,7 +674,8 @@ bool TryExtractJreapJSeriesPayloadBits(const std::string& input, std::string& pa
             << "\nAH.0 Message Type: " << messageType
             << "\nAH.0 Transmission Time Reference Flag: " << transmissionTimeReferenceFlag
             << "\nAH.0 Application Protocol Version: " << appProtocolVersion
-            << "\nAH.0 Application Block Message Length (ABML): " << declaredAbml
+            << "\nAH.0 Application Block Message Length (ABML total bytes): " << declaredAbmlTotal
+            << "\nAH.0 Received total bytes: " << receivedTotal
             << "\nAH.0 JRE Sender ID: " << senderId
             << "\nAH.0 Time Accuracy: " << timeAccuracy
             << "\nAH.0 Data Valid Time: " << dataValidTime
@@ -700,7 +708,7 @@ std::string BuildJreapTestJ00IMessageCsv()
     bytes.push_back(0x31);
     bytes.push_back(0x00);
     bytes.push_back(0x00);
-    bytes.push_back(0x09);
+    bytes.push_back(0x13);
     bytes.push_back(0x00);
     bytes.push_back(0x00);
     bytes.push_back(0x00);
@@ -1754,6 +1762,7 @@ int main()
     int btnX, btnY, btnW, btnH;
     bool mouseOverBtn;
     float outputScrollOffset = 0.0f;
+    int jSeriesScrollLines = 0;
     bool isDraggingScrollbar = false;
     float scrollbarDragOffset = 0.0f;
     int inputBoxX = 10, inputBoxY = 40, inputBoxW = 800, inputBoxH = 40;
@@ -1766,14 +1775,16 @@ int main()
         DrawRectangle(inputBoxX, inputBoxY, inputBoxW, inputBoxH, (Color){30,30,30,255});
         DrawRectangleLines(inputBoxX, inputBoxY, inputBoxW, inputBoxH, YELLOW);
         DrawText("Paste MIL-STD-6016 bits, JREAP CSV, or type TEST J0.0I:", inputBoxX, inputBoxY - 30, 22, DARKGRAY);
+        const int rightInfoX = inputBoxX + inputBoxW + 20;
         std::string modeText = std::string("Input Mode: ") + InputModeLabel(inputMode) + "  (F1 AUTO, F2 JREAP, F3 RAW-6016)";
-        DrawText(modeText.c_str(), inputBoxX + inputBoxW + 20, inputBoxY - 30, 20, DARKGRAY);
-        DrawText("Close with the window X or Alt+F4", inputBoxX + inputBoxW + 20, inputBoxY - 5, 18, DARKGRAY);
+        DrawText(modeText.c_str(), rightInfoX, inputBoxY - 30, 20, DARKGRAY);
+        DrawText("Close with the window X or Alt+F4", rightInfoX, inputBoxY - 5, 18, DARKGRAY);
+        DrawText("Press Enter or click Submit", rightInfoX, inputBoxY + 18, 18, DARKGRAY);
         DrawText(input.c_str(), inputBoxX + 10, inputBoxY + 10, 22, RAYWHITE);
 
         // Draw a submit button
         btnX = inputBoxX + inputBoxW + 20;
-        btnY = inputBoxY;
+        btnY = inputBoxY + inputBoxH + 10;
         btnW = 120;
         btnH = inputBoxH;
         mouseOverBtn = CheckCollisionPointRec(GetMousePosition(), (Rectangle){(float)btnX, (float)btnY, (float)btnW, (float)btnH});
@@ -1783,7 +1794,7 @@ int main()
 
         // Draw the output string below the input area in a scrollable panel
         int outputBoxX = 10;
-        int outputBoxY = inputBoxY + inputBoxH + 50;
+        int outputBoxY = std::max(inputBoxY + inputBoxH, btnY + btnH) + 50;
         int outputBoxW = GetScreenWidth() - 20;
         int outputBoxH = GetScreenHeight() - outputBoxY - 10;
         DrawText("Header Translation:", outputBoxX, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
@@ -1791,6 +1802,7 @@ int main()
         DrawRectangleLines(outputBoxX, outputBoxY, outputBoxW, outputBoxH, LIGHTGRAY);
 
         std::vector<std::string> outputLines;
+        bool renderedStructuredOutput = false;
         if (!output.empty())
         {
             size_t start = 0;
@@ -1814,8 +1826,8 @@ int main()
             }
 
             auto findLineIndex = [&](const std::string& key) -> int {
-                for (size_t i = 0; i < lines.size(); ++i) {
-                    if (lines[i].find(key) != std::string::npos) {
+                for (size_t i = 0; i < outputLines.size(); ++i) {
+                    if (outputLines[i].find(key) != std::string::npos) {
                         return static_cast<int>(i);
                     }
                 }
@@ -1854,9 +1866,10 @@ int main()
             };
 
             if (hasStructuredSections) {
-                std::vector<std::string> headerLines(lines.begin() + headerIndex, lines.begin() + validationIndex);
-                std::vector<std::string> abmlLines(lines.begin() + validationIndex, lines.begin() + dispatchIndex);
-                std::vector<std::string> jSeriesLines(lines.begin() + dispatchIndex, lines.end());
+                renderedStructuredOutput = true;
+                std::vector<std::string> headerLines(outputLines.begin() + headerIndex, outputLines.begin() + validationIndex);
+                std::vector<std::string> abmlLines(outputLines.begin() + validationIndex, outputLines.begin() + dispatchIndex);
+                std::vector<std::string> jSeriesLines(outputLines.begin() + dispatchIndex, outputLines.end());
 
                 const int sidePadding = 10;
                 const int sectionGap = 40;
@@ -1899,153 +1912,155 @@ int main()
                 }
             } else {
                 jSeriesScrollLines = 0;
-                drawLines(lines, 10, contentTop, BLUE);
             }
         }
 
-        const int lineSpacing = 30;
-        const int outputPadding = 8;
-        const int viewportHeight = outputBoxH - (2 * outputPadding);
-        int totalContentHeight = static_cast<int>(outputLines.size()) * lineSpacing;
-        float maxScroll = static_cast<float>(totalContentHeight - viewportHeight);
-        if (maxScroll < 0.0f)
+        if (!renderedStructuredOutput)
         {
-            maxScroll = 0.0f;
-        }
-
-        const Vector2 mousePos = GetMousePosition();
-        const bool mouseOverOutput = CheckCollisionPointRec(mousePos, (Rectangle){
-            static_cast<float>(outputBoxX),
-            static_cast<float>(outputBoxY),
-            static_cast<float>(outputBoxW),
-            static_cast<float>(outputBoxH)
-        });
-
-        const int scrollbarTrackWidth = 10;
-        const int scrollbarMargin = 4;
-        const int scrollbarX = outputBoxX + outputBoxW - scrollbarTrackWidth - scrollbarMargin;
-        const int scrollbarY = outputBoxY + scrollbarMargin;
-        const int scrollbarH = outputBoxH - (2 * scrollbarMargin);
-
-        int thumbY = scrollbarY;
-        int thumbHeight = scrollbarH;
-        if (maxScroll > 0.0f)
-        {
-            const int minThumbHeight = 24;
-            thumbHeight = static_cast<int>((static_cast<float>(viewportHeight) / static_cast<float>(totalContentHeight)) * static_cast<float>(scrollbarH));
-            if (thumbHeight < minThumbHeight)
+            const int lineSpacing = 30;
+            const int outputPadding = 8;
+            const int viewportHeight = outputBoxH - (2 * outputPadding);
+            int totalContentHeight = static_cast<int>(outputLines.size()) * lineSpacing;
+            float maxScroll = static_cast<float>(totalContentHeight - viewportHeight);
+            if (maxScroll < 0.0f)
             {
-                thumbHeight = minThumbHeight;
-            }
-            if (thumbHeight > scrollbarH)
-            {
-                thumbHeight = scrollbarH;
+                maxScroll = 0.0f;
             }
 
-            const float thumbTravel = static_cast<float>(scrollbarH - thumbHeight);
-            if (thumbTravel > 0.0f)
+            const Vector2 mousePos = GetMousePosition();
+            const bool mouseOverOutput = CheckCollisionPointRec(mousePos, (Rectangle){
+                static_cast<float>(outputBoxX),
+                static_cast<float>(outputBoxY),
+                static_cast<float>(outputBoxW),
+                static_cast<float>(outputBoxH)
+            });
+
+            const int scrollbarTrackWidth = 10;
+            const int scrollbarMargin = 4;
+            const int scrollbarX = outputBoxX + outputBoxW - scrollbarTrackWidth - scrollbarMargin;
+            const int scrollbarY = outputBoxY + scrollbarMargin;
+            const int scrollbarH = outputBoxH - (2 * scrollbarMargin);
+
+            int thumbY = scrollbarY;
+            int thumbHeight = scrollbarH;
+            if (maxScroll > 0.0f)
             {
-                thumbY = scrollbarY + static_cast<int>((outputScrollOffset / maxScroll) * thumbTravel);
-            }
-        }
-
-        const Rectangle scrollbarTrack = {
-            static_cast<float>(scrollbarX),
-            static_cast<float>(scrollbarY),
-            static_cast<float>(scrollbarTrackWidth),
-            static_cast<float>(scrollbarH)
-        };
-        const Rectangle scrollbarThumb = {
-            static_cast<float>(scrollbarX),
-            static_cast<float>(thumbY),
-            static_cast<float>(scrollbarTrackWidth),
-            static_cast<float>(thumbHeight)
-        };
-        const bool mouseOverScrollbar = CheckCollisionPointRec(mousePos, scrollbarTrack);
-
-        if (mouseOverOutput || mouseOverScrollbar)
-        {
-            outputScrollOffset -= GetMouseWheelMove() * static_cast<float>(lineSpacing);
-            if (IsKeyPressed(KEY_PAGE_DOWN)) outputScrollOffset += static_cast<float>(viewportHeight);
-            if (IsKeyPressed(KEY_PAGE_UP)) outputScrollOffset -= static_cast<float>(viewportHeight);
-            if (IsKeyPressed(KEY_HOME)) outputScrollOffset = 0.0f;
-            if (IsKeyPressed(KEY_END)) outputScrollOffset = maxScroll;
-            if (IsKeyPressed(KEY_DOWN)) outputScrollOffset += static_cast<float>(lineSpacing);
-            if (IsKeyPressed(KEY_UP)) outputScrollOffset -= static_cast<float>(lineSpacing);
-        }
-
-        if (maxScroll > 0.0f)
-        {
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos, scrollbarThumb))
-            {
-                isDraggingScrollbar = true;
-                scrollbarDragOffset = mousePos.y - static_cast<float>(thumbY);
-            }
-
-            if (isDraggingScrollbar)
-            {
-                if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+                const int minThumbHeight = 24;
+                thumbHeight = static_cast<int>((static_cast<float>(viewportHeight) / static_cast<float>(totalContentHeight)) * static_cast<float>(scrollbarH));
+                if (thumbHeight < minThumbHeight)
                 {
-                    const float maxThumbTop = static_cast<float>(scrollbarY + scrollbarH - thumbHeight);
-                    float desiredThumbTop = mousePos.y - scrollbarDragOffset;
-                    if (desiredThumbTop < static_cast<float>(scrollbarY)) desiredThumbTop = static_cast<float>(scrollbarY);
-                    if (desiredThumbTop > maxThumbTop) desiredThumbTop = maxThumbTop;
+                    thumbHeight = minThumbHeight;
+                }
+                if (thumbHeight > scrollbarH)
+                {
+                    thumbHeight = scrollbarH;
+                }
 
-                    const float thumbTravel = static_cast<float>(scrollbarH - thumbHeight);
-                    if (thumbTravel > 0.0f)
+                const float thumbTravel = static_cast<float>(scrollbarH - thumbHeight);
+                if (thumbTravel > 0.0f)
+                {
+                    thumbY = scrollbarY + static_cast<int>((outputScrollOffset / maxScroll) * thumbTravel);
+                }
+            }
+
+            const Rectangle scrollbarTrack = {
+                static_cast<float>(scrollbarX),
+                static_cast<float>(scrollbarY),
+                static_cast<float>(scrollbarTrackWidth),
+                static_cast<float>(scrollbarH)
+            };
+            const Rectangle scrollbarThumb = {
+                static_cast<float>(scrollbarX),
+                static_cast<float>(thumbY),
+                static_cast<float>(scrollbarTrackWidth),
+                static_cast<float>(thumbHeight)
+            };
+            const bool mouseOverScrollbar = CheckCollisionPointRec(mousePos, scrollbarTrack);
+
+            if (mouseOverOutput || mouseOverScrollbar)
+            {
+                outputScrollOffset -= GetMouseWheelMove() * static_cast<float>(lineSpacing);
+                if (IsKeyPressed(KEY_PAGE_DOWN)) outputScrollOffset += static_cast<float>(viewportHeight);
+                if (IsKeyPressed(KEY_PAGE_UP)) outputScrollOffset -= static_cast<float>(viewportHeight);
+                if (IsKeyPressed(KEY_HOME)) outputScrollOffset = 0.0f;
+                if (IsKeyPressed(KEY_END)) outputScrollOffset = maxScroll;
+                if (IsKeyPressed(KEY_DOWN)) outputScrollOffset += static_cast<float>(lineSpacing);
+                if (IsKeyPressed(KEY_UP)) outputScrollOffset -= static_cast<float>(lineSpacing);
+            }
+
+            if (maxScroll > 0.0f)
+            {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mousePos, scrollbarThumb))
+                {
+                    isDraggingScrollbar = true;
+                    scrollbarDragOffset = mousePos.y - static_cast<float>(thumbY);
+                }
+
+                if (isDraggingScrollbar)
+                {
+                    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
                     {
-                        const float normalized = (desiredThumbTop - static_cast<float>(scrollbarY)) / thumbTravel;
-                        outputScrollOffset = normalized * maxScroll;
+                        const float maxThumbTop = static_cast<float>(scrollbarY + scrollbarH - thumbHeight);
+                        float desiredThumbTop = mousePos.y - scrollbarDragOffset;
+                        if (desiredThumbTop < static_cast<float>(scrollbarY)) desiredThumbTop = static_cast<float>(scrollbarY);
+                        if (desiredThumbTop > maxThumbTop) desiredThumbTop = maxThumbTop;
+
+                        const float thumbTravel = static_cast<float>(scrollbarH - thumbHeight);
+                        if (thumbTravel > 0.0f)
+                        {
+                            const float normalized = (desiredThumbTop - static_cast<float>(scrollbarY)) / thumbTravel;
+                            outputScrollOffset = normalized * maxScroll;
+                        }
+                    }
+                    else
+                    {
+                        isDraggingScrollbar = false;
                     }
                 }
-                else
-                {
-                    isDraggingScrollbar = false;
-                }
             }
-        }
-        else
-        {
-            isDraggingScrollbar = false;
-        }
-
-        if (outputScrollOffset < 0.0f)
-        {
-            outputScrollOffset = 0.0f;
-        }
-        if (outputScrollOffset > maxScroll)
-        {
-            outputScrollOffset = maxScroll;
-        }
-
-        if (!output.empty())
-        {
-            BeginScissorMode(outputBoxX + 1, outputBoxY + 1, outputBoxW - 2, outputBoxH - 2);
-            int y = outputBoxY + outputPadding - static_cast<int>(outputScrollOffset);
-            for (std::size_t index = 0; index < outputLines.size(); ++index)
+            else
             {
-                DrawText(outputLines[index].c_str(), outputBoxX + outputPadding, y, 22, BLUE);
-                y += lineSpacing;
+                isDraggingScrollbar = false;
             }
-            EndScissorMode();
-        }
-        else
-        {
-            DrawText("No output yet. Submit a message to decode.", outputBoxX + outputPadding, outputBoxY + outputPadding, 20, GRAY);
-        }
 
-        DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){225, 225, 225, 255});
+            if (outputScrollOffset < 0.0f)
+            {
+                outputScrollOffset = 0.0f;
+            }
+            if (outputScrollOffset > maxScroll)
+            {
+                outputScrollOffset = maxScroll;
+            }
 
-        if (maxScroll > 0.0f)
-        {
-            DrawRectangle(scrollbarX, thumbY, scrollbarTrackWidth, thumbHeight, (Color){140, 140, 140, 255});
-        }
-        else
-        {
-            DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){190, 190, 190, 255});
-        }
+            if (!output.empty())
+            {
+                BeginScissorMode(outputBoxX + 1, outputBoxY + 1, outputBoxW - 2, outputBoxH - 2);
+                int y = outputBoxY + outputPadding - static_cast<int>(outputScrollOffset);
+                for (std::size_t index = 0; index < outputLines.size(); ++index)
+                {
+                    DrawText(outputLines[index].c_str(), outputBoxX + outputPadding, y, 22, BLUE);
+                    y += lineSpacing;
+                }
+                EndScissorMode();
+            }
+            else
+            {
+                DrawText("No output yet. Submit a message to decode.", outputBoxX + outputPadding, outputBoxY + outputPadding, 20, GRAY);
+            }
 
-        DrawText("Mouse wheel to scroll output", outputBoxX + outputBoxW - 280, outputBoxY - 28, 18, DARKGRAY);
+            DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){225, 225, 225, 255});
+
+            if (maxScroll > 0.0f)
+            {
+                DrawRectangle(scrollbarX, thumbY, scrollbarTrackWidth, thumbHeight, (Color){140, 140, 140, 255});
+            }
+            else
+            {
+                DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){190, 190, 190, 255});
+            }
+
+            DrawText("Mouse wheel to scroll output", outputBoxX + outputBoxW - 280, outputBoxY - 28, 18, DARKGRAY);
+        }
 
         int key = GetCharPressed();
         // Allow large pasted samples
