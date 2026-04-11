@@ -1759,12 +1759,39 @@ int main()
     InitWindow(1600, 900, "messageInterpreterViewPanel");
     SetTargetFPS(60);
     SetExitKey(KEY_NULL);
+
+    Font uiFont = GetFontDefault();
+    bool hasCustomUiFont = false;
+    const char* preferredUiFontPath = "C:/Windows/Fonts/segoeui.ttf";
+    if (FileExists(preferredUiFontPath))
+    {
+        Font loadedFont = LoadFontEx(preferredUiFontPath, 28, nullptr, 0);
+        if (loadedFont.texture.id != 0)
+        {
+            uiFont = loadedFont;
+            hasCustomUiFont = true;
+            SetTextureFilter(uiFont.texture, TEXTURE_FILTER_BILINEAR);
+        }
+    }
+
+    auto DrawUiText = [&](const char* text, int x, int y, int fontSize, Color color)
+    {
+        DrawTextEx(uiFont, text, {(float)x, (float)y}, (float)fontSize, 1.0f, color);
+    };
+
     int btnX, btnY, btnW, btnH;
     bool mouseOverBtn;
     float outputScrollOffset = 0.0f;
     int jSeriesScrollLines = 0;
     bool isDraggingScrollbar = false;
     float scrollbarDragOffset = 0.0f;
+    int copyToastFrames = 0;
+    std::string copyToastMessage;
+    bool isSelectingOutput = false;
+    int selectionStartLine = -1;
+    int selectionStartColumn = 0;
+    int selectionEndLine = -1;
+    int selectionEndColumn = 0;
     int inputBoxX = 10, inputBoxY = 40, inputBoxW = 800, inputBoxH = 40;
     while (!WindowShouldClose())
     {
@@ -1774,13 +1801,13 @@ int main()
         // Move input/output UI closer to the top
         DrawRectangle(inputBoxX, inputBoxY, inputBoxW, inputBoxH, (Color){30,30,30,255});
         DrawRectangleLines(inputBoxX, inputBoxY, inputBoxW, inputBoxH, YELLOW);
-        DrawText("Paste MIL-STD-6016 bits, JREAP CSV, or type TEST J0.0I:", inputBoxX, inputBoxY - 30, 22, DARKGRAY);
+        DrawUiText("Paste MIL-STD-6016 bits, JREAP CSV, or type TEST J0.0I:", inputBoxX, inputBoxY - 30, 22, DARKGRAY);
         const int rightInfoX = inputBoxX + inputBoxW + 20;
         std::string modeText = std::string("Input Mode: ") + InputModeLabel(inputMode) + "  (F1 AUTO, F2 JREAP, F3 RAW-6016)";
-        DrawText(modeText.c_str(), rightInfoX, inputBoxY - 30, 20, DARKGRAY);
-        DrawText("Close with the window X or Alt+F4", rightInfoX, inputBoxY - 5, 18, DARKGRAY);
-        DrawText("Press Enter or click Submit", rightInfoX, inputBoxY + 18, 18, DARKGRAY);
-        DrawText(input.c_str(), inputBoxX + 10, inputBoxY + 10, 22, RAYWHITE);
+        DrawUiText(modeText.c_str(), rightInfoX, inputBoxY - 30, 20, DARKGRAY);
+        DrawUiText("Close with the window X or Alt+F4", rightInfoX, inputBoxY - 5, 18, DARKGRAY);
+        DrawUiText("Press Enter or click Submit", rightInfoX, inputBoxY + 18, 18, DARKGRAY);
+        DrawUiText(input.c_str(), inputBoxX + 10, inputBoxY + 10, 22, RAYWHITE);
 
         // Draw a submit button
         btnX = inputBoxX + inputBoxW + 20;
@@ -1790,16 +1817,40 @@ int main()
         mouseOverBtn = CheckCollisionPointRec(GetMousePosition(), (Rectangle){(float)btnX, (float)btnY, (float)btnW, (float)btnH});
         DrawRectangle(btnX, btnY, btnW, btnH, mouseOverBtn ? ORANGE : DARKGRAY);
         DrawRectangleLines(btnX, btnY, btnW, btnH, YELLOW);
-        DrawText("Submit", btnX + 20, btnY + 10, 22, RAYWHITE);
+        DrawUiText("Submit", btnX + 20, btnY + 10, 22, RAYWHITE);
 
         // Draw the output string below the input area in a scrollable panel
         int outputBoxX = 10;
         int outputBoxY = std::max(inputBoxY + inputBoxH, btnY + btnH) + 50;
         int outputBoxW = GetScreenWidth() - 20;
         int outputBoxH = GetScreenHeight() - outputBoxY - 10;
-        DrawText("Header Translation:", outputBoxX, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
-        DrawRectangle(outputBoxX, outputBoxY, outputBoxW, outputBoxH, (Color){245, 245, 245, 255});
-        DrawRectangleLines(outputBoxX, outputBoxY, outputBoxW, outputBoxH, LIGHTGRAY);
+        Rectangle outputPanelRect = {
+            (float)outputBoxX,
+            (float)outputBoxY,
+            (float)outputBoxW,
+            (float)outputBoxH
+        };
+        const bool mouseOverOutputPanel = CheckCollisionPointRec(GetMousePosition(), outputPanelRect);
+
+        const Color consoleBg = (Color){16, 20, 24, 255};
+        const Color consoleBorder = (Color){60, 140, 90, 255};
+        const Color consoleText = (Color){205, 220, 205, 255};
+        const Color consoleAccent = (Color){140, 220, 160, 255};
+
+        DrawUiText("Console Output:", outputBoxX, inputBoxY + inputBoxH + 20, 22, DARKGRAY);
+        DrawRectangle(outputBoxX, outputBoxY, outputBoxW, outputBoxH, consoleBg);
+        DrawRectangleLines(outputBoxX, outputBoxY, outputBoxW, outputBoxH, consoleBorder);
+        DrawUiText("PS decoder>", outputBoxX + 10, outputBoxY - 26, 18, consoleAccent);
+
+        const int copyBtnW = 126;
+        const int copyBtnH = 28;
+        const int copyBtnX = outputBoxX + outputBoxW - copyBtnW - 8;
+        const int copyBtnY = outputBoxY - 32;
+        const Rectangle copyBtnRect = {(float)copyBtnX, (float)copyBtnY, (float)copyBtnW, (float)copyBtnH};
+        const bool mouseOverCopyBtn = CheckCollisionPointRec(GetMousePosition(), copyBtnRect);
+        DrawRectangle(copyBtnX, copyBtnY, copyBtnW, copyBtnH, mouseOverCopyBtn ? (Color){42, 58, 46, 255} : (Color){30, 40, 34, 255});
+        DrawRectangleLines(copyBtnX, copyBtnY, copyBtnW, copyBtnH, consoleBorder);
+        DrawUiText("Copy Output", copyBtnX + 16, copyBtnY + 5, 18, consoleAccent);
 
         std::vector<std::string> outputLines;
         bool renderedStructuredOutput = false;
@@ -1850,15 +1901,15 @@ int main()
             const bool hasStructuredSections =
                 (headerIndex >= 0) && (validationIndex > headerIndex) && (dispatchIndex > validationIndex);
 
-            const int contentTop = inputBoxY + inputBoxH + 50;
-            const int outputFontSize = 18;
-            const int lineSpacing = 22;
+            const int contentTop = outputBoxY + 12;
+            const int outputFontSize = 22;
+            const int lineSpacing = 30;
 
             auto drawLines = [&](const std::vector<std::string>& source, int x, int y, Color color) -> int {
                 int currentY = y;
                 for (const std::string& line : source) {
                     if (!line.empty()) {
-                        DrawText(line.c_str(), x, currentY, outputFontSize, color);
+                        DrawTextEx(uiFont, line.c_str(), {(float)x, (float)currentY}, (float)outputFontSize, 1.0f, color);
                     }
                     currentY += lineSpacing;
                 }
@@ -1878,8 +1929,8 @@ int main()
                 const int leftX = sidePadding;
                 const int rightX = sidePadding + columnWidth + sectionGap;
 
-                int leftBottom = drawLines(headerLines, leftX, contentTop, BLUE);
-                int rightBottom = drawLines(abmlLines, rightX, contentTop, DARKBLUE);
+                int leftBottom = drawLines(headerLines, leftX, contentTop, consoleText);
+                int rightBottom = drawLines(abmlLines, rightX, contentTop, consoleText);
 
                 const int jSeriesTop = std::max(leftBottom, rightBottom) + 12;
                 const int viewportBottom = GetScreenHeight() - 12;
@@ -1900,14 +1951,14 @@ int main()
                     for (int i = jSeriesScrollLines; i < static_cast<int>(jSeriesLines.size()); ++i) {
                         if (currentY > viewportBottom - lineSpacing) break;
                         if (!jSeriesLines[static_cast<size_t>(i)].empty()) {
-                            DrawText(jSeriesLines[static_cast<size_t>(i)].c_str(), leftX, currentY, outputFontSize, MAROON);
+                            DrawTextEx(uiFont, jSeriesLines[static_cast<size_t>(i)].c_str(), {(float)leftX, (float)currentY}, (float)outputFontSize, 1.0f, consoleText);
                         }
                         currentY += lineSpacing;
                     }
                     EndScissorMode();
 
                     if (maxScrollLines > 0) {
-                        DrawText("Mouse wheel: scroll J-Series details", leftX, viewportBottom - 18, 16, DARKGRAY);
+                        DrawUiText("Mouse wheel: scroll J-Series details", leftX, viewportBottom - 20, 18, consoleAccent);
                     }
                 }
             } else {
@@ -1919,6 +1970,8 @@ int main()
         {
             const int lineSpacing = 30;
             const int outputPadding = 8;
+            const float outputFontSize = 22.0f;
+            const float outputSpacing = 1.0f;
             const int viewportHeight = outputBoxH - (2 * outputPadding);
             int totalContentHeight = static_cast<int>(outputLines.size()) * lineSpacing;
             float maxScroll = static_cast<float>(totalContentHeight - viewportHeight);
@@ -1928,12 +1981,6 @@ int main()
             }
 
             const Vector2 mousePos = GetMousePosition();
-            const bool mouseOverOutput = CheckCollisionPointRec(mousePos, (Rectangle){
-                static_cast<float>(outputBoxX),
-                static_cast<float>(outputBoxY),
-                static_cast<float>(outputBoxW),
-                static_cast<float>(outputBoxH)
-            });
 
             const int scrollbarTrackWidth = 10;
             const int scrollbarMargin = 4;
@@ -1977,7 +2024,98 @@ int main()
             };
             const bool mouseOverScrollbar = CheckCollisionPointRec(mousePos, scrollbarTrack);
 
-            if (mouseOverOutput || mouseOverScrollbar)
+            auto normalizeSelection = [&](int& startLine, int& startCol, int& endLine, int& endCol)
+            {
+                if (startLine > endLine || (startLine == endLine && startCol > endCol))
+                {
+                    std::swap(startLine, endLine);
+                    std::swap(startCol, endCol);
+                }
+            };
+
+            auto clampCursorToOutput = [&](const Vector2& pos, int& lineOut, int& colOut)
+            {
+                if (outputLines.empty())
+                {
+                    lineOut = -1;
+                    colOut = 0;
+                    return;
+                }
+
+                const float textTop = static_cast<float>(outputBoxY + outputPadding) - outputScrollOffset;
+                int line = static_cast<int>((pos.y - textTop) / static_cast<float>(lineSpacing));
+                if (line < 0) line = 0;
+                if (line >= static_cast<int>(outputLines.size())) line = static_cast<int>(outputLines.size()) - 1;
+
+                const std::string& targetLine = outputLines[static_cast<std::size_t>(line)];
+                const float localX = pos.x - static_cast<float>(outputBoxX + outputPadding);
+                if (localX <= 0.0f)
+                {
+                    lineOut = line;
+                    colOut = 0;
+                    return;
+                }
+
+                int bestCol = static_cast<int>(targetLine.size());
+                for (int c = 0; c <= static_cast<int>(targetLine.size()); ++c)
+                {
+                    const std::string prefix = targetLine.substr(0, static_cast<std::size_t>(c));
+                    const float w = MeasureTextEx(uiFont, prefix.c_str(), outputFontSize, outputSpacing).x;
+                    if (w >= localX)
+                    {
+                        bestCol = c;
+                        break;
+                    }
+                }
+
+                lineOut = line;
+                colOut = bestCol;
+            };
+
+            auto hasSelection = [&]() -> bool
+            {
+                return selectionStartLine >= 0 && selectionEndLine >= 0 &&
+                       (selectionStartLine != selectionEndLine || selectionStartColumn != selectionEndColumn);
+            };
+
+            auto buildSelectedText = [&]() -> std::string
+            {
+                if (!hasSelection() || outputLines.empty())
+                {
+                    return std::string();
+                }
+
+                int startLine = selectionStartLine;
+                int startCol = selectionStartColumn;
+                int endLine = selectionEndLine;
+                int endCol = selectionEndColumn;
+                normalizeSelection(startLine, startCol, endLine, endCol);
+
+                if (startLine < 0 || endLine >= static_cast<int>(outputLines.size()))
+                {
+                    return std::string();
+                }
+
+                std::ostringstream selected;
+                for (int line = startLine; line <= endLine; ++line)
+                {
+                    const std::string& text = outputLines[static_cast<std::size_t>(line)];
+                    int from = 0;
+                    int to = static_cast<int>(text.size());
+                    if (line == startLine) from = std::max(0, std::min(startCol, static_cast<int>(text.size())));
+                    if (line == endLine) to = std::max(0, std::min(endCol, static_cast<int>(text.size())));
+                    if (to < from) std::swap(to, from);
+
+                    selected << text.substr(static_cast<std::size_t>(from), static_cast<std::size_t>(to - from));
+                    if (line < endLine)
+                    {
+                        selected << "\n";
+                    }
+                }
+                return selected.str();
+            };
+
+            if (mouseOverOutputPanel || mouseOverScrollbar)
             {
                 outputScrollOffset -= GetMouseWheelMove() * static_cast<float>(lineSpacing);
                 if (IsKeyPressed(KEY_PAGE_DOWN)) outputScrollOffset += static_cast<float>(viewportHeight);
@@ -1986,6 +2124,24 @@ int main()
                 if (IsKeyPressed(KEY_END)) outputScrollOffset = maxScroll;
                 if (IsKeyPressed(KEY_DOWN)) outputScrollOffset += static_cast<float>(lineSpacing);
                 if (IsKeyPressed(KEY_UP)) outputScrollOffset -= static_cast<float>(lineSpacing);
+            }
+
+            if (mouseOverOutputPanel && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                clampCursorToOutput(mousePos, selectionStartLine, selectionStartColumn);
+                selectionEndLine = selectionStartLine;
+                selectionEndColumn = selectionStartColumn;
+                isSelectingOutput = (selectionStartLine >= 0);
+            }
+
+            if (isSelectingOutput && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            {
+                clampCursorToOutput(mousePos, selectionEndLine, selectionEndColumn);
+            }
+
+            if (isSelectingOutput && IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            {
+                isSelectingOutput = false;
             }
 
             if (maxScroll > 0.0f)
@@ -2038,28 +2194,92 @@ int main()
                 int y = outputBoxY + outputPadding - static_cast<int>(outputScrollOffset);
                 for (std::size_t index = 0; index < outputLines.size(); ++index)
                 {
-                    DrawText(outputLines[index].c_str(), outputBoxX + outputPadding, y, 22, BLUE);
+                    int normStartLine = selectionStartLine;
+                    int normStartCol = selectionStartColumn;
+                    int normEndLine = selectionEndLine;
+                    int normEndCol = selectionEndColumn;
+                    if (hasSelection())
+                    {
+                        normalizeSelection(normStartLine, normStartCol, normEndLine, normEndCol);
+                        const int lineNo = static_cast<int>(index);
+                        if (lineNo >= normStartLine && lineNo <= normEndLine)
+                        {
+                            const std::string& lineText = outputLines[index];
+                            int selFrom = 0;
+                            int selTo = static_cast<int>(lineText.size());
+                            if (lineNo == normStartLine) selFrom = std::max(0, std::min(normStartCol, static_cast<int>(lineText.size())));
+                            if (lineNo == normEndLine) selTo = std::max(0, std::min(normEndCol, static_cast<int>(lineText.size())));
+                            if (selTo < selFrom) std::swap(selTo, selFrom);
+
+                            const std::string prefixFrom = lineText.substr(0, static_cast<std::size_t>(selFrom));
+                            const std::string prefixTo = lineText.substr(0, static_cast<std::size_t>(selTo));
+                            const float fromX = static_cast<float>(outputBoxX + outputPadding) + MeasureTextEx(uiFont, prefixFrom.c_str(), outputFontSize, outputSpacing).x;
+                            const float toX = static_cast<float>(outputBoxX + outputPadding) + MeasureTextEx(uiFont, prefixTo.c_str(), outputFontSize, outputSpacing).x;
+                            if (toX > fromX)
+                            {
+                                DrawRectangle(static_cast<int>(fromX), y + 2, static_cast<int>(toX - fromX), lineSpacing - 4, (Color){74, 115, 86, 180});
+                            }
+                        }
+                    }
+
+                    DrawTextEx(uiFont, outputLines[index].c_str(), {(float)(outputBoxX + outputPadding), (float)y}, outputFontSize, outputSpacing, consoleText);
                     y += lineSpacing;
                 }
                 EndScissorMode();
             }
             else
             {
-                DrawText("No output yet. Submit a message to decode.", outputBoxX + outputPadding, outputBoxY + outputPadding, 20, GRAY);
+                DrawUiText("No output yet. Submit a message to decode.", outputBoxX + outputPadding, outputBoxY + outputPadding, 20, consoleAccent);
             }
 
-            DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){225, 225, 225, 255});
+            DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){38, 48, 43, 255});
 
             if (maxScroll > 0.0f)
             {
-                DrawRectangle(scrollbarX, thumbY, scrollbarTrackWidth, thumbHeight, (Color){140, 140, 140, 255});
+                DrawRectangle(scrollbarX, thumbY, scrollbarTrackWidth, thumbHeight, consoleBorder);
             }
             else
             {
-                DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){190, 190, 190, 255});
+                DrawRectangle(scrollbarX, scrollbarY, scrollbarTrackWidth, scrollbarH, (Color){60, 70, 64, 255});
             }
 
-            DrawText("Mouse wheel to scroll output", outputBoxX + outputBoxW - 280, outputBoxY - 28, 18, DARKGRAY);
+            DrawUiText("Mouse wheel to scroll output", outputBoxX + outputBoxW - 320, outputBoxY - 60, 17, consoleAccent);
+
+            if (mouseOverOutputPanel && hasSelection())
+            {
+                DrawUiText("Selection active (Ctrl+C copies selection)", outputBoxX + 10, outputBoxY - 60, 16, consoleAccent);
+            }
+
+            const bool wantsCopy = (mouseOverCopyBtn && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) ||
+                                   (mouseOverOutputPanel && IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) ||
+                                   (mouseOverOutputPanel && (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) && IsKeyPressed(KEY_C));
+            if (wantsCopy)
+            {
+                std::string textToCopy = buildSelectedText();
+                if (textToCopy.empty())
+                {
+                    textToCopy = output;
+                }
+
+                if (!textToCopy.empty())
+                {
+                    SetClipboardText(textToCopy.c_str());
+                    copyToastMessage = hasSelection() ? "Selection copied to clipboard" : "Output copied to clipboard";
+                }
+                else
+                {
+                    copyToastMessage = "No output to copy";
+                }
+                copyToastFrames = 120;
+            }
+        }
+
+        if (copyToastFrames > 0)
+        {
+            DrawRectangle(outputBoxX + 12, outputBoxY + outputBoxH - 40, 260, 28, (Color){30, 45, 36, 230});
+            DrawRectangleLines(outputBoxX + 12, outputBoxY + outputBoxH - 40, 260, 28, consoleBorder);
+            DrawUiText(copyToastMessage.c_str(), outputBoxX + 20, outputBoxY + outputBoxH - 34, 16, consoleAccent);
+            --copyToastFrames;
         }
 
         int key = GetCharPressed();
@@ -2119,6 +2339,12 @@ int main()
         }
         EndDrawing();
     }
+
+    if (hasCustomUiFont)
+    {
+        UnloadFont(uiFont);
+    }
+    CloseWindow();
 }
 
             
